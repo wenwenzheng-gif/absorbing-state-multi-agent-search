@@ -9,6 +9,9 @@ processed data, and analysis tools for the paper. We study how communication
 suppresses the proliferation of incorrect hypotheses in multi-agent search,
 using an absorbing-state framework to predict a critical communication degree.
 
+The schematic below illustrates one round of the search process, showing how
+candidates are selected, verified, shared across neighboring agents, and pruned.
+
 <p align="center">
   <img src="assets/fig1.png" width="900">
 </p>
