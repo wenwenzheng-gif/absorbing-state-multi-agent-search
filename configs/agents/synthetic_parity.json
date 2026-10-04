@@ -1,0 +1,16 @@
+{
+  "name": "synthetic_parity",
+  "protocol_version": "agent_v1",
+  "agents": 12,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [0, 2, 5, 11],
+  "task_seeds": [12345, 777, 20260918],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {"kind": "synthetic", "families": 8, "variants": 4, "task_size": 4},
+  "policy": {"kind": "uniform"},
+  "output_root": "runs/agents",
+  "notes": "E0: must match src.scaling_model.run_episode step for step on every scientific field."
+}

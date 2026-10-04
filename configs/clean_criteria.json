@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "supply_clean": {
+    "min_budget_utilization": {
+      "operator": ">=",
+      "threshold": 0.85
+    },
+    "min_message_availability": {
+      "operator": ">=",
+      "threshold": 0.85
+    },
+    "min_candidate_capacity_ratio": {
+      "operator": ">=",
+      "threshold": 0.9
+    },
+    "max_frontier_empty_fraction": {
+      "operator": "<=",
+      "threshold": 0.25
+    },
+    "max_excess_frontier_jaccard": {
+      "operator": "<=",
+      "threshold": 0.05
+    }
+  },
+  "independence_clean": {
+    "max_duplicate_evidence_fraction": {
+      "operator": "<=",
+      "threshold": 0.2
+    },
+    "max_evidence_excess_jaccard": {
+      "operator": "<=",
+      "threshold": 0.3
+    },
+    "max_degree_density": {
+      "operator": "<=",
+      "threshold": 0.4
+    }
+  },
+  "theory_clean": "SUPPLY-CLEAN and INDEPENDENCE-CLEAN",
+  "classification_blinding": "No theory-error column is available when labels are frozen."
+}

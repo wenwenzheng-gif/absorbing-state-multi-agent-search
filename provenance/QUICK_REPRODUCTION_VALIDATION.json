@@ -1,0 +1,81 @@
+{
+  "generated_utc": "2026-09-17T23:20:57.472337+00:00",
+  "status": "PASS",
+  "tables": {
+    "master_resolved_cells.csv": {
+      "rows": 53,
+      "maximum_absolute_numeric_difference": 1.1102230246251565e-16
+    },
+    "global_fit_parameters.csv": {
+      "rows": 6,
+      "maximum_absolute_numeric_difference": 0.0
+    },
+    "global_fit_predictions.csv": {
+      "rows": 16,
+      "maximum_absolute_numeric_difference": 0.0
+    },
+    "one_factor_fits.csv": {
+      "rows": 10,
+      "maximum_absolute_numeric_difference": 0.0
+    },
+    "theory_error_summary.csv": {
+      "rows": 3,
+      "maximum_absolute_numeric_difference": 9.71445146547012e-17
+    },
+    "measured_effective_comparison.csv": {
+      "rows": 6,
+      "maximum_absolute_numeric_difference": 9.71445146547012e-17
+    }
+  },
+  "figures": {
+    "data_vs_theory.png": {
+      "shape": [
+        1375,
+        3321,
+        4
+      ],
+      "maximum_channel_difference": 0.0
+    },
+    "empirical_fit_vs_data.png": {
+      "shape": [
+        1487,
+        1819,
+        4
+      ],
+      "maximum_channel_difference": 0.0
+    },
+    "one_factor_scaling.png": {
+      "shape": [
+        1129,
+        4761,
+        4
+      ],
+      "maximum_channel_difference": 0.007843166589736938
+    },
+    "theory_ratio.png": {
+      "shape": [
+        1102,
+        4759,
+        4
+      ],
+      "maximum_channel_difference": 0.0
+    },
+    "logb_validation.png": {
+      "shape": [
+        1334,
+        3321,
+        4
+      ],
+      "maximum_channel_difference": 0.0
+    },
+    "redundancy_diagnostic.png": {
+      "shape": [
+        1308,
+        3210,
+        4
+      ],
+      "maximum_channel_difference": 0.0
+    }
+  },
+  "pdf_policy": "existence/nonempty; PDF metadata timestamps are not byte-stable"
+}

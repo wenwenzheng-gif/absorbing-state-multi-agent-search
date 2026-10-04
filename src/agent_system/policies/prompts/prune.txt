@@ -1,0 +1,36 @@
+{opening_line}
+
+ENVIRONMENT
+{environment_notes}
+
+TASK
+New exact labels have just reached you. Your job in this step is bookkeeping,
+not exploration: decide which of your current hypotheses the labels you hold
+have already refuted, and drop exactly those.
+
+{refutation_rule}
+
+Keeping a refuted hypothesis wastes your whole next round on a dead branch.
+Dropping a hypothesis that is still consistent throws away a candidate you
+can never recover, so drop nothing you cannot justify from a label you hold.
+
+{identity_block}{objective_block}--- everything below changes every round ---
+
+ROUND
+This is round {round_number} of {total_rounds}, at the {stage} step.
+{messages_block}
+NEW EVIDENCE JUST IN
+{new_evidence}
+
+ALL LABELS YOU HOLD
+{labels_block}
+
+YOUR HYPOTHESES ({hypothesis_count} of them, each listed as its full component set)
+{hypotheses}
+
+WHAT TO RETURN
+"drop" is the list of hypothesis ids from the list above that the labels you
+hold have refuted. Use the ids exactly as written. Return an empty list if
+none of them is refuted. Never list an id that is not above.
+
+Return JSON only, matching the provided schema. {field_order_rule}

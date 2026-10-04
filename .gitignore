@@ -1,0 +1,36 @@
+# Local credentials; preserve the public example.
+.env
+.env.*
+!.env.example
+
+# Generated runs and reproduction outputs, not frozen data/configuration.
+/runs/
+/reproduced/
+/logs/
+
+# Python environments, bytecode, build products, and tool caches.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+/build/
+/dist/
+*.egg-info/
+
+# Operating systems and editors.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.ipynb_checkpoints/

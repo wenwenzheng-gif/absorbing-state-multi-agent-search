@@ -1,0 +1,66 @@
+{
+  "name": "llm_physics",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    20,
+    24,
+    39
+  ],
+  "task_seeds": [
+    82240,
+    82241,
+    82242,
+    82243
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "physics",
+    "families": 16,
+    "variants": 1,
+    "task_size": 4,
+    "physics_mode": "support_v1",
+    "initial_observations": 2,
+    "heldout_size": 32
+  },
+  "policy": {
+    "kind": "llm_full",
+    "planner": "disagreement_v1",
+    "planner_max_conditions": 12,
+    "planner_max_parents": 2,
+    "llm": {
+      "model": "",
+      "base_url": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 300.0,
+      "transport_retries": 3,
+      "repair_attempts": 3,
+      "max_output_tokens": 3072,
+      "temperature": 0.2,
+      "enable_thinking": false,
+      "max_requests": 200000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "device",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "runs/agents",
+  "notes": "Final LLM experiment, physics cell: support library |V|=16, T=4, b=2, m=1, N=40. Paired rule control: rule_physics."
+}

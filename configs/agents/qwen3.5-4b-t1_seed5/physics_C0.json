@@ -1,0 +1,61 @@
+{
+  "name": "qwen3.5-4b-t1_seed5_physics_C0",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    24,
+    39
+  ],
+  "task_seeds": [
+    82244
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "physics",
+    "families": 16,
+    "variants": 1,
+    "task_size": 4,
+    "physics_mode": "support_v1",
+    "initial_observations": 2,
+    "heldout_size": 32
+  },
+  "policy": {
+    "kind": "llm_full",
+    "planner": "disagreement_v1",
+    "planner_max_conditions": 12,
+    "planner_max_parents": 2,
+    "llm": {
+      "model": "Qwen/Qwen3.5-4B",
+      "base_url": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 300.0,
+      "transport_retries": 3,
+      "repair_attempts": 3,
+      "max_output_tokens": 3072,
+      "temperature": 1.0,
+      "enable_thinking": false,
+      "prompt_version": "v4",
+      "max_requests": 200000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "simple",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true,
+      "communication_mode": "fixed"
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "runs/agents/qwen3.5-4b-t1_seed5",
+  "notes": "C0: team objective, fixed communication. Experiment settings copied from v3_llm_phys_v16T4b2_v4.json."
+}

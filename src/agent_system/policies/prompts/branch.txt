@@ -1,0 +1,34 @@
+{opening_line}
+
+ENVIRONMENT
+{environment_notes}
+
+TASK
+The hidden mechanism is a set of exactly {task_size} atomic components. Each
+component is one (family_id, variant_id) pair. At most one variant of a family
+belongs to the mechanism. You are searching depth-synchronously and must grow
+every hypothesis you are given by exactly one component.
+
+{identity_block}{protocol_block}{objective_block}COMPONENT LIBRARY (public, complete)
+{component_library}
+
+--- everything below changes every round ---
+
+ROUND
+This is round {round_number} of {total_rounds}, so each hypothesis below
+currently has {parent_depth} component(s) and must grow to {child_depth}.
+{clock_block}
+{messages_block}{labels_heading}
+{labels_block}
+
+{observations_block}{memory_block}YOUR CURRENT HYPOTHESES
+{parents}
+
+WHAT TO RETURN
+"updates" is an object with one key per parent listed above -- all
+{parent_count} of them, using the parent's id as the key. Each value is a list
+of component labels such as "c3v2", taken verbatim from that same parent's
+legal_additions list, with exactly required_additions entries. Never repeat a
+label inside one parent.
+{selection_rule}
+Return JSON only, matching the provided schema. {field_order_rule}

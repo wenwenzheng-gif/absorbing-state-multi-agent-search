@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "trajectory_seed_ranges": {
+    "v2": {
+      "seed_start": 1620001,
+      "episodes": [
+        128,
+        512
+      ]
+    },
+    "v3_width": {
+      "seed_start": 1620001,
+      "episodes": [
+        128,
+        512
+      ]
+    },
+    "v3_conditional": {
+      "seed_start": 1620001,
+      "episodes": [
+        128
+      ]
+    },
+    "logb": {
+      "seed_start": 1740001,
+      "episodes": [
+        128,
+        512
+      ]
+    }
+  },
+  "paired_threshold_bootstrap": {
+    "v2_base_seed": 20260917,
+    "v3_width_base_seed": 20260931,
+    "logb_base_seed": 20261017,
+    "cell_stride": 100003,
+    "draws": 5000,
+    "per_cell_seed_is_explicit_in_registry": true
+  },
+  "global_fit_bootstrap": {
+    "seed": 2026091704,
+    "draws": 5000
+  }
+}

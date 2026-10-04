@@ -1,0 +1,5 @@
+# Additional dependencies for src/agent_system (the LLM-agent experiment stack).
+# The baseline requirements.txt is left untouched.
+scipy>=1.11
+httpx>=0.27
+python-dotenv>=1.0

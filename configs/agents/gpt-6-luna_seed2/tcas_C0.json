@@ -1,0 +1,61 @@
+{
+  "name": "gpt-6-luna_seed2_tcas_C0",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    6,
+    10,
+    14,
+    18,
+    24,
+    39
+  ],
+  "task_seeds": [
+    87201
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "tcas",
+    "families": 12,
+    "variants": 10,
+    "task_size": 6,
+    "tcas_space": "v2_1036800",
+    "tcas_evidence": "component",
+    "heldout_size": 512,
+    "tcas_bank_size": 64
+  },
+  "policy": {
+    "kind": "llm_full",
+    "llm": {
+      "model": "gpt-6-luna",
+      "base_url": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 300.0,
+      "transport_retries": 8,
+      "repair_attempts": 3,
+      "max_output_tokens": 3072,
+      "temperature": null,
+      "enable_thinking": false,
+      "prompt_version": "v4",
+      "max_requests": 200000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "simple",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true,
+      "communication_mode": "fixed",
+      "api_style": "openai",
+      "reasoning_effort": "none"
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "runs/agents/gpt-6-luna_seed2",
+  "notes": "C0: team objective, fixed communication. Experiment settings copied from v3_llm_tcas_T6b2_v4.json."
+}

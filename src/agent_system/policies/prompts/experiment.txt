@@ -1,0 +1,33 @@
+{opening_line}
+
+ENVIRONMENT
+{environment_notes}
+
+TASK
+You hold one experiment slot per round. An experiment tests exactly one
+candidate component and returns its exact label (in the mechanism / not in the
+mechanism). {condition_help}
+
+{identity_block}{protocol_block}{objective_block}COMPONENT LIBRARY (public, complete)
+{component_library}
+
+{condition_block}
+--- everything below changes every round ---
+
+ROUND
+This is round {round_number} of {total_rounds}.
+{clock_block}
+{messages_block}{labels_heading}
+{labels_block}
+
+{observations_block}{memory_block}CANDIDATES YOU MAY TEST THIS SLOT
+{candidates}
+
+WHAT TO RETURN
+"choice" is one entry of the form "<component>|<parent_id>", naming the
+component you test and one parent that proposed it, for example
+"c3v2|h_c0v1_c3v2". {condition_rule}
+{selection_rule}
+Do not state or guess the outcome yourself.
+
+Return JSON only, matching the provided schema. {field_order_rule}

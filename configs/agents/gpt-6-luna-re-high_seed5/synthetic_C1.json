@@ -1,0 +1,55 @@
+{
+  "name": "gpt-6-luna-re-high_seed5_synthetic_C1",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    8,
+    16,
+    24,
+    39
+  ],
+  "task_seeds": [
+    87004
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "synthetic",
+    "families": 8,
+    "variants": 2,
+    "task_size": 4
+  },
+  "policy": {
+    "kind": "llm_full",
+    "llm": {
+      "model": "gpt-6-luna",
+      "base_url": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 1800.0,
+      "transport_retries": 8,
+      "repair_attempts": 3,
+      "max_output_tokens": 128000,
+      "temperature": null,
+      "enable_thinking": false,
+      "prompt_version": "v4",
+      "max_requests": 200000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "simple",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true,
+      "communication_mode": "free",
+      "api_style": "openai",
+      "reasoning_effort": "high"
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "runs/agents/gpt-6-luna-re-high_seed5",
+  "notes": "C1: team objective, free communication. Experiment settings copied from v3_llm_abl_toy_05_abcde.json."
+}

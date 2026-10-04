@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this code or its results, please cite the paper below."
+type: software
+title: "Absorbing State Phase Transitions in Multi-Agent Search"
+authors:
+  - family-names: Zheng
+    given-names: Wenwen
+  - family-names: Yang
+    given-names: Yuzhe
+  - family-names: Qu
+    given-names: Helen
+  - family-names: Wang
+    given-names: Xin Eric
+  - family-names: Jeong
+    given-names: Haewon
+preferred-citation:
+  type: article
+  title: "Absorbing State Phase Transitions in Multi-Agent Search"
+  authors:
+    - family-names: Zheng
+      given-names: Wenwen
+    - family-names: Yang
+      given-names: Yuzhe
+    - family-names: Qu
+      given-names: Helen
+    - family-names: Wang
+      given-names: Xin Eric
+    - family-names: Jeong
+      given-names: Haewon
+  year: 2026
+  journal: arXiv
+  url: "https://arxiv.org/abs/2609.38327"
+  identifiers:
+    - type: other
+      value: "arXiv:2609.38327"

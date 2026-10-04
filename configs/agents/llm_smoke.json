@@ -1,0 +1,48 @@
+{
+  "name": "llm_smoke",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    8
+  ],
+  "task_seeds": [
+    87000
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "synthetic",
+    "families": 8,
+    "variants": 2,
+    "task_size": 4
+  },
+  "policy": {
+    "kind": "llm_full",
+    "llm": {
+      "model": "",
+      "base_url": "",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 300.0,
+      "transport_retries": 3,
+      "repair_attempts": 3,
+      "max_output_tokens": 3072,
+      "temperature": 0.2,
+      "enable_thinking": false,
+      "max_requests": 5000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "device",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "runs/agents",
+  "notes": "Quick end-to-end check of the final LLM setting before launching llm_toy / llm_physics / llm_tcas."
+}
