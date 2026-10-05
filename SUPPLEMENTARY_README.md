@@ -20,7 +20,7 @@ Yuzhe Yang, Helen Qu, Xin Eric Wang and Haewon Jeong
 | `configs/agents/<tag>_seed<i>/` | The exact configs of every LLM-agent run: 9 files per folder (3 environments × policies C0/C1/I1), one task seed per folder, seeds 1–6. |
 | `scripts/` | Drivers for the LLM-agent runs: `make_configs.py` (generates `configs/agents`), `run_experiments.sh`, `merge_runs.py` (pools seeds), `analyze.sh` / `dc_table.py` (d_c tables), `check_vllm.sh` (endpoint check). |
 | `serving/serve_vllm.sh` | The vLLM command used to serve the Qwen3.5 models. |
-| `data/`, `provenance/` | Processed data and bootstrap draws for the rule-based results; reference values and file hashes. |
+| `data/` | Processed data and bootstrap draws for the rule-based results. |
 | `results/llm_agents/<tag>/dc_table.{md,csv}` | Pooled (six-seed) d_c tables of every LLM-agent experiment, as produced by `scripts/analyze.sh`. |
 | `tests/` | Unit and regression tests (`python -m pytest -q tests`). |
 
@@ -46,7 +46,7 @@ python reproduce.py --quick    # refit and redraw the figures from the compact p
 python reproduce.py --full     # rerun every frozen simulation, then the bootstrap, classification and fit
 ```
 
-`--quick` checks regenerated tables against `data/` and the fit uses the numerical references in `provenance/`. See [docs/reproducibility.md](docs/reproducibility.md), §13.
+`--quick` checks regenerated tables against the included processed data in `data/`. See [docs/reproducibility.md](docs/reproducibility.md), §13.
 
 ## B. LLM-agent experiments
 

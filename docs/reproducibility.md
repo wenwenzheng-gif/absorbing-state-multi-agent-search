@@ -136,17 +136,10 @@ The frozen inputs are `configs/final_parameter_registry.{csv,json}` (all 53 cell
 
 
 
-## Documentation and checksums
+## Documentation
 
 Run commands from the repository root. The additional agent dependencies are needed
 by the complete test suite; deterministic quick/full reproduction only needs
 `requirements.txt`. For the LLM protocol, see [LLM experiments](llm_experiments.md).
-
-`provenance/FILE_HASHES.sha256` is the preserved original supplementary-package
-manifest. `provenance/PUBLIC_FILE_HASHES.sha256` verifies the public-review tree:
-
-```bash
-sha256sum -c provenance/PUBLIC_FILE_HASHES.sha256
-```
 
 No full simulation is needed to inspect the included processed results.

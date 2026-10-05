@@ -105,7 +105,6 @@ ignored `.env` file. LLM runs may incur provider charges.
 | `results/llm_agents/` | Pooled LLM critical-degree tables |
 | `scripts/`, `serving/` | Experiment drivers, pooling, analysis, and local vLLM launcher |
 | `tests/` | Existing unit and regression tests |
-| `provenance/` | Source-archive records, numerical references, and checksum manifests |
 | `docs/` | Detailed deterministic and LLM documentation |
 
 ## Data and results
@@ -137,6 +136,4 @@ Machine-readable citation metadata is provided in [CITATION.cff](CITATION.cff).
 
 ## License
 
-**License selection pending author decision.** [LICENSE.txt](LICENSE.txt) is an
-explicit placeholder and does not grant a software license. Third-party
-dependencies retain their own licenses.
+This project is licensed under the MIT License. See [LICENSE.txt](LICENSE.txt) for details.
