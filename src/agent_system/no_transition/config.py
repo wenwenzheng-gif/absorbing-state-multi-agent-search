@@ -24,6 +24,18 @@ def load_config(path: Path) -> dict:
     return config
 
 
+def resolved_llm_settings(config: dict, env_values: dict | None = None) -> dict:
+    """Pin the user-requested snapshot without changing frozen task resources."""
+    provider = json.loads((ROOT / "configs/needle_chain/provider.json").read_text())
+    assert config["llm"]["model"] == provider["family_alias_in_frozen_resource_config"]
+    values = env_values or {}
+    settings = {**config["llm"], "model": provider["model"]}
+    if values.get("OPENAI_MODEL", provider["model"]) != provider["model"]:
+        raise ValueError("OPENAI_MODEL disagrees with the user-requested snapshot")
+    settings["base_url"] = values.get("OPENAI_BASE_URL") or provider["base_url"]
+    return settings
+
+
 def validate(config: dict) -> None:
     assert config["protocol_version"] == PROTOCOL
     n = config["agents"]

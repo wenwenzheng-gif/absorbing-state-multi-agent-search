@@ -8,7 +8,7 @@ import numpy as np
 import pytest
 
 from src.agent_system.no_transition.analysis import bh_adjust, degree_effect, logistic_fit, paired_endpoint, wilson
-from src.agent_system.no_transition.config import ROOT, fingerprint, load_config, request_bound, threshold
+from src.agent_system.no_transition.config import ROOT, fingerprint, load_config, request_bound, threshold, resolved_llm_settings
 from src.agent_system.no_transition.policies import NanoPolicy, ReferencePolicy, messages_and_schema
 from src.agent_system.no_transition.runner import run_episode
 from src.agent_system.policies.base import DecisionContext
@@ -28,6 +28,29 @@ def test_pilot_and_full_configuration_bounds():
     assert full['agents'] == 20 and len(full['deterministic_seeds']) >= 100
     assert request_bound(full) == 14400
     assert full['degrees'] == [0, 4, 8, 12, 16, 19]
+
+
+def test_exact_snapshot_is_used_without_mutating_frozen_resources():
+    c = config()
+    original = copy.deepcopy(c)
+    settings = resolved_llm_settings(c)
+    assert settings['model'] == 'gpt-5.4-nano-2026-03-17'
+    assert c == original
+    with pytest.raises(ValueError, match='snapshot'):
+        resolved_llm_settings(c, {'OPENAI_MODEL': 'gpt-5.4-nano'})
+
+
+def test_hosted_restore_reuses_committed_results_and_is_idempotent(tmp_path):
+    from src.agent_system.no_transition.hosted import restore_completed
+    source = ROOT / 'results/needle_chain/pilot'
+    c = config()
+    count = restore_completed(source, tmp_path, c)
+    assert count >= 480
+    assert restore_completed(source, tmp_path, c) == 0
+    assert len(list((tmp_path / 'episodes').glob('*/episode_result.json'))) == count
+    full = load_config(ROOT / 'configs/needle_chain/full.json')
+    with pytest.raises(ValueError, match='pilot-only'):
+        restore_completed(source, tmp_path, full)
 
 
 @pytest.mark.parametrize('k,n', [(0, 2), (2, 2), (0, 40), (40, 40), (1, 40)])

@@ -1,0 +1,7 @@
+{
+  "model": "gpt-5.4-nano-2026-03-17",
+  "family_alias_in_frozen_resource_config": "gpt-5.4-nano",
+  "reason": "Exact snapshot explicitly requested by the user before the first live pilot call. Resource configs and completed deterministic episodes remain unchanged.",
+  "base_url": "https://api.openai.com/v1",
+  "api_key_env": "OPENAI_API_KEY"
+}

@@ -7,7 +7,7 @@ from pathlib import Path
 
 from ..analysis.summarize import write_csv
 from .analysis import aggregate, diagnostics, load_episodes, projection, verify_invariants
-from .config import ROOT, load_config
+from .config import ROOT, load_config, resolved_llm_settings
 from .plots import plot_all
 
 
@@ -55,7 +55,8 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
              "Tests cover target atomicity and coverage, future-level read/guess rejection, concurrent submissions, barriers, sufficient/insufficient horizons, truthful one-hop communication, observation isolation, failed decisions, cached responses and interrupted episode replay, paired statistics and boundary serialization.", "",
              ("GPT integration has passed mocked backend tests but has not been validated with live API responses in this pilot." if not llm else "Live GPT response provenance is retained in the raw local ledgers and summarized below."), "",
              "## C. Exact pilot parameters", "", "```json", json.dumps(config, indent=2), "```", "",
-             "Model identifier came from `configs/agents/gpt-5.4-nano-t1_seed1/synthetic_C0.json`. Runtime response model IDs: " + (", ".join(sorted({m for e in llm for m in e["response_models"]})) or "none; no completed live model response") + ".",
+             "The frozen resource config retains the repository's `gpt-5.4-nano` family alias. Before any live call, the user explicitly pinned `gpt-5.4-nano-2026-03-17`; `configs/needle_chain/provider.json` locks that exact request model while preserving deterministic provenance. Effective model settings:", "```json", json.dumps(resolved_llm_settings(config), indent=2), "```",
+             "Runtime response model IDs: " + (", ".join(sorted({m for e in llm for m in e["response_models"]})) or "none; no completed live model response") + ".",
              "No scientific expectation or communication degree is included in decision prompts. The only degree-dependent input is naturally received neighbor evidence. API model sampling is stochastic; task/graph seeds are paired, and returned samples are archived. No seed-count reduction was applied.", ""]
     for kind, section in (("deterministic", "D. Deterministic results"), ("llm", "E. GPT-5.4 Nano results")):
         lines += ["## " + section, "", "| Condition | d | Episodes | Successes | P(success) | Wilson 95% CI |", "|---|---:|---:|---:|---:|---|"]
@@ -121,6 +122,7 @@ def analyze(run_dir: Path, output: Path, config: dict, execution: dict | None = 
         "measured_llm_runtime_projection_available": runtime["estimated_full_seconds"] is not None})
     write_csv(output / "by_degree.csv", rows)
     write_json(output / "config.json", config)
+    write_json(output / "provider_settings.json", resolved_llm_settings(config))
     write_json(output / "diagnostics.json", diag)
     write_json(output / "invariants.json", invariants)
     write_json(output / "runtime.json", runtime)

@@ -9,6 +9,7 @@ import asyncio
 import fcntl
 import importlib.metadata
 import json
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -17,7 +18,7 @@ import time
 from ..driver import load_env_file
 from ..storage import utc_now
 from .analysis import load_episodes, verify_invariants
-from .config import ROOT, fingerprint, git_sha, load_config, request_bound
+from .config import ROOT, fingerprint, git_sha, load_config, request_bound, resolved_llm_settings
 from .report import analyze, write_json
 from .runner import episode_id, run_episode
 
@@ -131,10 +132,15 @@ def main(argv=None) -> int:
             "package_versions": {name: importlib.metadata.version(name)
                                  for name in ("numpy", "networkx", "scipy", "matplotlib", "pandas", "httpx", "pytest")}}
         start = time.monotonic()
-        execution["invocations"].append({"started_at": utc_now(), "git_commit_sha": git_sha()})
+        execution["resolved_model"] = resolved_llm_settings(config)["model"]
+        execution["invocations"].append({"started_at": utc_now(), "git_commit_sha": git_sha(),
+            "github_run_id": os.getenv("GITHUB_RUN_ID"), "runner_repository": os.getenv("GITHUB_REPOSITORY"),
+            "package_versions": {name: importlib.metadata.version(name)
+                                 for name in ("numpy", "networkx", "scipy", "matplotlib", "pandas", "httpx", "pytest")}})
         try:
             summary = asyncio.run(execute(config, run_dir, output, load_env_file(args.env_file), execution))
             execution["status"] = "complete" if summary["complete"] else "incomplete"
+            execution.pop("last_error_type", None)
         except Exception as exc:
             execution["status"] = "interrupted"
             execution["last_error_type"] = type(exc).__name__

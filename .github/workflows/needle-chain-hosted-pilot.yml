@@ -1,0 +1,58 @@
+name: Needle Chain exact-snapshot pilot
+run-name: Needle Chain pilot / frozen source ${{ github.sha }}
+
+on:
+  push:
+    branches: [experiment/needle-chain-no-transition-v1]
+    paths: [.github/workflows/needle-chain-hosted-pilot.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: needle-chain-pilot-only
+  cancel-in-progress: false
+
+jobs:
+  pilot:
+    # Reuse the prior authorized Actions environment; no secret is copied.
+    if: github.repository == 'wenwenzheng-gif/absorb-state-new'
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: '1'
+      MPLBACKEND: Agg
+      MPLCONFIGDIR: ${{ github.workspace }}/runs/matplotlib-cache
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: wenwenzheng-gif/absorbing-state-multi-agent-search
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install declared experiment dependencies
+        run: python -m pip install -r requirements.txt -r requirements-agents.txt pytest
+      - name: Restore completed deterministic pilot without resampling
+        run: python -m src.agent_system.no_transition.hosted
+      - name: Run tests and exactly the 24 outstanding GPT pilot episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m src.agent_system.no_transition.cli --mode pilot 2>&1 | tee runs/needle_chain/hosted_stdout.log
+      - name: Preserve checkpoints and results even after interruption
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: needle-chain-pilot-${{ github.run_id }}
+          path: |
+            runs/needle_chain/
+            results/needle_chain/pilot/
+          retention-days: 30
+          if-no-files-found: error

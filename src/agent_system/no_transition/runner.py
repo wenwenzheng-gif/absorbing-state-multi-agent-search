@@ -12,7 +12,7 @@ from ..policies.base import DecisionContext
 from ..policies.openai_policy import LLMBackend
 from ..schemas import LLMConfig
 from ..storage import RunStore, iter_jsonl, utc_now
-from .config import fingerprint, git_sha, threshold
+from .config import fingerprint, git_sha, threshold, resolved_llm_settings
 from .environments import ChainEnvironment, NeedleEnvironment, candidate_order, reference_batch
 from .policies import NanoPolicy, ReferencePolicy
 
@@ -56,8 +56,11 @@ def api_metrics(store: RunStore) -> dict:
 async def run_episode(config: dict, condition: dict, kind: str, seed: int, degree: int,
                       run_dir: Path, env_values: dict | None = None, *, policy_override=None) -> dict:
     eid = episode_id(condition, kind, seed, degree)
+    settings = resolved_llm_settings(config, env_values) if kind == "llm" else {}
     identity = {"protocol": config["protocol_version"], "config_digest": fingerprint(config),
                 "condition": condition, "agent_type": kind, "seed": seed, "degree": degree}
+    if kind == "llm":
+        identity["provider_digest"] = fingerprint(settings)
     with RunStore(run_dir / "episodes", eid) as store:
         done = store.read_json("episode_result.json")
         if done is not None:
@@ -69,7 +72,7 @@ async def run_episode(config: dict, condition: dict, kind: str, seed: int, degre
             raise ValueError("configuration differs from checkpoint")
         if manifest is None:
             manifest = {"identity": identity, "git_commit_sha": git_sha(), "created_at": utc_now(),
-                        "model_settings": config["llm"] if kind == "llm" else {}}
+                        "model_settings": settings}
             store.write_manifest(manifest)
         start = time.monotonic()
         n, horizon = config["agents"], condition["horizon"]
@@ -95,10 +98,6 @@ async def run_episode(config: dict, condition: dict, kind: str, seed: int, degre
             policy = policy_override
         elif kind == "llm":
             values = env_values or {}
-            settings = dict(config["llm"])
-            settings["base_url"] = values.get("OPENAI_BASE_URL") or settings["base_url"]
-            if values.get("OPENAI_MODEL", settings["model"]) != settings["model"]:
-                raise ValueError("OPENAI_MODEL disagrees with preregistered exact model")
             key = values.get(settings["api_key_env"], "")
             backend = LLMBackend(LLMConfig(**settings), key)
             policy = NanoPolicy(backend, store)
@@ -190,8 +189,8 @@ async def run_episode(config: dict, condition: dict, kind: str, seed: int, degre
             success = environment.success
             result = {"identity": identity, "experiment": config["name"], "episode_id": eid,
                       "condition": condition["name"], "task": condition["task"], "agent_type": kind,
-                      "model": config["llm"]["model"] if kind == "llm" else None,
-                      "model_settings": config["llm"] if kind == "llm" else {},
+                      "model": settings.get("model"),
+                      "model_settings": settings,
                       "task_seed": seed, "seed": seed, "graph_seed": graph_seed,
                       "degree": degree, "num_agents": n, "graph": router.graph,
                       "budget": n * condition["batch_size"] * horizon, "horizon": horizon,

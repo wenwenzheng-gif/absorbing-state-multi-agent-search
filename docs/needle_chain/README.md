@@ -35,7 +35,11 @@ python -m src.agent_system.no_transition.cli --mode full --execute-full \
 ```
 
 Do not put credentials in command-line arguments or tracked files. The model
-is frozen as `gpt-5.4-nano`; a conflicting `OPENAI_MODEL` is rejected. No new
+is pinned by `configs/needle_chain/provider.json` to
+`gpt-5.4-nano-2026-03-17`; a conflicting `OPENAI_MODEL` is rejected. The original
+resource JSON retains the family alias to preserve completed deterministic
+episode identities. Effective settings are saved in every GPT episode and
+`provider_settings.json`. No new
 secret is required when a working existing environment is supplied.
 
 `runs/needle_chain/{pilot,full}` is ignored local working storage: per-episode
@@ -64,3 +68,14 @@ handling and limits of inference.
 There is no automatic full-run launch, push, merge or workflow dispatch in
 the CLI. After reviewing the completed pilot artifacts, the operator commits
 and pushes the experimental branch. `main` is not merged or rewritten.
+
+The user's follow-up authorized reuse of the prior hosted provider setup.
+`.github/workflows/needle-chain-hosted-pilot.yml` runs only in the prior
+`wenwenzheng-gif/absorb-state-new` Actions environment, on a dedicated branch
+with the same experiment name. It checks out the identical frozen commit from
+the canonical `absorbing-state-multi-agent-search` repository and consumes the
+existing `OPENAI_API_KEY` secret in place. The workflow has read-only repository
+permissions, restores completed episodes from their committed archive, runs
+only the pilot, and uploads checkpoints/results as a recoverable artifact.
+It does not push code or results. Canonical results are imported, reviewed,
+committed and pushed to the requested repository's experimental branch.

@@ -122,3 +122,21 @@ Two GPT task seeds cannot establish equivalence, prove the absence of a
 transition, or rule out effects at unobserved degrees. This pilot tests the
 implementation and provides preliminary evidence. The full configuration is
 implemented but must not be executed during this task.
+
+## User-authorized provider clarification before the first live call
+
+After the deterministic pilot, and before any live GPT request, the user
+specified the exact snapshot `gpt-5.4-nano-2026-03-17` and authorized reuse of
+the existing hosted provider environment. `configs/needle_chain/provider.json`
+pins this request model; the original resource config and all deterministic
+episode identities are preserved. No prompts, seeds, resource budgets,
+communication rules, task semantics or success criteria changed. All 24 GPT
+episodes will use this same snapshot and the original two paired seeds.
+
+The prior authenticated mechanism was verified from the `OPENAI_API_KEY`
+secret reference, `ubuntu-latest` runner configuration and successful Actions
+run `42325666972` in `wenwenzheng-gif/absorb-state-new`. Its log records the
+same snapshot in provider responses. The existing secret remains in that
+environment and is never printed, copied, committed or modified. A pilot-only
+workflow checks out the canonical experimental commit and preserves results
+as an artifact; neither repository's `main` changes.
