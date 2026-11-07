@@ -1,0 +1,18 @@
+{
+  "causal_limit": "Resource slack, schedule and guidance changed jointly; this pilot does not isolate the effect of extra slots or prove their necessity.",
+  "changed_batch_degrees": [
+    5
+  ],
+  "changed_batch_rounds": [
+    2
+  ],
+  "changed_batch_slots": 56,
+  "changed_batches": 7,
+  "first_round_changed_batches": 0,
+  "first_round_full_coverage": 18,
+  "first_round_target_discovery": 18,
+  "llm_high_episodes": 18,
+  "neighbor_known_negative_tests_in_changed_batches": 56,
+  "observed_second_pass_target_rescues": 0,
+  "successes": 18
+}

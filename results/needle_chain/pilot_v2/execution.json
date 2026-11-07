@@ -1,0 +1,39 @@
+{
+  "config_digest": "fae212f1a6f1c424f2480e0be272f5a61b8089748f46c9815cb654b4dff618d1",
+  "deterministic_wall_seconds": 3.0901075969999923,
+  "execution_wall_seconds": 134.99456628800002,
+  "full_executed": false,
+  "invocations": [
+    {
+      "git_commit_sha": "bd94e66c7b65edd797f6751f0ab30d132187f351",
+      "github_run_id": "42415318874",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T21:20:21+00:00",
+      "wall_seconds": 134.99456628800002
+    }
+  ],
+  "llm_wall_seconds": 124.762533031,
+  "package_versions": {
+    "httpx": "0.28.1",
+    "matplotlib": "3.10.8",
+    "networkx": "3.5",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "pytest": "9.2.0",
+    "scipy": "1.18.1"
+  },
+  "python": "3.13.18 (main, Oct 26 2026, 14:20:56) [GCC 13.3.0]",
+  "resolved_model": "gpt-5.4-nano-2026-03-17",
+  "source_sha": "bd94e66c7b65edd797f6751f0ab30d132187f351",
+  "started_at": "2026-11-07T21:20:21+00:00",
+  "status": "complete"
+}

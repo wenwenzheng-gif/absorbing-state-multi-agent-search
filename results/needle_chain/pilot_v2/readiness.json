@@ -1,0 +1,13 @@
+{
+  "absence_of_transition_established": false,
+  "deterministic_theory_checks_passed": true,
+  "full_run_authorized": false,
+  "full_run_executed": false,
+  "interpretation": "Operational readiness only; six paired seeds cannot establish equivalence or exclude an unobserved transition.",
+  "large_crossover_observed": false,
+  "observed_success_range": 0.0,
+  "reasons": [
+    "Structural and deterministic checks passed; coverage >=.9 and success >=.8 at every degree, with no large observed crossover."
+  ],
+  "status": "READY FOR FULL RUN"
+}

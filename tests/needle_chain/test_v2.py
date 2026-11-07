@@ -13,7 +13,7 @@ from src.agent_system.no_transition.environments import (NeedleEnvironment, cand
 from src.agent_system.no_transition.policies import (NEEDLE_PROMPT, CHAIN_PROMPT,
     NEEDLE_HIGH_V2_PROMPT, ReferencePolicy, messages_and_schema)
 from src.agent_system.no_transition.preservation import guard_v2_paths, verify_frozen_v1
-from src.agent_system.no_transition.report_v2 import analyze_v2, coverage_records, readiness
+from src.agent_system.no_transition.report_v2 import analyze_v2, coverage_records, readiness, observed_findings
 from src.agent_system.no_transition.runner import run_episode
 
 
@@ -114,6 +114,9 @@ def test_departures_count_multiset_matches_not_order_and_failures_survive(tmp_pa
     assert not record['success'] and record['total_tests'] == 96 and record['unique_candidates_tested'] == 1
     assert record['scheduled_candidates_followed'] == 2 and record['scheduled_candidates_replaced'] == 94
     assert record['target_in_nominal_schedule'] and not record['target_actually_tested']
+    findings = observed_findings([out])
+    assert findings['first_round_full_coverage'] == 0 and findings['successes'] == 0
+    assert findings['changed_batches'] == 12 and findings['observed_second_pass_target_rescues'] == 0
     assert readiness(aggregate([out], c), c, False, 'passed')['status'] == 'NOT READY'
 
 

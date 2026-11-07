@@ -1,0 +1,124 @@
+{
+  "agents": 6,
+  "analysis_seed": 77201,
+  "bootstrap_samples": 1000,
+  "conditions": [
+    {
+      "batch_size": 4,
+      "candidates": 1200,
+      "horizon": 2,
+      "name": "Needle-Low",
+      "task": "needle"
+    },
+    {
+      "batch_size": 8,
+      "candidates": 48,
+      "coverage_passes": 2,
+      "horizon": 2,
+      "name": "Needle-High",
+      "policy_variant": "needle_high_v2",
+      "task": "needle"
+    },
+    {
+      "batch_size": 1,
+      "chain_length": 8,
+      "horizon": 6,
+      "name": "Chain-Short-Horizon",
+      "task": "chain"
+    },
+    {
+      "batch_size": 1,
+      "chain_length": 8,
+      "horizon": 10,
+      "name": "Chain-Sufficient-Horizon",
+      "task": "chain"
+    }
+  ],
+  "degrees": [
+    0,
+    2,
+    5
+  ],
+  "deterministic_seeds": [
+    91000,
+    91001,
+    91002,
+    91003,
+    91004,
+    91005,
+    91006,
+    91007,
+    91008,
+    91009,
+    91010,
+    91011,
+    91012,
+    91013,
+    91014,
+    91015,
+    91016,
+    91017,
+    91018,
+    91019,
+    91020,
+    91021,
+    91022,
+    91023,
+    91024,
+    91025,
+    91026,
+    91027,
+    91028,
+    91029,
+    91030,
+    91031,
+    91032,
+    91033,
+    91034,
+    91035,
+    91036,
+    91037,
+    91038,
+    91039
+  ],
+  "graph_seed_offset": 400000,
+  "llm": {
+    "api_key_env": "OPENAI_API_KEY",
+    "api_style": "openai",
+    "base_url": "https://api.openai.com/v1",
+    "concurrency": 6,
+    "max_output_tokens": 256,
+    "max_requests": null,
+    "max_wall_seconds": null,
+    "model": "gpt-5.4-nano",
+    "per_agent_seed": false,
+    "reasoning_effort": "none",
+    "repair_attempts": 0,
+    "temperature": 1.0,
+    "timeout_s": 60.0,
+    "transport_retries": 2
+  },
+  "llm_seeds": [
+    91000,
+    91001
+  ],
+  "llm_seeds_by_condition": {
+    "Needle-High": [
+      91000,
+      91001,
+      91002,
+      91003,
+      91004,
+      91005
+    ]
+  },
+  "mode": "pilot",
+  "name": "needle-chain-no-transition-v2",
+  "pricing_source": "https://developers.openai.com/api/docs/models/gpt-5.4-nano",
+  "pricing_usd_per_million": {
+    "cached_input": 0.02,
+    "input": 0.2,
+    "output": 1.25
+  },
+  "protocol_version": "needle_chain_v2"
+}

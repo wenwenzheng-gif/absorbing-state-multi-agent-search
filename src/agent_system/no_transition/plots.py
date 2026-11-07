@@ -46,7 +46,12 @@ def plot_all(rows: list[dict], episodes: list[dict], output: Path, mode: str) ->
                             markerfacecolor="white" if kind == "llm" else color,
                             label=f"{label} (n={sub[0]['episodes']}/degree)")
                 ax.set_xticks(x)
-            ax.set_title(condition)
+            title_label = condition
+            if mode == "pilot v2":
+                sample = [r for r in rows if r["condition"] == condition and r["agent_type"] == "llm"]
+                if sample:
+                    title_label += f"\nGPT n={sample[0]['episodes']} per degree"
+            ax.set_title(title_label)
             ax.set_ylim(-.06, 1.06)
             ax.set_xlabel("Communication degree d")
             ax.grid(axis="y", alpha=.2)

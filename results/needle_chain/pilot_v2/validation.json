@@ -1,0 +1,27 @@
+{
+  "command": ".venv/bin/python -m pytest tests -q",
+  "frozen_v2_design_files_unchanged": 6,
+  "full_run_executed": false,
+  "hosted_pre_live_relevant_suite": {
+    "passed": 135,
+    "seconds": 15.88,
+    "subtests_passed": 12
+  },
+  "live_validation": "36 episodes with 792 successful calls and exact requested snapshot",
+  "offline_reproduction": "12 primary outputs reproduced byte-for-byte from the compact processed archive without API access",
+  "passed": 497,
+  "plot_visual_qa": "All four final PNGs inspected; sample sizes explicit; comparison legends outside data; vector PDFs exported from the same figures",
+  "pre_live_full_suite": {
+    "passed": 497,
+    "seconds": 19.72,
+    "skipped": 13,
+    "subtests_passed": 934
+  },
+  "seconds": 19.18,
+  "skipped": 13,
+  "structural_invariants": "passed across 516 episodes",
+  "subtests_passed": 934,
+  "v1_frozen_processed_files_unchanged": 22,
+  "v1_raw_files_unchanged": 2884,
+  "v2_raw_episode_files_unchanged_from_artifact": 3240
+}

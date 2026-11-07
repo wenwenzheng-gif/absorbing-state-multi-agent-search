@@ -46,3 +46,17 @@ The readiness status is an operational pilot decision, not proof of absence
 of a transition. Even READY FOR FULL RUN requires separate authorization.
 No v2 full design is registered here, and `full.json` remains the historical
 v1 full configuration.
+
+The completed [v2 report](../../results/needle_chain/pilot_v2/pilot_report_v2.md)
+classifies the pilot **READY FOR FULL RUN** under the preregistered operational
+criteria. GPT High succeeded in 6/6 seeds at each degree with full coverage;
+the six-seed sample does not prove absence of a transition. The recommended
+next step is to review this evidence and separately authorize a v2 full design
+that retains resource slack. Do not launch the unchanged v1 `full.json` as v2.
+
+Hosted run [42415318874](https://github.com/wenwenzheng-gif/absorb-state-new/actions/runs/42415318874)
+finished once, with 792 successful calls, zero retries and no additional model
+experiments. Its temporary runner branch was removed after verified import.
+[Post-execution analysis notes](analysis_notes_v2.md) distinguish reporting
+additions from the frozen design. `data_audit.json`, `validation.json` and
+`hosted_provenance.json` accompany the results. No full experiment was launched.

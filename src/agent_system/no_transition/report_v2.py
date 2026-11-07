@@ -70,6 +70,31 @@ def comparison_table(records: list[dict]) -> list[dict]:
             for (version, kind, degree), es in sorted(groups.items())]
 
 
+def observed_findings(episodes: list[dict]) -> dict:
+    high = [e for e in episodes if e["condition"] == "Needle-High" and e["agent_type"] == "llm"]
+    records = coverage_records(high, "v2")
+    by_id = {e["episode_id"]: e for e in high}
+    changes = [(r, batch) for r in records for batch in r["changed_batches"]]
+    known_negative_retests = 0
+    for r, batch in changes:
+        e = by_id[r["episode_id"]]
+        negatives = {m["record"]["candidate_tested"] for m in e["messages"]
+                     if m["receiver"] == batch["agent_id"] and m["received_round"] <= batch["round"]
+                     and m["record"]["candidate_result"] == "NOT TARGET"}
+        known_negative_retests += sum(x in negatives for x in batch["actual_valid"])
+    return {"llm_high_episodes": len(high), "successes": sum(e["success"] for e in high),
+            "first_round_full_coverage": sum(e["rounds"][0]["unique_coverage"] == 48 for e in high),
+            "first_round_target_discovery": sum(e["round_of_success"] == 1 for e in high),
+            "first_round_changed_batches": sum(b["round"] == 1 for _, b in changes),
+            "changed_batches": len(changes),
+            "changed_batch_degrees": sorted({r["degree"] for r, _ in changes}),
+            "changed_batch_rounds": sorted({b["round"] for _, b in changes}),
+            "changed_batch_slots": sum(len(b["actual_valid"]) for _, b in changes),
+            "neighbor_known_negative_tests_in_changed_batches": known_negative_retests,
+            "observed_second_pass_target_rescues": sum(e["round_of_success"] == 2 for e in high),
+            "causal_limit": "Resource slack, schedule and guidance changed jointly; this pilot does not isolate the effect of extra slots or prove their necessity."}
+
+
 def readiness(rows: list[dict], config: dict, complete: bool, structural_status: str) -> dict:
     high = [r for r in rows if r["condition"] == "Needle-High" and r["agent_type"] == "llm"]
     det = [r for r in rows if r["agent_type"] == "deterministic"]
@@ -97,7 +122,7 @@ def readiness(rows: list[dict], config: dict, complete: bool, structural_status:
 
 
 def comparison_figure(v1: list[dict], v2: list[dict], comparison: list[dict], output: Path) -> None:
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.2), layout="constrained")
+    fig, axes = plt.subplots(1, 3, figsize=(13, 4.8), layout="constrained")
     for ax, rows, title in zip(axes[:2], (v1, v2), ("A · v1: 48 slots = S", "B · v2: 96 slots = 2S")):
         for kind, (color, marker, label) in STYLES.items():
             sub = sorted([r for r in rows if r["condition"] == "Needle-High" and r["agent_type"] == kind], key=lambda r: r["degree"])
@@ -109,7 +134,7 @@ def comparison_figure(v1: list[dict], v2: list[dict], comparison: list[dict], ou
                     label=f"{label}, n={sub[0]['episodes']}/degree")
         ax.set_title(title)
         ax.set_ylabel("Success probability (Wilson 95% CI)")
-        ax.legend(loc="lower center", fontsize=8)
+        ax.legend(loc="upper center", bbox_to_anchor=(.5, -.2), fontsize=8)
     for version, color, marker in (("v1", "#6A6674", "o"), ("v2", "#7A3E9D", "s")):
         sub = sorted([r for r in comparison if r["version"] == version and r["agent_type"] == "llm"], key=lambda r: r["degree"])
         if sub:
@@ -117,7 +142,7 @@ def comparison_figure(v1: list[dict], v2: list[dict], comparison: list[dict], ou
                          color=color, marker=marker, label=f"GPT {version}, n={sub[0]['episodes']}/degree")
     axes[2].set_title("C · Realized GPT coverage")
     axes[2].set_ylabel("Mean unique candidates / 48")
-    axes[2].legend(loc="lower center", fontsize=8)
+    axes[2].legend(loc="upper center", bbox_to_anchor=(.5, -.2), fontsize=8)
     for ax in axes:
         ax.set_xlabel("Communication degree d")
         ax.set_xticks([0, 2, 5])
@@ -132,6 +157,7 @@ def comparison_figure(v1: list[dict], v2: list[dict], comparison: list[dict], ou
 
 def render_v2(config, episodes, rows, comparison, diag, runtime, decision, preservation, complete, provenance):
     shas = sorted({e["git_commit_sha"] for e in episodes})
+    observed = observed_findings(episodes)
     lines = ["# Needle / Chain pilot v2 report", "", f"Status: **{'COMPLETE' if complete else 'INCOMPLETE'}**. "
              f"Readiness: **{decision['status']}**. **No full experiment launched.**", "",
              f"V1 frozen commit: `{preservation['frozen_commit']}`. All {preservation['verified_files']} protected files remain byte-identical.",
@@ -158,7 +184,21 @@ def render_v2(config, episodes, rows, comparison, diag, runtime, decision, prese
                 coverage = "—" if r["coverage_fraction"] is None else f"{r['coverage_fraction']:.4f}"
                 lines.append(f"| {r['condition']} | {r['degree']} | {r['successes']}/{r['episodes']} | {r['p_success']:.4f} | [{r['ci_low']:.4f}, {r['ci_high']:.4f}] | {coverage} | {r['duplicate_fraction']:.4f} |")
         lines += [""]
-    lines += ["## Needle-High v1 versus v2", "", "| Version | Agent | d | Episodes | P(success) | Mean unique IDs | Coverage | Duplicate fraction | Schedule departure fraction |",
+    lines += ["## Observed Needle-High behavior", "", "```json", json.dumps(observed, indent=2), "```", "",
+              f"Of {observed['llm_high_episodes']} GPT High episodes, {observed['first_round_full_coverage']} "
+              f"covered all 48 IDs in round 1 and {observed['first_round_target_discovery']} found the target in that round. "
+              f"There were {observed['first_round_changed_batches']} first-round assignment departures. "
+              f"The second pass first discovered the target in {observed['observed_second_pass_target_rescues']} episodes.", "",
+              "This distinguishes an observed high-resource outcome from a causal claim that the extra pass rescued v1-like omissions. "
+              "The pilot jointly changes slack and guidance and cannot identify which change produced any improvement.", "",
+              f"There were {observed['changed_batches']} changed High batches, at degrees {observed['changed_batch_degrees']} "
+              f"and rounds {observed['changed_batch_rounds']}. Of {observed['changed_batch_slots']} actual selections in those batches, "
+              f"{observed['neighbor_known_negative_tests_in_changed_batches']} retested IDs already reported NOT TARGET by neighbors. "
+              "These observed actions do not reveal the model's motive. Post-success departures cannot change an already achieved success; "
+              "they still show that optimal use of evidence is not guaranteed.", "",
+              "Readiness uses the preregistered observed-rate thresholds. It is not a confidence-bound guarantee: even 6/6 successes "
+              "has a Wilson 95% lower bound of about .61. Six paired seeds cannot establish no degree effect.", "",
+              "## Needle-High v1 versus v2", "", "| Version | Agent | d | Episodes | P(success) | Mean unique IDs | Coverage | Duplicate fraction | Schedule departure fraction |",
               "|---|---|---:|---:|---:|---:|---:|---:|---:|"]
     for r in comparison:
         lines.append(f"| {r['version']} | {r['agent_type']} | {r['degree']} | {r['episodes']} | {r['p_success']:.4f} | {r['mean_unique_candidates']:.2f} | {r['mean_unique_coverage']:.4f} | {r['mean_duplicate_fraction']:.4f} | {r['mean_schedule_departure_fraction']:.4f} |")
@@ -234,6 +274,7 @@ def analyze_v2(run_dir: Path, output: Path, config: dict, execution: dict) -> di
     for name, value in (("config", config), ("provider_settings", resolved_llm_settings(config)),
                         ("diagnostics", diag), ("invariants", invariants), ("runtime", runtime),
                         ("readiness", decision), ("needle_high_behavior", records),
+                        ("observed_findings", observed_findings(episodes)),
                         ("v1_preservation", preservation), ("execution", execution),
                         ("completion_status", {"complete": complete, "completed_episodes": len(episodes),
                             "expected_episodes": expected_episode_count(config), "missing_episodes": sorted(expected - set(keys))})):

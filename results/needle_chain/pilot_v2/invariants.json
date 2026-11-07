@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "graph degree",
+    "paired tasks/resources",
+    "needle success iff target tested",
+    "coverage/duplicate accounting",
+    "chain one level per round",
+    "chain T<C impossible",
+    "deterministic sufficient horizon",
+    "paired reference invariance"
+  ],
+  "episodes_checked": 516,
+  "note": "Structural assertions only; empirical GPT agreement is not a pass/fail gate.",
+  "status": "passed"
+}

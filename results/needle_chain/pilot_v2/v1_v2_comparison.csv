@@ -1,0 +1,13 @@
+agent_type,degree,episodes,mean_duplicate_fraction,mean_schedule_departure_fraction,mean_unique_candidates,mean_unique_coverage,p_success,version
+deterministic,0,40,0.0,0.0,48.0,1.0,1.0,v1
+deterministic,2,40,0.0,0.0,48.0,1.0,1.0,v1
+deterministic,5,40,0.0,0.0,48.0,1.0,1.0,v1
+llm,0,2,0.21875,0.22916666666666666,37.5,0.78125,0.5,v1
+llm,2,2,0.08333333333333333,0.08333333333333333,44.0,0.9166666666666666,0.5,v1
+llm,5,2,0.11458333333333333,0.11458333333333333,42.5,0.8854166666666667,0.5,v1
+deterministic,0,40,0.5,0.0,48.0,1.0,1.0,v2
+deterministic,2,40,0.5,0.0,48.0,1.0,1.0,v2
+deterministic,5,40,0.5,0.0,48.0,1.0,1.0,v2
+llm,0,6,0.5,0.0,48.0,1.0,1.0,v2
+llm,2,6,0.5,0.0,48.0,1.0,1.0,v2
+llm,5,6,0.5,0.09722222222222221,48.0,1.0,1.0,v2

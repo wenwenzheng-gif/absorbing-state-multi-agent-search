@@ -1,0 +1,23 @@
+{
+  "all_models": "gpt-5.4-nano-2026-03-17",
+  "api_errors": 0,
+  "behavior_errors": 0,
+  "deterministic_episodes": 480,
+  "episode_archive_sha256": "6ebd0230704f6f0c5265d7e4e9085134ec3d7b99348343723ad25f1c4a5b3296",
+  "episodes": 516,
+  "execution_commit": "bd94e66c7b65edd797f6751f0ab30d132187f351",
+  "full_run_executed": false,
+  "high_first_round_prompt_triplets_identical_across_degrees": 36,
+  "invalid_actions": 0,
+  "llm_episodes": 36,
+  "retries": 0,
+  "status": "passed",
+  "unique_provider_responses": 792,
+  "unique_request_keys": 792,
+  "v1_frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+  "v1_processed_files_unchanged": 22,
+  "v1_raw_files_unchanged": 2884,
+  "v2_episode_archive_unchanged_from_hosted": true,
+  "v2_frozen_design_files_unchanged": 6,
+  "v2_raw_episode_files_unchanged_from_hosted": 3240
+}

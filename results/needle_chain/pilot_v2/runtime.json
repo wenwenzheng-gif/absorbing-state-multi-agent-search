@@ -1,0 +1,21 @@
+{
+  "api_calls": 792,
+  "blocker": null,
+  "calls_per_episode": 22.0,
+  "completion_tokens": 26383,
+  "deterministic_episodes": 480,
+  "deterministic_seconds": 3.0901075969999923,
+  "episodes_per_minute": 17.312889915943757,
+  "estimated_pilot_cost_usd": 0.16195235,
+  "execution_status": "complete",
+  "failed_attempts": 0,
+  "full_executed": false,
+  "full_projection_note": "No v2 full resource design is registered or executed. Existing full.json remains v1.",
+  "llm_episodes": 36,
+  "llm_seconds": 124.762533031,
+  "mean_http_latency_seconds": 0.7624107134482321,
+  "pilot_seconds": 134.99456628800002,
+  "prompt_tokens": 644868,
+  "retries": 0,
+  "successful_api_calls": 792
+}
