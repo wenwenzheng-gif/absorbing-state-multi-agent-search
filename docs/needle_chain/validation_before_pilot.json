@@ -1,0 +1,16 @@
+{
+  "full_repository_suite": {
+    "command": ".venv/bin/python -m pytest tests -q",
+    "passed": 485,
+    "skipped": 13,
+    "subtests_passed": 934,
+    "wall_seconds": 26.1
+  },
+  "shared_and_new_suite": {
+    "command": ".venv/bin/python -m src.agent_system.no_transition.cli --test",
+    "passed": 123,
+    "subtests_passed": 12
+  },
+  "pilot_launched_at_validation": false,
+  "full_launched": false
+}

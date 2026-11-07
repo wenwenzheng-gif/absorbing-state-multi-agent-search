@@ -1,0 +1,26 @@
+{
+  "repository": "wenwenzheng-gif/absorbing-state-multi-agent-search",
+  "checked_at": "2026-11-07T17:27:33.736919+00:00",
+  "branches": [
+    {
+      "branch": "experiment/discoverphysics-phase-mechanism-v2",
+      "local_before": false,
+      "origin_before": false,
+      "status": "already absent"
+    },
+    {
+      "branch": "experiment/discoverybench-critical-degree-v1",
+      "local_before": false,
+      "origin_before": false,
+      "status": "already absent"
+    },
+    {
+      "branch": "experiment/discoverybench-degree-scan",
+      "local_before": false,
+      "origin_before": false,
+      "status": "already absent"
+    }
+  ],
+  "verified_local_and_remote_absent": true,
+  "unrelated_repository_untouched": "wenwenzheng-gif/absorb-state-new"
+}

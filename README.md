@@ -117,6 +117,14 @@ included, and this package supplies no public download URL for them. Offline
 replay requires a run's saved `requests.jsonl` and `responses.jsonl`; fresh LLM
 calls are not bit-reproducible. New runs write to `runs/`, which is ignored by Git.
 
+## Needle / Chain experiments
+
+The experimental branch adds atomic Needle Search and strictly sequential Chain
+Search with deterministic and GPT-5.4 Nano policies. See the
+[preregistration and reproduction instructions](docs/needle_chain/README.md).
+The small pilot and the separately gated future full configuration use a
+dedicated no-transition analysis path; neither fits a finite critical degree.
+
 ## Citation
 
 ```bibtex
