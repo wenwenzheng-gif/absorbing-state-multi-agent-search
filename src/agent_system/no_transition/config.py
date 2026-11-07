@@ -8,6 +8,7 @@ import subprocess
 
 ROOT = Path(__file__).resolve().parents[3]
 PROTOCOL = "needle_chain_v1"
+PROTOCOL_V2 = "needle_chain_v2"
 
 
 def fingerprint(value) -> str:
@@ -37,7 +38,9 @@ def resolved_llm_settings(config: dict, env_values: dict | None = None) -> dict:
 
 
 def validate(config: dict) -> None:
-    assert config["protocol_version"] == PROTOCOL
+    assert config["protocol_version"] in {PROTOCOL, PROTOCOL_V2}
+    if config["protocol_version"] == PROTOCOL_V2:
+        assert config["mode"] == "pilot", "v2 is pilot-only; a full design needs separate authorization"
     n = config["agents"]
     assert isinstance(n, int) and n >= 2
     assert len(config["degrees"]) == len(set(config["degrees"]))
@@ -49,11 +52,22 @@ def validate(config: dict) -> None:
         assert all(type(seed) is int and seed >= 0 for seed in config[key])
     assert config["llm"]["model"] == "gpt-5.4-nano", "Do not silently substitute models"
     assert len(config["conditions"]) == len({c["name"] for c in config["conditions"]})
+    overrides = config.get("llm_seeds_by_condition", {})
+    assert set(overrides) <= {c["name"] for c in config["conditions"]}
+    for seeds in overrides.values():
+        assert seeds and len(seeds) == len(set(seeds))
+        assert all(type(seed) is int and seed >= 0 for seed in seeds)
     for c in config["conditions"]:
         assert c["task"] in {"needle", "chain"}
         assert c["horizon"] > 0 and c["batch_size"] > 0
         if c["task"] == "needle":
-            assert c["candidates"] >= n * c["batch_size"] * c["horizon"]
+            passes = c.get("coverage_passes", 1)
+            assert type(passes) is int and passes >= 1
+            assert c["candidates"] * passes >= n * c["batch_size"] * c["horizon"]
+            if passes > 1:
+                assert config["protocol_version"] == PROTOCOL_V2
+                assert c["name"] == "Needle-High" and c.get("policy_variant") == "needle_high_v2"
+                assert (c["candidates"], n, c["horizon"], c["batch_size"], passes) == (48, 6, 2, 8, 2)
         else:
             assert c["chain_length"] > 0 and c["batch_size"] == 1
 
@@ -66,5 +80,20 @@ def threshold(condition: dict) -> dict:
 
 
 def request_bound(config: dict) -> int:
-    return (len(config["llm_seeds"]) * len(config["degrees"]) * config["agents"]
-            * sum(c["horizon"] for c in config["conditions"]))
+    return (len(config["degrees"]) * config["agents"]
+            * sum(len(episode_seeds(config, c, "llm")) * c["horizon"] for c in config["conditions"]))
+
+
+def episode_seeds(config: dict, condition: dict, kind: str) -> list[int]:
+    if kind == "deterministic":
+        return config["deterministic_seeds"]
+    return config.get("llm_seeds_by_condition", {}).get(condition["name"], config["llm_seeds"])
+
+
+def expected_episode_count(config: dict, kind: str | None = None) -> int:
+    return len(config["degrees"]) * sum(len(episode_seeds(config, c, k))
+        for c in config["conditions"] for k in ([kind] if kind else ["deterministic", "llm"]))
+
+
+def artifact_label(config: dict) -> str:
+    return "pilot_v2" if config["protocol_version"] == PROTOCOL_V2 else config["mode"]

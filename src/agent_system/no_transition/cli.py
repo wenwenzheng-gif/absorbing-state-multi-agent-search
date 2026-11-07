@@ -18,7 +18,8 @@ import time
 from ..driver import load_env_file
 from ..storage import utc_now
 from .analysis import load_episodes, verify_invariants
-from .config import ROOT, fingerprint, git_sha, load_config, request_bound, resolved_llm_settings
+from .config import (ROOT, PROTOCOL_V2, fingerprint, git_sha, load_config, request_bound,
+                     resolved_llm_settings, episode_seeds, expected_episode_count, artifact_label)
 from .report import analyze, write_json
 from .runner import episode_id, run_episode
 
@@ -49,11 +50,10 @@ def terminal_summary(summary: dict, mode: str) -> None:
 
 async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, execution: dict) -> dict:
     for kind in ("deterministic", "llm"):
-        seeds = config["deterministic_seeds" if kind == "deterministic" else "llm_seeds"]
         if kind == "llm":
             # Completed cached episodes do not require credentials on resume.
             pending = any(not (run_dir / "episodes" / episode_id(c, kind, s, d) / "episode_result.json").exists()
-                          for c in config["conditions"] for s in seeds for d in config["degrees"])
+                          for c in config["conditions"] for s in episode_seeds(config, c, kind) for d in config["degrees"])
             if pending and not env_values.get(config["llm"]["api_key_env"]):
                 execution["blocker"] = "No authenticated OpenAI API setup is available: OPENAI_API_KEY is unset; supply the location of an existing environment file or authorized runner. No GPT calls were made."
                 raise RuntimeError("OPENAI_API_KEY is unavailable. Reference results are saved; resume with --env-file PATH. No GPT calls were made.")
@@ -62,7 +62,7 @@ async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, e
         try:
             # Config order is Needle low/high, then Chain short/sufficient.
             for condition in config["conditions"]:
-                for seed in seeds:
+                for seed in episode_seeds(config, condition, kind):
                     for degree in config["degrees"]:
                         result = await run_episode(config, condition, kind, seed, degree, run_dir, env_values)
                         print(f"{result['episode_id']}: success={result['success']} depth={result['maximum_depth']} "
@@ -95,11 +95,16 @@ def main(argv=None) -> int:
     config = load_config(args.config or ROOT / f"configs/needle_chain/{args.mode}.json")
     if config["mode"] != args.mode:
         parser.error("config mode does not match --mode")
-    run_dir = args.run_dir or ROOT / f"runs/needle_chain/{args.mode}"
-    output = args.output_dir or ROOT / f"results/needle_chain/{args.mode}"
+    label = artifact_label(config)
+    run_dir = args.run_dir or ROOT / f"runs/needle_chain/{label}"
+    output = args.output_dir or ROOT / f"results/needle_chain/{label}"
+    if config["protocol_version"] == PROTOCOL_V2:
+        from .preservation import guard_v2_paths, verify_frozen_v1
+        guard_v2_paths(run_dir, output)
+        verify_frozen_v1()
     if args.validate_only:
         print(json.dumps({"status": "valid", "mode": args.mode, "maximum_llm_requests": request_bound(config),
-                          "llm_episodes": len(config['degrees']) * len(config['llm_seeds']) * len(config['conditions']),
+                          "llm_episodes": expected_episode_count(config, "llm"),
                           "executed": False}, indent=2))
         return 0
     if args.analyze_existing:
@@ -108,7 +113,7 @@ def main(argv=None) -> int:
             parser.error("analysis config differs from archived config")
         execution_path = run_dir / "execution.json"
         execution = json.loads(execution_path.read_text()) if execution_path.exists() else {}
-        terminal_summary(analyze(run_dir, output, config, execution), args.mode)
+        terminal_summary(analyze(run_dir, output, config, execution), label)
         return 0
     if args.mode == "full" and not args.execute_full:
         parser.error("Full run was NOT started. A subsequent task must explicitly supply --execute-full.")
@@ -154,7 +159,7 @@ def main(argv=None) -> int:
             write_json(path, execution)
             if load_episodes(run_dir):
                 analyze(run_dir, output, config, execution)
-        terminal_summary(analyze(run_dir, output, config, execution), args.mode)
+        terminal_summary(analyze(run_dir, output, config, execution), label)
     return 0
 
 

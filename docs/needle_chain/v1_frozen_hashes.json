@@ -1,0 +1,33 @@
+{
+  "files": {
+    "docs/needle_chain/preregistration.md": "b40e74dfd427e37a30f59f946725dd5219b242a1bb880ee059c877ae081705f2",
+    "results/needle_chain/pilot/by_degree.csv": "68106fa1fc4809834678a896be5b1ee96392344c8586ecbb66afc337ce0c32ac",
+    "results/needle_chain/pilot/completion_status.json": "8fd4580cbce2e5fb8e905fcdd97109703829a5c11e93ac725a53a51e0675c779",
+    "results/needle_chain/pilot/config.json": "952f7663a7125c7e90adbe4400a43b5313422201c4a22ef3ece4f9cf614b27e6",
+    "results/needle_chain/pilot/data_audit.json": "1add66ca1ada2102f250c58c3d8a9395a1476abf08c42a3d90bd03456d214f35",
+    "results/needle_chain/pilot/depth_by_round.csv": "837a634fe877f4ade4dbbd0cc59a27ced8cbdd4ca8a83380f7eca26b114032cc",
+    "results/needle_chain/pilot/diagnostics.json": "035040c635324f371dfc6305a2ec69016da4f779252b8b0f993a36facce90eca",
+    "results/needle_chain/pilot/episodes.jsonl.gz": "3c0ad519f359cd62e9ae1a1255529026e3f6430c391d88d191715f298c40f136",
+    "results/needle_chain/pilot/execution.json": "80e57fb8c15598b97b5c29b6e42857c7779809b0b7e6bc8e0451a14491f79e87",
+    "results/needle_chain/pilot/figures/figure_1_needle.pdf": "bdf851cf2100d36ce696cb4071eb5275c5817b4211675523dc757608eb0613f4",
+    "results/needle_chain/pilot/figures/figure_1_needle.png": "1432f9a8024d77fe4a3faa0b32566c052b102850b02b00c3966ff5c53e733c1b",
+    "results/needle_chain/pilot/figures/figure_2_chain.pdf": "1e4353b4fdc3474974312bb3cef1f5a1db880d4bb776ad8b0490c50e603bd55d",
+    "results/needle_chain/pilot/figures/figure_2_chain.png": "de2c472245e96c6a3b5de3a19f5daabcb12ff068a2efb3f94c90b586eb644751",
+    "results/needle_chain/pilot/figures/figure_3_mechanisms.pdf": "d25bb6ce5d94390282e8dbc27a6831a0f1c291da8f1f3421f3851c5ac652ab5f",
+    "results/needle_chain/pilot/figures/figure_3_mechanisms.png": "c21cb5ab86ee6a7bc1c3948f03d2693675acff7250c01332420f98fe551cefa5",
+    "results/needle_chain/pilot/hosted_provenance.json": "455c4ab4eb5ea207c916987bc161e4e1508db1f3cea3c13863b9f179238f7708",
+    "results/needle_chain/pilot/invariants.json": "ac039a7293052927a6a10897eaf10638ead3a513237e5bb763b98bd9be75e0cc",
+    "results/needle_chain/pilot/needle_behavior.json": "4fb06810032398d16f6e20f43494c1a454fcca0a403f111940960aca3dfd365d",
+    "results/needle_chain/pilot/pilot_report.md": "01c00589cdf07c610c42cd0cb5dcd0d15dde3247134b6b97f8bd19806da9bdf2",
+    "results/needle_chain/pilot/provider_settings.json": "13c80158ce792dd22403ba163cbaa42150ec9403e69f0e6882c09b04a6f1853e",
+    "results/needle_chain/pilot/runtime.json": "22e3ae6d75ed3b6bfc7b0fc293482bc3cf971ecaaa2f2ef1c3968c6db01f2b11",
+    "results/needle_chain/pilot/validation.json": "132cd18fea9de61fcb4ae6cfede86164bef89e2ea3176903ddb190edf4715e74"
+  },
+  "frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+  "hash_algorithm": "SHA-256 of file bytes",
+  "prompt_sha256": {
+    "CHAIN_PROMPT": "6615ff299dc780c3bd7d8c07761c0e8722b3ddc411d1e27e2f055d2ec007b893",
+    "NEEDLE_PROMPT": "141980872e86caab59bbd417974a3b522ce40f756f567fc6a786ad1011559713"
+  },
+  "verified_unchanged_before_v2": true
+}

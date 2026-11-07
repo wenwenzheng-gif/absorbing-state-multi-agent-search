@@ -2,9 +2,9 @@ name: Needle Chain exact-snapshot pilot
 run-name: Needle Chain pilot / frozen source ${{ github.sha }}
 
 on:
-  push:
-    branches: [experiment/needle-chain-no-transition-v1]
-    paths: [.github/workflows/needle-chain-hosted-pilot.yml]
+  # Historical v1 entry point is manual-only so a v2 runner branch cannot
+  # launch or rewrite the completed v1 pilot as a side effect.
+  workflow_dispatch:
 
 permissions:
   contents: read

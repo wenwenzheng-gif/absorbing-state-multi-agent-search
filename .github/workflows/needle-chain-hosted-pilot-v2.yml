@@ -1,0 +1,76 @@
+name: Needle Chain preregistered v2 pilot
+run-name: Needle Chain v2 / frozen source ${{ github.sha }}
+
+on:
+  push:
+    branches: [experiment/needle-chain-no-transition-v1]
+    paths: [.github/workflows/needle-chain-hosted-pilot-v2.yml]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: needle-chain-pilot-v2-only
+  cancel-in-progress: false
+
+jobs:
+  pilot-v2:
+    if: github.repository == 'wenwenzheng-gif/absorb-state-new'
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: '1'
+      MPLBACKEND: Agg
+      MPLCONFIGDIR: ${{ github.workspace }}/runs/matplotlib-cache
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: wenwenzheng-gif/absorbing-state-multi-agent-search
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt -r requirements-agents.txt pytest
+      - name: Verify frozen evidence and record non-secret provenance
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from src.agent_system.no_transition.preservation import verify_frozen_v1
+          from src.agent_system.no_transition.report import write_json
+          print(verify_frozen_v1())
+          repo, run_id = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_RUN_ID']
+          write_json(Path('runs/needle_chain/pilot_v2/hosted_provenance.json'), {
+              'run_id': run_id, 'run_url': f'https://github.com/{repo}/actions/runs/{run_id}',
+              'runner_repository': repo, 'source_commit': os.environ['GITHUB_SHA'],
+              'canonical_repository': 'wenwenzheng-gif/absorbing-state-multi-agent-search',
+              'secret_reference_name_only': 'OPENAI_API_KEY',
+              'secret_migrated_or_modified': False, 'full_run_executed': False})
+          PY
+      - name: Tests then 480 reference and exactly 36 GPT v2 pilot episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m src.agent_system.no_transition.cli --mode pilot --config configs/needle_chain/pilot_v2.json 2>&1 | tee runs/needle_chain/hosted_v2_stdout.log
+      - name: Verify v1 after execution
+        if: always()
+        run: python -c 'from src.agent_system.no_transition.preservation import verify_frozen_v1; print(verify_frozen_v1())'
+      - name: Preserve v2 checkpoints and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: needle-chain-pilot-v2-${{ github.run_id }}
+          path: |
+            runs/needle_chain/pilot_v2/
+            runs/needle_chain/hosted_v2_stdout.log
+            results/needle_chain/pilot_v2/
+          retention-days: 30
+          if-no-files-found: error

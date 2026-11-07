@@ -12,6 +12,7 @@ from ...scaling_model import derived_rng
 
 NEEDLE_TARGET = 0x4E434E4545444C01
 NEEDLE_ORDER = 0x4E434E4545444C02
+NEEDLE_REPEAT_ORDER = 0x4E434E4545444C03
 CHAIN_KEYS = 0x4E43434841494E01
 
 
@@ -30,6 +31,17 @@ def candidate_order(size: int, seed: int) -> list[int]:
 def reference_batch(order: list[int], agents: int, agent: int, round_number: int, batch: int) -> list[int]:
     start = ((round_number - 1) * agents + agent) * batch
     return order[start:start + batch]
+
+
+def public_schedule(condition: dict, seed: int) -> list[int]:
+    """Public, target-independent complete passes; v1's first pass is unchanged."""
+    size = condition["candidates"]
+    order = candidate_order(size, seed)
+    for pass_number in range(1, condition.get("coverage_passes", 1)):
+        repeat = list(range(size))
+        derived_rng(seed, NEEDLE_REPEAT_ORDER, pass_number).shuffle(repeat)
+        order.extend(repeat)
+    return order
 
 
 class NeedleEnvironment:

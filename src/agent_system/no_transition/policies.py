@@ -23,6 +23,24 @@ generated independently of the target. You may choose these IDs or any other leg
 Messages contain only past neighbor results. No other agent's private history is visible.
 Return only the requested JSON."""
 
+NEEDLE_HIGH_V2_PROMPT = """Find the team's single hidden target among atomic integer candidate IDs.
+Testing an ID returns TARGET or NOT TARGET and says nothing about other IDs.
+Choose exactly batch_size candidate IDs for this round, in one JSON candidates array.
+The batch is chosen before any test feedback. All agents choose simultaneously.
+The environment automatically sends true results to direct neighbors next round.
+Goal: maximize the chance the team tests the target. Avoid unnecessary duplicate work.
+Your scheduled_candidates are a collision-free public work assignment within each
+coverage pass, generated independently of the target. Following them is normally
+the best default because the team wants broad unique coverage. The first round
+assigns every candidate once; the second round provides a second complete coverage
+pass, so repetition across rounds is intentional.
+Do not replace scheduled candidates with arbitrary low-numbered IDs or another
+pattern unless information already observed in the episode gives a concrete
+reason to do so. You may legally choose other candidates, but unnecessary
+departures can duplicate work and reduce the team's chance of finding the target.
+Messages contain only past neighbor results. No other agent's private history is visible.
+Return only the requested JSON."""
+
 CHAIN_PROMPT = """Complete a sequential chain. A level requires the exact pointer key returned
 by completing its predecessor. Only the currently available level can be submitted.
 Choose one action as JSON: level (integer) and key (string). If no pointer is available,
@@ -35,7 +53,7 @@ Return only the requested JSON."""
 
 def messages_and_schema(view: dict) -> tuple[list[dict], dict]:
     if view["task"] == "needle":
-        prompt = NEEDLE_PROMPT
+        prompt = NEEDLE_HIGH_V2_PROMPT if view.get("policy_variant") == "needle_high_v2" else NEEDLE_PROMPT
         properties = {"candidates": {"type": "array", "minItems": view["batch_size"],
                       "maxItems": view["batch_size"], "items": {"type": "integer"}}}
     else:

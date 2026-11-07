@@ -17,7 +17,7 @@ from statistics import NormalDist
 import numpy as np
 
 from .config import threshold
-from .environments import candidate_order, reference_batch
+from .environments import public_schedule, reference_batch
 
 
 def wilson(successes: int, total: int, confidence: float = .95) -> list[float]:
@@ -224,7 +224,12 @@ def verify_invariants(episodes: list[dict], config: dict) -> dict:
             assert e["duplicate_tests"] == len(valid) - len(set(valid))
             if e["agent_type"] == "deterministic":
                 assert e["unique_candidates_tested"] == min(e["budget"], e["candidates"])
-                assert e["duplicate_tests"] == 0
+                assert e["duplicate_tests"] == max(0, e["budget"] - e["candidates"])
+                if e["identity"]["condition"].get("coverage_passes", 1) > 1:
+                    order = public_schedule(e["identity"]["condition"], e["task_seed"])
+                    assert valid == order[:e["budget"]]
+                    assert all(set(order[i:i + e["candidates"]]) == set(range(e["candidates"]))
+                               for i in range(0, len(order), e["candidates"]))
     for group in paired.values():
         assert len({(e["hidden_target"], e["hidden_chain_fingerprint"], e["budget"], e["horizon"], e["graph_seed"]) for e in group}) == 1
         if group[0]["agent_type"] == "deterministic":
@@ -250,7 +255,7 @@ def needle_behavior(episodes: list[dict]) -> dict:
     for e in episodes:
         if e["agent_type"] != "llm" or e["task"] != "needle":
             continue
-        order = candidate_order(e["candidates"], e["task_seed"])
+        order = public_schedule(e["identity"]["condition"], e["task_seed"])
         batch = e["budget"] // (e["num_agents"] * e["horizon"])
         deviations = []
         for r in range(1, e["rounds_used"] + 1):

@@ -13,7 +13,7 @@ from ..policies.openai_policy import LLMBackend
 from ..schemas import LLMConfig
 from ..storage import RunStore, iter_jsonl, utc_now
 from .config import fingerprint, git_sha, threshold, resolved_llm_settings
-from .environments import ChainEnvironment, NeedleEnvironment, candidate_order, reference_batch
+from .environments import ChainEnvironment, NeedleEnvironment, public_schedule, reference_batch
 from .policies import NanoPolicy, ReferencePolicy
 
 
@@ -82,7 +82,7 @@ async def run_episode(config: dict, condition: dict, kind: str, seed: int, degre
         is_needle = condition["task"] == "needle"
         environment = (NeedleEnvironment(condition["candidates"], seed) if is_needle else
                        ChainEnvironment(condition["chain_length"], n, seed, horizon))
-        order = candidate_order(condition["candidates"], seed) if is_needle else []
+        order = public_schedule(condition, seed) if is_needle else []
         state = store.read_json("checkpoint.json")
         if state is None:
             state = {"round_completed": 0, "histories": [[] for _ in range(n)], "messages": [],
@@ -129,6 +129,8 @@ async def run_episode(config: dict, condition: dict, kind: str, seed: int, degre
                         view.update(candidate_id_min=0, candidate_id_max=condition["candidates"] - 1,
                                     batch_size=condition["batch_size"], scheduled_candidates=reference_batch(
                                         order, n, agent, r, condition["batch_size"]))
+                        if condition.get("policy_variant"):
+                            view["policy_variant"] = condition["policy_variant"]
                     else:
                         view.update(chain_length=condition["chain_length"], available_pointer=environment.observe(agent))
                     views.append(view)
