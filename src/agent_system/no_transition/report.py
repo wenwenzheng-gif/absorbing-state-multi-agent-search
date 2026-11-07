@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 from ..analysis.summarize import write_csv
-from .analysis import aggregate, diagnostics, load_episodes, projection, verify_invariants
+from .analysis import aggregate, diagnostics, load_episodes, projection, verify_invariants, needle_behavior
 from .config import ROOT, load_config, resolved_llm_settings
 from .plots import plot_all
 
@@ -27,11 +27,13 @@ def _archive(path: Path, rows: list[dict]) -> None:
 
 
 def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants: dict,
-                  config: dict, episodes: list[dict], complete: bool) -> str:
+                  config: dict, episodes: list[dict], complete: bool,
+                  provenance: dict | None = None) -> str:
     cleanup = json.loads((ROOT / "docs/needle_chain/branch_cleanup.json").read_text())
     shas = sorted({e["git_commit_sha"] for e in episodes})
     statuses = "; ".join(f"`{b['branch']}`: {b['status']}" for b in cleanup["branches"])
     llm = [e for e in episodes if e["agent_type"] == "llm"]
+    behavior = needle_behavior(episodes)
     unexpected = [r for r in rows if r["agent_type"] == "llm" and r["condition"] in {"Needle-High", "Chain-Sufficient-Horizon"} and r["p_success"] < .9]
     crossover = any(max(r["p_success"] for r in rows if (r["condition"], r["agent_type"]) == key)
                     - min(r["p_success"] for r in rows if (r["condition"], r["agent_type"]) == key) >= .5
@@ -47,7 +49,7 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
              f"Branch: `experiment/needle-chain-no-transition-v1`. Starting main SHA: `87cfc41eb3bcbef3f5f70029c73f17708d324cc2`.",
              f"Pilot execution commit SHA(s): {', '.join('`' + s + '`' for s in shas)}.",
              "The final results commit is the commit containing this report (avoids a self-referential SHA); `git log -1 --format=%H -- results/needle_chain/pilot/pilot_report.md` resolves it.", "",
-             statuses + ". Local and origin absence verified before implementation. No branches were deleted or code changed in the separate `absorb-state-new` repository.", "",
+             statuses + ". Local and origin absence verified before implementation. The initial cleanup did not alter the separate `absorb-state-new` repository. The user's follow-up then authorized reuse of its existing hosted Actions environment on a dedicated experimental runner branch; neither main branch was changed.", "",
              "## B. Implementation", "",
              "Atomic candidate verification has exactly one target and no child/pruning API. The reference policy traverses a seed-shuffled permutation in disjoint agent/round batches. LLM agents receive the same public work assignment but can choose any legal candidate. Assignments use a separate RNG domain from target selection. Needle always expends the fixed two-round budget, including after discovery, so coverage diagnostics are not biased by early stopping.", "",
              "Chain uses a shared hidden sequence of capability keys, per-agent key possession, and a locked round transaction. A submission never releases the next key. The commit barrier advances zero or one level and gives the next key to every valid submitter; truthful neighbor receipts can convey it on the next round. No level is enumerable, readable or executable early, even if its key is guessed. Chain stops on completion.", "",
@@ -71,11 +73,22 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
         ci = ep.get("ci95_conservative_wilson", [])
         coef = reg["status"] if reg["coefficient"] is None else f"{reg['coefficient']:.6f}; bootstrap CI {reg.get('ci95_cluster_bootstrap')}"
         lines.append(f"| {d['condition']} | {d['agent_type']} | {ep.get('delta_p')} | {ci} | {ep.get('p_value')} / {ep.get('p_bh_fdr')} | {coef} |")
-    lines += ["", "The endpoint is computed on paired seeds. Conservative difference intervals use Bonferroni marginal Wilson bounds; paired-bootstrap intervals are also saved. A degenerate bootstrap interval (often [0,0] with two identical outcomes) does not establish equivalence. Constant all-zero/all-one outcomes and separation produce no logistic coefficient. When estimable, `diagnostics.json` records the constant-vs-degree likelihoods, AIC, coefficient, cluster bootstrap and cluster-robust uncertainty. The likelihood ratio is descriptive because rows are paired. BH/FDR covers all estimable endpoint and slope tests together. No finite dc is interpolated or fitted.", "",
+    lines += ["", "The endpoint is computed on paired seeds. Conservative difference intervals use Bonferroni marginal Wilson bounds; paired-bootstrap intervals are also saved. A degenerate bootstrap interval (often [0,0] with two identical outcomes) does not establish equivalence. Constant all-zero/all-one outcomes and separation produce no logistic coefficient. When estimable, `diagnostics.json` records the constant-vs-degree likelihoods, AIC, coefficient, cluster bootstrap and cluster-robust uncertainty. A logistic bootstrap confidence interval is withheld if fewer than 95% of resamples are identifiable, its empirical distribution is degenerate, or there are fewer than six task clusters; conditional quantiles are retained separately and are not presented as a valid confidence interval. The likelihood ratio is descriptive because rows are paired. BH/FDR covers all estimable endpoint and slope tests together. No finite dc is interpolated or fitted.", "",
               "## G. Needle mechanism", "", "| Condition | Agent | d | Mean unique IDs | Coverage / S | Duplicate fraction | Invalid action rate |", "|---|---|---:|---:|---:|---:|---:|"]
     for r in rows:
         if r["task"] == "needle":
             lines.append(f"| {r['condition']} | {r['agent_type']} | {r['degree']} | {r['mean_unique_candidates_tested']:.2f} | {r['coverage_fraction']:.4f} | {r['duplicate_fraction']:.4f} | {r['invalid_action_rate']:.4f} |")
+    high = behavior["high_resource"]
+    if high["episodes"]:
+        lines += ["", "### Observed GPT Needle-High deviation", "",
+                  "| Seed | d | Success | Unique IDs | Duplicate tests | Changed assignment batches | Missed target was in an omitted assignment |",
+                  "|---:|---:|---|---:|---:|---:|---|"]
+        for e in behavior["episodes"]:
+            if e["condition"] == "Needle-High":
+                lines.append(f"| {e['seed']} | {e['degree']} | {e['success']} | {e['unique_coverage']} | {e['duplicate_tests']} | {len(e['changed_batches'])} | {e['miss_explained_by_omitted_schedule']} |")
+        lines += ["", f"GPT departed from the disjoint public assignment in {high['changed_batches']} batches. {high['failed_episodes_with_target_omitted_from_schedule']} of {high['failed_episodes']} failed high-resource episodes omitted the target-containing assignment. These were legal candidate selections, so invalid-action rate zero does not mean optimal search behavior. The nominal test-slot budget was sufficient, but realized unique coverage was lower. `needle_behavior.json` records the exact scheduled and actual IDs for every changed batch.", "",
+                  ("All changed high-resource batches were in round 1, before any neighbor evidence exists. Therefore the observed coverage differences across degrees cannot be attributed to communication in this pilot: first-round prompts are identical across degrees for a given agent/seed, and model samples are stochastic. All round-2 high-resource assignments were followed." if high["all_changed_batches_before_neighbor_evidence"] else "Some departures occurred after neighbor evidence; those cases require joint inspection of messages and chosen IDs."), "",
+                  "This supports category C (behavioral coordination inefficiency), with category B (finite-sample/model-sampling variability) limiting the degree comparison. It is not an API failure or an invalid environment action. Equal degree means can mask discordant paired outcomes: inspect the per-seed rows and paired intervals. No failed episode was rerun, no prompt was repaired, and no resource parameter was adjusted to force agreement.", ""]
     lines += ["", "The reference visits B=min(N × batch × T,S) distinct IDs; its target is uniform and independent of ordering, so P(success)=B/S exactly over task draws. Here the predicted probabilities are .04 and 1.0. Observed success is empirical; it is never replaced by those values. Any sampling discrepancy must be judged against the binomial interval. Rejection reports only that same candidate's verdict; no hidden branching or cross-candidate pruning exists. The coordinated reference has no duplicates to reduce. Degree-related LLM efficiency changes, if present, can be read separately above.", "",
               "## H. Chain mechanism", "", "| Condition | Agent | d | Mean maximum depth | Invalid action rate | Future attempts |", "|---|---|---:|---:|---:|---:|"]
     for r in rows:
@@ -91,13 +104,36 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
               "The theoretical labels are Needle dc=0; Chain T<C dc=\"infinity\"; Chain T≥C dc=0. These labels are metadata about task structure, not estimates derived from flat data. The paper's claim concerns the absence of a branching/pruning critical point. It does not prove every possible LLM policy has a perfectly flat finite-resource curve.", "",
               "The public disjoint schedule deliberately removes the need for communication in the reference and provides useful coordination to GPT. Thus this pilot probes these specified policies and resource regimes; it cannot exclude a crossover caused by other policies, other resources or untested degrees.", "",
               f"Structural invariant checks: **{invariants['status']}**, {invariants['episodes_checked']} episodes. API-failed decisions: {sum(e['api_errors'] for e in episodes)}. Invalid environment actions: {sum(e['invalid_actions'] for e in episodes)}. Invalid/refused/truncated JSON decisions: {sum(e['behavior_errors'] for e in episodes)}.",
-              "Deviation categories: A implementation error and E task-definition violation require concrete invariant/test evidence; B finite-sample noise is plausible for rare Needle-Low outcomes; C LLM behavior covers malformed/illegal choices; D API/runtime failure is recorded independently and retained in the success denominator; F genuine empirical deviation remains a possible interpretation if a reproducible contrast survives diagnosis. No failed seed is excluded or rerun for a better outcome.", "",
+              "Deviation categories: A implementation error and E task-definition violation require concrete invariant/test evidence; B finite-sample noise is plausible for rare Needle-Low outcomes; C LLM behavior includes legal but inefficient choices as well as malformed/illegal choices; D API/runtime failure is recorded independently and retained in the success denominator; F genuine empirical deviation remains a possible interpretation if a reproducible contrast survives diagnosis. No failed seed is excluded or rerun for a better outcome.", "",
               "## K. Measured runtime and future scale", "", "```json", json.dumps(runtime, indent=2), "```", "",
-              "The execution timer starts after the automatic test preflight and includes stage execution and intermediate analysis; it excludes the final report regeneration. Deterministic/LLM stage timers are separate. Cost uses measured prompt/completion/cache token counts and [published GPT-5.4 Nano rates](https://developers.openai.com/api/docs/models/gpt-5.4-nano). It is not a charge receipt. Full-run estimates scale measured per-condition calls and wall time by the larger population and number of episodes at unchanged concurrency. They do not include an unmeasured larger-context or rate-limit penalty. Null projections mean no live throughput has been measured.", "",
+              "The execution timer starts after the automatic test preflight and includes stage execution and intermediate analysis; it excludes the final report regeneration. Deterministic/LLM stage timers are separate. Cost uses measured prompt/completion/cache token counts and [published GPT-5.4 Nano rates](https://developers.openai.com/api/docs/models/gpt-5.4-nano); it is not a charge receipt. The baseline runtime scales measured per-condition throughput by agents and episodes. The round-waves alternative accounts for ceil(N/concurrency) batches at each barrier. The degree-context cost additionally extrapolates observed input tokens per call against degree; this is an extrapolation from d≤5 to d≤19, not measured full-run usage. Provider load, rate limits, larger contexts and behavioral changes remain unmeasured. Null projections mean no live throughput has been measured.", "",
               "## L. Recommended next step", "",
               ("Provide the location of the existing authenticated API setup, then resume the same pilot command. The 480 completed deterministic episodes will be reused. All 24 GPT episodes and measured GPT runtime/cost projections remain outstanding. Do not launch the full run." if blocker else
-               "Review this pilot before authorizing the larger run. The pipeline is ready for review; increase statistical replication only in a subsequent task. Two GPT seeds cannot validate equivalence or rule out a transition." if complete and not unexpected and not crossover else "Resolve the documented incomplete work or deviations and review this pilot before any larger run."), "",
+               "Review this pilot before authorizing the larger run. The pipeline is ready for review; increase statistical replication only in a subsequent task. Two GPT seeds cannot validate equivalence or rule out a transition." if complete and not unexpected and not crossover else
+               "The pipeline is operational, but the unchanged larger run is not recommended before reviewing GPT's Needle-High coordination failure. It missed the intended high-success regime despite adequate nominal slots. Any revised policy would require a new preregistered experiment, preserving this pilot. No further API calls or full experiment were launched." if complete else
+               "Resolve the documented incomplete work or deviations and review this pilot before any larger run."), "",
               "## Reproduction and provenance", "", "See `docs/needle_chain/README.md` for tests, resume, offline reanalysis and the separately gated full command. Preregistered design: `docs/needle_chain/preregistration.md`. Theory: [arXiv:2609.38327v2, §§2.2–3.1](https://arxiv.org/html/2609.38327v2#S3.SS1).", ""]
+    if provenance and config["mode"] == "pilot" and complete and runtime.get("llm_seconds") is not None:
+        lines += ["## Completed hosted pilot", "",
+                  "The existing provider secret was consumed in place by the authorized prior Actions runner. "
+                  f"[Run {provenance['run_id']}]({provenance['run_url']}) "
+                  f"completed successfully; its job took {provenance['job_wall_seconds']} seconds including setup, tests and artifact upload. "
+                  "No secret was migrated. The temporary runner branch was removed after artifact import; "
+                  "all reviewed code and results remain on the canonical experimental branch.", "",
+                  f"Measured GPT execution: **{runtime['llm_seconds']:.2f} seconds**, "
+                  f"**{runtime['api_calls']:,} API calls**, "
+                  f"**{runtime['episodes_per_minute']:.2f} episodes/minute**. "
+                  f"Estimated pilot token cost: **${runtime['estimated_pilot_cost_usd']:.3f}**.", "",
+                  f"The unexecuted 144-episode full GPT configuration projects "
+                  f"**{runtime['estimated_full_seconds'] / 60:.1f}–"
+                  f"{runtime['estimated_full_seconds_round_waves'] / 60:.1f} minutes** and "
+                  f"**{runtime['estimated_full_calls']:,.0f} calls** under the stated scaling assumptions. "
+                  f"Token-cost estimates range from **${runtime['estimated_full_cost_usd']:.2f}** "
+                  f"at pilot context sizes to **${runtime['estimated_full_cost_usd_degree_context']:.2f}** "
+                  "with the degree-context extrapolation. These are scenario estimates, not confidence bounds.", "",
+                  "Audit files: `hosted_provenance.json`, `data_audit.json`, `validation.json`; "
+                  "authentication discovery: `docs/needle_chain/authentication_audit.md`; "
+                  "post-pilot analysis changes: `docs/needle_chain/analysis_notes.md`.", ""]
     return "\n".join(lines)
 
 
@@ -124,6 +160,7 @@ def analyze(run_dir: Path, output: Path, config: dict, execution: dict | None = 
     write_json(output / "config.json", config)
     write_json(output / "provider_settings.json", resolved_llm_settings(config))
     write_json(output / "diagnostics.json", diag)
+    write_json(output / "needle_behavior.json", needle_behavior(episodes))
     write_json(output / "invariants.json", invariants)
     write_json(output / "runtime.json", runtime)
     if execution:
@@ -138,6 +175,12 @@ def analyze(run_dir: Path, output: Path, config: dict, execution: dict | None = 
     if calls:
         _archive(run_dir / "model_calls.jsonl.gz", calls)
     plot_all(rows, episodes, output / "figures", config["mode"])
-    (output / "pilot_report.md").write_text(render_report(rows, diag, runtime, invariants, config, episodes, complete))
+    provenance_path = run_dir / "hosted_provenance.json"
+    if not provenance_path.exists():
+        provenance_path = output / "hosted_provenance.json"
+    provenance = json.loads(provenance_path.read_text()) if provenance_path.exists() else None
+    if provenance:
+        write_json(output / "hosted_provenance.json", provenance)
+    (output / "pilot_report.md").write_text(render_report(rows, diag, runtime, invariants, config, episodes, complete, provenance))
     return {"complete": complete, "episodes": len(episodes), "expected_episodes": expected,
             "rows": rows, "runtime": runtime, "diagnostics": diag}

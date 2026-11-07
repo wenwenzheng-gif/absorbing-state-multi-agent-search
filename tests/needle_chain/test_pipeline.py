@@ -7,7 +7,7 @@ import httpx
 import numpy as np
 import pytest
 
-from src.agent_system.no_transition.analysis import bh_adjust, degree_effect, logistic_fit, paired_endpoint, wilson
+from src.agent_system.no_transition.analysis import bh_adjust, degree_effect, logistic_fit, paired_endpoint, wilson, needle_behavior
 from src.agent_system.no_transition.config import ROOT, fingerprint, load_config, request_bound, threshold, resolved_llm_settings
 from src.agent_system.no_transition.policies import NanoPolicy, ReferencePolicy, messages_and_schema
 from src.agent_system.no_transition.runner import run_episode
@@ -107,6 +107,15 @@ def test_identical_paired_outcomes_do_not_get_spurious_wald_precision():
     assert abs(result['coefficient']) < 1e-12
 
 
+def test_paired_seed_swaps_do_not_produce_bogus_zero_width_slope_ci():
+    es = [{'task_seed': s, 'degree': d, 'success': bool((s == 0) != (d == 5))}
+          for s in [0, 1] for d in [0, 2, 5]]
+    result = degree_effect(es, np.random.default_rng(7), 100)
+    assert result['status'] == 'estimated' and result['coefficient'] == 0
+    assert result['ci95_cluster_bootstrap'] is None and result['p_value'] is None
+    assert result['bootstrap_estimable'] < result['bootstrap_requested']
+
+
 def test_deterministic_episode_metrics_and_degree_pairing(tmp_path):
     c = config()
     for condition in c['conditions']:
@@ -182,6 +191,11 @@ def test_invalid_llm_decisions_are_retained_without_reference_fallback(tmp_path)
             return {'action': {'candidates': [-1] * 4}, 'api_error': False, 'behavior_error': False}
     out = asyncio.run(run_episode(c, c['conditions'][1], 'llm', 8, 0, tmp_path, policy_override=Invalid()))
     assert not out['success'] and out['invalid_actions'] == 48 and out['unique_candidates_tested'] == 0
+    diagnostic = needle_behavior([out])
+    assert diagnostic['high_resource']['episodes'] == 1
+    assert diagnostic['high_resource']['changed_batches'] == 12
+    assert diagnostic['high_resource']['failed_episodes_with_target_omitted_from_schedule'] == 1
+    assert diagnostic['high_resource']['all_changed_batches_before_neighbor_evidence'] is False
 
 
 def test_durable_backend_response_replayed_after_interrupt(tmp_path):

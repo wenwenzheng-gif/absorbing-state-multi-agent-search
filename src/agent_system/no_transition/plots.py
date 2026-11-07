@@ -32,7 +32,7 @@ def plot_all(rows: list[dict], episodes: list[dict], output: Path, mode: str) ->
         ("needle", ["Needle-Low", "Needle-High"], "Needle Search"),
         ("chain", ["Chain-Short-Horizon", "Chain-Sufficient-Horizon"], "Chain Search"),
     ):
-        fig, axes = plt.subplots(1, 2, figsize=(9, 3.6), sharey=True, layout="constrained")
+        fig, axes = plt.subplots(1, 2, figsize=(9, 4.0), sharey=True, layout="constrained")
         for ax, condition in zip(axes, names):
             for kind, (color, marker, label) in STYLES.items():
                 sub = sorted([r for r in rows if r["condition"] == condition and r["agent_type"] == kind], key=lambda r: r["degree"])
@@ -50,7 +50,11 @@ def plot_all(rows: list[dict], episodes: list[dict], output: Path, mode: str) ->
             ax.set_ylim(-.06, 1.06)
             ax.set_xlabel("Communication degree d")
             ax.grid(axis="y", alpha=.2)
-            ax.legend(fontsize=8, loc="center right")
+        legend = {}
+        for ax in axes:
+            handles, labels = ax.get_legend_handles_labels()
+            legend.update(zip(labels, handles))
+        fig.legend(list(legend.values()), list(legend), fontsize=9, loc="outside lower center", ncol=2)
         axes[0].set_ylabel("Success probability (Wilson 95% CI)")
         fig.suptitle(f"{title} · {mode.capitalize()}", fontweight="bold")
         save(fig, f"figure_{1 if task == 'needle' else 2}_{task}")

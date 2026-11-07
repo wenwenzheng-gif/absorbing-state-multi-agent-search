@@ -35,3 +35,11 @@ The dedicated runner branch uses the exact experimental branch name and
 checks out the canonical frozen commit. No secrets are migrated; code and
 reviewed results remain on the canonical experimental branch. The full run
 is excluded from the hosted entry point.
+
+Execution completed in
+[run 42403291298](https://github.com/wenwenzheng-gif/absorb-state-new/actions/runs/42403291298):
+24 GPT episodes and 648 successful API calls using the exact requested
+snapshot. Artifact 13586800681 was downloaded and audited. The temporary
+runner branch, created for this task, was deleted only after successful
+import, with an exact-SHA lease. Existing historical branches and both main
+branches were preserved. No authentication mechanism remains missing.

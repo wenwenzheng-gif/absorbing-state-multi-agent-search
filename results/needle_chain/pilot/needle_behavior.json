@@ -1,0 +1,416 @@
+{
+  "episodes": [
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 1,
+          "round": 1,
+          "scheduled": [
+            34,
+            5,
+            36,
+            29
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 0,
+      "duplicate_tests": 4,
+      "episode_id": "Needle-High_llm_s91000_d0",
+      "hidden_target": 25,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91000,
+      "success": true,
+      "total_tests": 48,
+      "unique_coverage": 44
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 1,
+          "round": 1,
+          "scheduled": [
+            34,
+            5,
+            36,
+            29
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 2,
+      "duplicate_tests": 4,
+      "episode_id": "Needle-High_llm_s91000_d2",
+      "hidden_target": 25,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91000,
+      "success": true,
+      "total_tests": 48,
+      "unique_coverage": 44
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 2,
+          "round": 1,
+          "scheduled": [
+            2,
+            25,
+            24,
+            22
+          ],
+          "target_was_in_omitted_schedule": true
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 5,
+      "duplicate_tests": 3,
+      "episode_id": "Needle-High_llm_s91000_d5",
+      "hidden_target": 25,
+      "miss_explained_by_omitted_schedule": true,
+      "seed": 91000,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 45
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 1,
+          "round": 1,
+          "scheduled": [
+            3,
+            2,
+            9,
+            44
+          ],
+          "target_was_in_omitted_schedule": false
+        },
+        {
+          "actual": [
+            0,
+            8,
+            16,
+            24
+          ],
+          "agent_id": 2,
+          "round": 1,
+          "scheduled": [
+            42,
+            18,
+            19,
+            39
+          ],
+          "target_was_in_omitted_schedule": false
+        },
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 3,
+          "round": 1,
+          "scheduled": [
+            7,
+            22,
+            15,
+            24
+          ],
+          "target_was_in_omitted_schedule": true
+        },
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 4,
+          "round": 1,
+          "scheduled": [
+            46,
+            37,
+            36,
+            30
+          ],
+          "target_was_in_omitted_schedule": false
+        },
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 5,
+          "round": 1,
+          "scheduled": [
+            5,
+            20,
+            21,
+            35
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 0,
+      "duplicate_tests": 17,
+      "episode_id": "Needle-High_llm_s91001_d0",
+      "hidden_target": 15,
+      "miss_explained_by_omitted_schedule": true,
+      "seed": 91001,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 31
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            11,
+            23,
+            34
+          ],
+          "agent_id": 3,
+          "round": 1,
+          "scheduled": [
+            7,
+            22,
+            15,
+            24
+          ],
+          "target_was_in_omitted_schedule": true
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 2,
+      "duplicate_tests": 4,
+      "episode_id": "Needle-High_llm_s91001_d2",
+      "hidden_target": 15,
+      "miss_explained_by_omitted_schedule": true,
+      "seed": 91001,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 44
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            8,
+            16,
+            24,
+            32
+          ],
+          "agent_id": 2,
+          "round": 1,
+          "scheduled": [
+            42,
+            18,
+            19,
+            39
+          ],
+          "target_was_in_omitted_schedule": false
+        },
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 4,
+          "round": 1,
+          "scheduled": [
+            46,
+            37,
+            36,
+            30
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-High",
+      "degree": 5,
+      "duplicate_tests": 8,
+      "episode_id": "Needle-High_llm_s91001_d5",
+      "hidden_target": 15,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91001,
+      "success": true,
+      "total_tests": 48,
+      "unique_coverage": 40
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            343,
+            686,
+            1029
+          ],
+          "agent_id": 1,
+          "round": 2,
+          "scheduled": [
+            957,
+            1061,
+            89,
+            597
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-Low",
+      "degree": 0,
+      "duplicate_tests": 1,
+      "episode_id": "Needle-Low_llm_s91000_d0",
+      "hidden_target": 1033,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91000,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 47
+    },
+    {
+      "changed_batches": [],
+      "condition": "Needle-Low",
+      "degree": 2,
+      "duplicate_tests": 0,
+      "episode_id": "Needle-Low_llm_s91000_d2",
+      "hidden_target": 1033,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91000,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 48
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "agent_id": 1,
+          "round": 1,
+          "scheduled": [
+            219,
+            901,
+            647,
+            513
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-Low",
+      "degree": 5,
+      "duplicate_tests": 0,
+      "episode_id": "Needle-Low_llm_s91000_d5",
+      "hidden_target": 1033,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91000,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 48
+    },
+    {
+      "changed_batches": [],
+      "condition": "Needle-Low",
+      "degree": 0,
+      "duplicate_tests": 0,
+      "episode_id": "Needle-Low_llm_s91001_d0",
+      "hidden_target": 831,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91001,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 48
+    },
+    {
+      "changed_batches": [],
+      "condition": "Needle-Low",
+      "degree": 2,
+      "duplicate_tests": 0,
+      "episode_id": "Needle-Low_llm_s91001_d2",
+      "hidden_target": 831,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91001,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 48
+    },
+    {
+      "changed_batches": [
+        {
+          "actual": [
+            0,
+            595,
+            695,
+            1064
+          ],
+          "agent_id": 2,
+          "round": 1,
+          "scheduled": [
+            595,
+            1064,
+            695,
+            891
+          ],
+          "target_was_in_omitted_schedule": false
+        }
+      ],
+      "condition": "Needle-Low",
+      "degree": 5,
+      "duplicate_tests": 0,
+      "episode_id": "Needle-Low_llm_s91001_d5",
+      "hidden_target": 831,
+      "miss_explained_by_omitted_schedule": false,
+      "seed": 91001,
+      "success": false,
+      "total_tests": 48,
+      "unique_coverage": 48
+    }
+  ],
+  "high_resource": {
+    "all_changed_batches_before_neighbor_evidence": true,
+    "changed_batches": 11,
+    "episodes": 6,
+    "failed_episodes": 3,
+    "failed_episodes_with_target_omitted_from_schedule": 3,
+    "interpretation": "Legal departures from public work assignments can reduce unique coverage. First-round departures occur before any neighbor evidence and cannot be attributed to connectivity from these samples. No outcomes were excluded or rerun.",
+    "successes": 3
+  }
+}

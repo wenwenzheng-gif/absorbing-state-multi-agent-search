@@ -1,0 +1,16 @@
+{
+  "api_key_env": "OPENAI_API_KEY",
+  "api_style": "openai",
+  "base_url": "https://api.openai.com/v1",
+  "concurrency": 6,
+  "max_output_tokens": 256,
+  "max_requests": null,
+  "max_wall_seconds": null,
+  "model": "gpt-5.4-nano-2026-03-17",
+  "per_agent_seed": false,
+  "reasoning_effort": "none",
+  "repair_attempts": 0,
+  "temperature": 1.0,
+  "timeout_s": 60.0,
+  "transport_retries": 2
+}

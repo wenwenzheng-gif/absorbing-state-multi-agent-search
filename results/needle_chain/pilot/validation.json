@@ -1,12 +1,20 @@
 {
-  "command": ".venv/bin/python -m pytest tests -q",
-  "passed": 486,
-  "skipped": 13,
-  "subtests_passed": 934,
-  "seconds": 25.63,
   "all_relevant_checks_passed": true,
-  "plot_visual_qa": "All three PNGs inspected; no clipping or missing observed series",
+  "command": ".venv/bin/python -m pytest tests -q",
+  "deterministic_episode_hashes_unchanged": 480,
+  "final_report_followup_tests": {
+    "command": ".venv/bin/python -m pytest tests/needle_chain -q",
+    "passed": 46,
+    "seconds": 3.32
+  },
+  "full_run_executed": false,
+  "llm_live_validation": "completed: 24 episodes, 648 successful requests and responses with the exact pinned snapshot",
+  "offline_committed_archive_reproduction": "Eight primary data/report outputs reproduced byte-for-byte without API access",
   "offline_reanalysis": "passed without model calls",
-  "llm_live_validation": "blocked: credentials unavailable",
-  "full_run_executed": false
+  "passed": 489,
+  "plot_visual_qa": "All three final PNGs inspected: no clipped text or legends obscuring data; vector PDFs exported from the same figures",
+  "seconds": 17.31,
+  "skipped": 13,
+  "structural_invariants": "passed across 504 episodes",
+  "subtests_passed": 934
 }

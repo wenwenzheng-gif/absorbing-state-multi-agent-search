@@ -79,3 +79,18 @@ permissions, restores completed episodes from their committed archive, runs
 only the pilot, and uploads checkpoints/results as a recoverable artifact.
 It does not push code or results. Canonical results are imported, reviewed,
 committed and pushed to the requested repository's experimental branch.
+
+The completed hosted pilot is
+[run 42403291298](https://github.com/wenwenzheng-gif/absorb-state-new/actions/runs/42403291298).
+Its temporary runner branch was deleted after verified artifact import.
+The canonical branch retains all reviewed implementation and processed
+results. Read the [completed pilot report](../../results/needle_chain/pilot/pilot_report.md)
+before considering a larger run: GPT Needle-High achieved 0.5 success at each
+degree because of legal but inefficient work allocation. The two-seed scan
+does not establish absence of a transition. The full experiment was not run.
+
+The results include `hosted_provenance.json`, `data_audit.json`, and
+`validation.json`. The [authentication audit](authentication_audit.md) records
+only secret references. The [analysis notes](analysis_notes.md) identify
+post-pilot diagnostic and reporting changes. No episode or prompt was changed
+after the live pilot.

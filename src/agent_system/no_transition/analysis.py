@@ -17,6 +17,7 @@ from statistics import NormalDist
 import numpy as np
 
 from .config import threshold
+from .environments import candidate_order, reference_batch
 
 
 def wilson(successes: int, total: int, confidence: float = .95) -> list[float]:
@@ -156,9 +157,14 @@ def degree_effect(es: list[dict], rng, resamples: int) -> dict:
         fit = logistic_fit(x[sampled], y[sampled])
         if fit["status"] == "estimated":
             coefs.append(fit["coefficient"])
+    quantiles = np.quantile(coefs, [.025, .975]).tolist() if coefs else None
+    degenerate = bool(coefs and np.ptp(coefs) < 1e-12)
+    reliable = len(coefs) >= .95 * resamples and not degenerate and len(unique) >= 6
     result.update(bootstrap_requested=resamples, bootstrap_estimable=len(coefs), seed_clusters=len(unique),
-                  ci95_cluster_bootstrap=np.quantile(coefs, [.025, .975]).tolist() if coefs else None,
-                  bootstrap_degenerate=bool(coefs and np.ptp(coefs) < 1e-12))
+                  ci95_cluster_bootstrap=quantiles if reliable else None,
+                  conditional_estimable_bootstrap_quantiles=quantiles,
+                  bootstrap_interval_status=("estimated" if reliable else "unreliable: nonidentifiable resamples, degenerate distribution, or fewer than six clusters"),
+                  bootstrap_degenerate=degenerate)
     # Cluster sandwich uncertainty preserves repeated observations of each seed.
     design = np.column_stack([np.ones(len(x)), x])
     p = 1 / (1 + np.exp(-(result["intercept"] + result["coefficient"] * x)))
@@ -238,6 +244,42 @@ def load_episodes(run_dir: Path) -> list[dict]:
     return [json.loads(p.read_text()) for p in sorted((run_dir / "episodes").glob("*/episode_result.json"))]
 
 
+def needle_behavior(episodes: list[dict]) -> dict:
+    """Trace-only diagnosis. Never changes an outcome, policy or sampling plan."""
+    rows = []
+    for e in episodes:
+        if e["agent_type"] != "llm" or e["task"] != "needle":
+            continue
+        order = candidate_order(e["candidates"], e["task_seed"])
+        batch = e["budget"] // (e["num_agents"] * e["horizon"])
+        deviations = []
+        for r in range(1, e["rounds_used"] + 1):
+            for agent in range(e["num_agents"]):
+                actual = [a["candidate_tested"] for a in e["actions"]
+                          if a["agent_id"] == agent and a["round"] == r]
+                scheduled = reference_batch(order, e["num_agents"], agent, r, batch)
+                if sorted(actual, key=str) != sorted(scheduled, key=str):
+                    deviations.append({"round": r, "agent_id": agent, "scheduled": scheduled,
+                                       "actual": actual, "target_was_in_omitted_schedule":
+                                       e["hidden_target"] in scheduled and e["hidden_target"] not in actual})
+        tested = {a["candidate_tested"] for a in e["actions"] if not a["invalid"]}
+        rows.append({"episode_id": e["episode_id"], "condition": e["condition"], "seed": e["task_seed"],
+                     "degree": e["degree"], "success": e["success"], "hidden_target": e["hidden_target"],
+                     "unique_coverage": len(tested), "total_tests": e["total_tests"],
+                     "duplicate_tests": e["duplicate_tests"], "changed_batches": deviations,
+                     "miss_explained_by_omitted_schedule": not e["success"] and
+                         any(d["target_was_in_omitted_schedule"] for d in deviations)})
+    high = [r for r in rows if r["condition"] == "Needle-High"]
+    changed = [d for r in high for d in r["changed_batches"]]
+    return {"episodes": rows, "high_resource": {
+        "episodes": len(high), "successes": sum(r["success"] for r in high),
+        "changed_batches": len(changed),
+        "all_changed_batches_before_neighbor_evidence": bool(changed) and all(d["round"] == 1 for d in changed),
+        "failed_episodes": sum(not r["success"] for r in high),
+        "failed_episodes_with_target_omitted_from_schedule": sum(r["miss_explained_by_omitted_schedule"] for r in high),
+        "interpretation": "Legal departures from public work assignments can reduce unique coverage. First-round departures occur before any neighbor evidence and cannot be attributed to connectivity from these samples. No outcomes were excluded or rerun."}}
+
+
 def projection(episodes: list[dict], config: dict, full: dict, execution: dict) -> dict:
     llm = [e for e in episodes if e["agent_type"] == "llm"]
     det = [e for e in episodes if e["agent_type"] == "deterministic"]
@@ -248,6 +290,7 @@ def projection(episodes: list[dict], config: dict, full: dict, execution: dict) 
                 + e["completion_tokens"] * price["output"]) / 1e6
     actual_calls = sum(e["api_attempts"] for e in llm)
     projected_calls, projected_seconds, projected_cost = 0., 0., 0.
+    wave_seconds, context_cost = 0., 0.
     for c in full["conditions"]:
         sample = [e for e in llm if e["condition"] == c["name"]]
         if not sample:
@@ -257,6 +300,21 @@ def projection(episodes: list[dict], config: dict, full: dict, execution: dict) 
         projected_calls += count * mean(e["api_attempts"] for e in sample) * ratio
         projected_seconds += count * mean(e["wall_seconds"] for e in sample) * ratio
         projected_cost += count * mean(cost(e) for e in sample) * ratio
+        wave_ratio = (math.ceil(full["agents"] / full["llm"]["concurrency"])
+                      / math.ceil(config["agents"] / config["llm"]["concurrency"]))
+        wave_seconds += count * mean(e["wall_seconds"] for e in sample) * wave_ratio
+        # Extrapolate observed prompt growth per neighbor, condition by condition.
+        valid = [e for e in sample if e["successful_api_calls"]]
+        if valid:
+            xs = np.array([e["degree"] for e in valid], dtype=float)
+            ys = np.array([e["prompt_tokens"] / e["successful_api_calls"] for e in valid])
+            slope, intercept = np.polyfit(xs, ys, 1) if np.ptp(xs) else (0., float(ys.mean()))
+            slope = max(0., float(slope))
+            output_per_call = mean(e["completion_tokens"] / e["successful_api_calls"] for e in valid)
+            calls_per_cell = len(full["llm_seeds"]) * mean(e["successful_api_calls"] for e in valid) * ratio
+            for degree in full["degrees"]:
+                context_cost += calls_per_cell * (max(0., intercept + slope * degree) * price["input"]
+                                                + output_per_call * price["output"]) / 1e6
     runtime = execution.get("llm_wall_seconds", sum(e["wall_seconds"] for e in llm))
     timed = sum(e["api_timed_attempts"] for e in llm)
     return {"deterministic_episodes": len(det), "llm_episodes": len(llm),
@@ -275,7 +333,9 @@ def projection(episodes: list[dict], config: dict, full: dict, execution: dict) 
             "estimated_full_calls": projected_calls if llm else None,
             "estimated_full_seconds": projected_seconds if llm else None,
             "estimated_full_cost_usd": projected_cost if llm else None,
+            "estimated_full_seconds_round_waves": wave_seconds if llm else None,
+            "estimated_full_cost_usd_degree_context": float(context_cost) if llm else None,
             "full_executed": config["mode"] == "full",
             "execution_status": execution.get("status", "in_progress"),
             "blocker": execution.get("blocker"),
-            "projection_assumptions": "Measured per-condition pilot throughput scaled by agents and episodes at unchanged concurrency. Larger messages, rate limits, provider load and changed stopping rounds can alter it. Token-based cost is an estimate, not a billing statement."}
+            "projection_assumptions": "Baseline scales measured per-condition throughput by agents and episodes at unchanged concurrency. Round-waves alternative uses ceil(N/concurrency) for barriers. Degree-context cost extrapolates a per-condition linear fit of observed input tokens/call against degree, at uncached input rates. Larger messages, rate limits, provider load and changed stopping rounds can alter all estimates; none is a billing statement."}

@@ -1,18 +1,33 @@
 {
   "annotation": "Blocker recorded after the deterministic stage; episode results and runtime measurements unchanged.",
-  "blocker": "No authenticated OpenAI API setup is available: OPENAI_API_KEY is unset; no .env file was found in this checkout, and the requested GitHub repository has no Actions secrets. Supply the location of an existing environment file or authorized runner. No GPT calls were made.",
   "config_digest": "f770a76106eac6a23b2613bbe4d7c5b666dd48591bf9a7062a9082138f0a66f4",
-  "deterministic_wall_seconds": 7.374710917007178,
-  "execution_wall_seconds": 8.848555667093024,
+  "deterministic_wall_seconds": 7.63532292300718,
+  "execution_wall_seconds": 115.04609584209302,
   "full_executed": false,
   "invocations": [
     {
       "git_commit_sha": "175d28af2badca95c534d6e4b50b1c71db1487fb",
       "started_at": "2026-11-07T17:40:47+00:00",
       "wall_seconds": 8.848555667093024
+    },
+    {
+      "git_commit_sha": "82d6c2bb7eb79b77b069889b3d563c9122640069",
+      "github_run_id": "42403291298",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T18:51:36+00:00",
+      "wall_seconds": 106.197540175
     }
   ],
-  "last_error_type": "RuntimeError",
+  "llm_wall_seconds": 99.64534402199999,
   "package_versions": {
     "httpx": "0.28.1",
     "matplotlib": "3.10.8",
@@ -23,7 +38,9 @@
     "scipy": "1.18.1"
   },
   "python": "3.13.2 (v3.13.2:4f8bb3947cf, Feb  4 2025, 11:51:10) [Clang 15.0.0 (clang-1500.3.9.4)]",
+  "resolved_model": "gpt-5.4-nano-2026-03-17",
+  "restored_from_committed_archive": true,
   "source_sha": "175d28af2badca95c534d6e4b50b1c71db1487fb",
   "started_at": "2026-11-07T17:40:47+00:00",
-  "status": "interrupted"
+  "status": "complete"
 }

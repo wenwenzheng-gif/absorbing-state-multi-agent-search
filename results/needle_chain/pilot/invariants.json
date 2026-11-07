@@ -9,7 +9,7 @@
     "deterministic sufficient horizon",
     "paired reference invariance"
   ],
-  "episodes_checked": 480,
+  "episodes_checked": 504,
   "note": "Structural assertions only; empirical GPT agreement is not a pass/fail gate.",
   "status": "passed"
 }
