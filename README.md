@@ -122,8 +122,10 @@ calls are not bit-reproducible. New runs write to `runs/`, which is ignored by G
 The experimental branch adds atomic Needle Search and strictly sequential Chain
 Search with deterministic and GPT-5.4 Nano policies. See the
 [preregistration and reproduction instructions](docs/needle_chain/README.md).
-The small pilot and the separately gated future full configuration use a
+The frozen pilots and the separately preregistered full v2 experiment use a
 dedicated no-transition analysis path; neither fits a finite critical degree.
+See the [full v2 report and offline reproduction instructions](docs/needle_chain/README_full_v2.md)
+for the N=20, six-degree experiment with 4,800 reference and 288 GPT episodes.
 
 ## Citation
 

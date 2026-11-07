@@ -17,15 +17,19 @@ def plot_full(rows, episodes, mechanisms, historical, output: Path):
     folder.mkdir(parents=True, exist_ok=True)
     plt.rcParams.update({'font.size': 10, 'axes.spines.top': False, 'axes.spines.right': False,
                          'savefig.dpi': 220, 'pdf.fonttype': 42})
+    titles={'Needle-Low':'Needle-Low · S=4000, B=160',
+            'Needle-High':'Needle-High · S=160, B=320',
+            'Chain-Short-Horizon':'Chain-Short · T=6 < C=8',
+            'Chain-Sufficient-Horizon':'Chain-Sufficient · T=10 ≥ C=8'}
     def save(fig, name):
         for ext in ['png', 'pdf']:
             fig.savefig(folder / f'{name}.{ext}', bbox_inches='tight')
         plt.close(fig)
-    def success(ax, sub, color, marker, label, style='-'):
+    def success(ax, sub, color, marker, label, style='-', offset=0.):
         sub = sorted(sub, key=lambda r: r['degree'])
         if not sub:
             return
-        ax.errorbar([r['degree'] for r in sub], [r['p_success'] for r in sub],
+        ax.errorbar([r['degree']+offset for r in sub], [r['p_success'] for r in sub],
                     yerr=[[max(0, r['p_success']-r['ci_low']) for r in sub],
                           [max(0, r['ci_high']-r['p_success']) for r in sub]],
                     color=color, marker=marker, linestyle=style, capsize=3,
@@ -36,18 +40,18 @@ def plot_full(rows, episodes, mechanisms, historical, output: Path):
         ax.grid(axis='y', alpha=.2)
     for number, task, conditions in [(1, 'Needle', ['Needle-Low', 'Needle-High']),
             (2, 'Chain', ['Chain-Short-Horizon', 'Chain-Sufficient-Horizon'])]:
-        fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharey=True, layout='constrained')
+        fig, axes = plt.subplots(1, 2, figsize=(10, 4.4), sharey=True, layout='constrained')
         for ax, condition in zip(axes, conditions):
             for kind, (color, marker, label) in STYLES.items():
                 sub = [r for r in rows if r['condition']==condition and r['agent_type']==kind]
                 if sub:
                     success(ax, sub, color, marker, f'{label} (n={sub[0]["episodes"]}/degree)',
-                            '-' if kind=='deterministic' else '--')
-            ax.set_title(condition.replace('-Horizon', ''))
+                            '-' if kind=='deterministic' else '--', -.18 if kind=='deterministic' else .18)
+            ax.set_title(titles[condition])
         axes[0].set_ylabel('Task success probability\nWilson 95% interval')
         handles, labels = axes[-1].get_legend_handles_labels()
         fig.legend(handles, labels, loc='outside lower center', ncol=2)
-        fig.suptitle(f'{task} Search · full v2', fontweight='bold')
+        fig.suptitle(f'{task} Search · full v2\nMarkers offset horizontally to separate intervals', fontsize=12)
         save(fig, f'figure_{number}_{task.lower()}')
     fig, axes = plt.subplots(2, 2, figsize=(10, 7), layout='constrained')
     for j, condition in enumerate(['Needle-Low', 'Needle-High']):
@@ -67,7 +71,8 @@ def plot_full(rows, episodes, mechanisms, historical, output: Path):
                 ax.set_ylim((0, .05) if j==0 else (0, 1.05))
             else:
                 ax.set_ylim(-.03, 1.03)
-        axes[0,j].legend(fontsize=9)
+    handles, labels = axes[0,0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='outside lower center', ncol=2, fontsize=9)
     fig.suptitle('Needle coverage and duplication · full v2\nTwo High passes imply 50% duplicates even under the reference policy', fontsize=12)
     save(fig, 'figure_3_needle_mechanisms')
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.8), layout='constrained')
@@ -88,7 +93,7 @@ def plot_full(rows, episodes, mechanisms, historical, output: Path):
                     marker='o' if kind=='deterministic' else 'x', markersize=3, alpha=.8)
             depth_rows.extend({'condition':condition,'agent_type':kind,'degree':degree,'round':r,
                                'mean_depth':float(v),'episodes':len(es)} for r,v in enumerate(avg))
-        ax.set_title(condition.replace('-Horizon',''))
+        ax.set_title(titles[condition])
         ax.set_xlabel('Global round (completed depth is absorbing)')
         ax.set_ylabel('Mean maximum completed depth')
         ax.set_ylim(-.25,8.5)
@@ -117,7 +122,8 @@ def plot_full(rows, episodes, mechanisms, historical, output: Path):
                                        (axes[2],'C','Chain',['Chain-Short-Horizon','Chain-Sufficient-Horizon'])]:
         for condition,color,marker in zip(conditions,['#17629C','#C45118'],['o','s']):
             sub=[r for r in rows if r['condition']==condition and r['agent_type']=='llm']
-            success(ax,sub,color,marker,condition.replace('-Horizon',''))
+            label = condition if task=='Needle' else ('T=6 < C=8' if 'Short' in condition else 'T=10 ≥ C=8')
+            success(ax,sub,color,marker,label)
         ax.set_title(f'{letter}  {task} full v2 (N=20)\nGPT-5.4 Nano, n=12/degree',fontsize=11)
         ax.set_ylabel('P(verified task success)')
         ax.legend(loc='center',fontsize=9)

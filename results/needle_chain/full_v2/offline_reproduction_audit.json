@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "hosted_vs_local_numerical_tables": [
+    "by_degree.csv",
+    "needle_mechanisms.csv",
+    "needle_episodes.csv",
+    "depth_by_round.csv",
+    "historical_hierarchical.csv"
+  ],
+  "numeric_tolerance": 1e-12,
+  "episode_archive_uncompressed_sha256": "ce74e372faa344fb28a8159cf98695da2d8b291e63eabf98c952f5cd2406b45d",
+  "episode_content_unchanged": true,
+  "classification_and_runtime_unchanged": true,
+  "new_model_calls": 0
+}

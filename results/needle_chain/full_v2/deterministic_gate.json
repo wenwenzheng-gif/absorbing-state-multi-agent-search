@@ -1,0 +1,8 @@
+{
+  "episodes": 4800,
+  "low_baseline": 0.04,
+  "low_baseline_within_wilson_interval": true,
+  "note": "Low empirical sampling noise is reported; exact .04 coverage and paired invariance are structural gates. High success and Chain 0/1 are enforced.",
+  "paired_tasks_verified": 800,
+  "status": "passed"
+}

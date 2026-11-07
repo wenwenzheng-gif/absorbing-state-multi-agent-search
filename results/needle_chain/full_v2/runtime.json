@@ -1,0 +1,21 @@
+{
+  "api_calls": 25921,
+  "blocker": null,
+  "cached_prompt_tokens": 65024,
+  "calls_per_episode": 90.00347222222223,
+  "completion_tokens": 907714,
+  "deterministic_episodes": 4800,
+  "deterministic_seconds": 144.278453901,
+  "episodes_per_minute": 4.793615579166721,
+  "estimated_cost_usd": 9.720658180000001,
+  "execution_seconds": 3843.2998493929995,
+  "execution_status": "complete",
+  "failed_attempts": 1,
+  "full_executed": true,
+  "llm_episodes": 288,
+  "llm_seconds": 3604.794692987,
+  "mean_http_latency_seconds": 0.6951578744308617,
+  "prompt_tokens": 42988600,
+  "retries": 1,
+  "successful_api_calls": 25920
+}

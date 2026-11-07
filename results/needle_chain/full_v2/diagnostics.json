@@ -1,0 +1,253 @@
+[
+  {
+    "agent_type": "deterministic",
+    "condition": "Chain-Short-Horizon",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.024503906743455962,
+        0.024503906743455962
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 200,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "llm",
+    "condition": "Chain-Short-Horizon",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.29510806945234225,
+        0.29510806945234225
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 12,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "deterministic",
+    "condition": "Chain-Sufficient-Horizon",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.02450390674345604,
+        0.02450390674345604
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 200,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "llm",
+    "condition": "Chain-Sufficient-Horizon",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.29510806945234214,
+        0.29510806945234214
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 12,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "deterministic",
+    "condition": "Needle-High",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.02450390674345604,
+        0.02450390674345604
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 200,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "llm",
+    "condition": "Needle-High",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.29510806945234214,
+        0.29510806945234214
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 12,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  },
+  {
+    "agent_type": "deterministic",
+    "condition": "Needle-Low",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.0746322442453469,
+        0.0746322442453469
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 200,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "aic_constant": 513.1572735506342,
+      "aic_degree": 515.1572735506342,
+      "bootstrap_degenerate": true,
+      "bootstrap_estimable": 1000,
+      "bootstrap_interval_status": "unreliable: nonidentifiable resamples, degenerate distribution, or fewer than six clusters",
+      "bootstrap_requested": 1000,
+      "ci95_cluster_bootstrap": null,
+      "cluster_robust_se": 1.6284948850848128e-16,
+      "coefficient": -2.307337912486414e-16,
+      "conditional_estimable_bootstrap_quantiles": [
+        -7.840717843525516e-16,
+        7.648927504441663e-16
+      ],
+      "constant_probability": 0.055,
+      "intercept": -2.843851742261269,
+      "likelihood_ratio_descriptive": 0.0,
+      "log_likelihood_constant": -255.57863677531708,
+      "log_likelihood_degree": -255.57863677531708,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "seed_clusters": 200,
+      "status": "estimated",
+      "test": "no calibrated slope test: too few clusters or degenerate paired score"
+    }
+  },
+  {
+    "agent_type": "llm",
+    "condition": "Needle-Low",
+    "endpoint": {
+      "bootstrap_degenerate": true,
+      "ci95_conservative_wilson": [
+        -0.29510806945234225,
+        0.29510806945234225
+      ],
+      "ci95_paired_bootstrap": [
+        0.0,
+        0.0
+      ],
+      "delta_p": 0.0,
+      "discordant_pairs": 0,
+      "p_bh_fdr": 1.0,
+      "p_value": 1.0,
+      "paired_seeds": 12,
+      "status": "estimated",
+      "test": "exact paired discordance (McNemar)",
+      "unpaired_seeds": 0
+    },
+    "regression": {
+      "coefficient": null,
+      "p_bh_fdr": null,
+      "p_value": null,
+      "status": "not_identifiable_constant_outcome"
+    }
+  }
+]

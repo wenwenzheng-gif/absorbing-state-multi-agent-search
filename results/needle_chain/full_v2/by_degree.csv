@@ -1,0 +1,49 @@
+agent_type,api_error_episode_fraction,api_failure_rate,ci_high,ci_low,condition,coverage_fraction,dc,degree,duplicate_fraction,episodes,illegal_future_attempts,interpretation,invalid_action_rate,mean_maximum_depth,mean_rounds_used,mean_unique_candidates_tested,p_success,source,successes,task
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,0,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,4,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,8,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,12,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,16,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.01884532637726656,0.0,Chain-Short-Horizon,,infinity,19,0.0,200,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,0,0.0,12,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,4,0.0,12,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,8,0.0,12,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,12,0.0,12,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0006939625260235947,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,16,0.0,12,0,insufficient sequential horizon,0.0006944444444444445,6.0,6.0,0.0,0.0,theory,0,chain
+llm,0.0,0.0,0.24249400665524076,0.0,Chain-Short-Horizon,,infinity,19,0.0,12,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,0,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,4,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,8,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,12,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,16,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+deterministic,0.0,,1.0,0.9811546736227335,Chain-Sufficient-Horizon,,0,19,0.0,200,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,200,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,0,0.0,12,1,no positive communication threshold,0.0015625,8.0,8.0,0.0,1.0,theory,12,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,4,0.0,12,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,12,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,8,0.0,12,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,12,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,12,0.0,12,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,12,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,16,0.0,12,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,12,chain
+llm,0.0,0.0,1.0,0.7575059933447593,Chain-Sufficient-Horizon,,0,19,0.0,12,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,12,chain
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,0,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,4,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,8,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,12,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,16,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+deterministic,0.0,,1.0,0.9811546736227335,Needle-High,1.0,0,19,0.5,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,200,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,0,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,4,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,8,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,12,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,16,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+llm,0.0,0.0,1.0,0.7575059933447593,Needle-High,1.0,0,19,0.5,12,0,no positive communication threshold,0.0,0.0,2.0,160.0,1.0,theory,12,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,0,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,4,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,8,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,12,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,16,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+deterministic,0.0,,0.0957869987723084,0.030985341703458846,Needle-Low,0.04,0,19,0.0,200,0,no positive communication threshold,0.0,0.0,2.0,160.0,0.055,theory,11,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.03902083333333333,0,0,0.024479166666666666,12,0,no positive communication threshold,0.0,0.0,2.0,156.08333333333334,0.0,theory,0,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.03947916666666667,0,4,0.013020833333333334,12,0,no positive communication threshold,0.0,0.0,2.0,157.91666666666666,0.0,theory,0,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.03958333333333333,0,8,0.010416666666666666,12,0,no positive communication threshold,0.0,0.0,2.0,158.33333333333334,0.0,theory,0,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.03970833333333334,0,12,0.007291666666666667,12,0,no positive communication threshold,0.0,0.0,2.0,158.83333333333334,0.0,theory,0,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.03983333333333333,0,16,0.004166666666666667,12,0,no positive communication threshold,0.0,0.0,2.0,159.33333333333334,0.0,theory,0,needle
+llm,0.0,0.0,0.24249400665524076,0.0,Needle-Low,0.0395625,0,19,0.0109375,12,0,no positive communication threshold,0.0,0.0,2.0,158.25,0.0,theory,0,needle

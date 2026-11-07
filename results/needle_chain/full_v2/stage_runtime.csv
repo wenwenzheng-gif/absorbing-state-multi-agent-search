@@ -1,0 +1,5 @@
+condition,episodes,llm_seconds,api_calls,successful_api_calls,retries,estimated_cost_usd
+Needle-Low,72,379.019917536,2880,2880,0,0.70454505
+Needle-High,72,393.55483680400005,2880,2880,0,1.2265857600000003
+Chain-Short-Horizon,72,1226.7483347549999,8641,8640,1,3.17344589
+Chain-Sufficient-Horizon,72,1605.471603892,11520,11520,0,4.616081480000001

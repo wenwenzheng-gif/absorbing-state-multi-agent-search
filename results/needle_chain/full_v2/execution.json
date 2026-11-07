@@ -1,0 +1,103 @@
+{
+  "config_digest": "775794887d0438bdf03dad7607e94a674316ea0353f9c628a1174d58d6a575a3",
+  "deterministic_wall_seconds": 144.278453901,
+  "execution_wall_seconds": 3843.2998493929995,
+  "full_executed": true,
+  "invocations": [
+    {
+      "git_commit_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+      "github_run_id": "42418649262",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T22:02:48+00:00",
+      "wall_seconds": 162.660606168
+    },
+    {
+      "git_commit_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+      "github_run_id": "42418649262",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T22:08:39+00:00",
+      "wall_seconds": 397.71204071600005
+    },
+    {
+      "git_commit_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+      "github_run_id": "42418649262",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T22:18:31+00:00",
+      "wall_seconds": 412.4802753019999
+    },
+    {
+      "git_commit_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+      "github_run_id": "42418649262",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T22:28:45+00:00",
+      "wall_seconds": 1245.706954949
+    },
+    {
+      "git_commit_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+      "github_run_id": "42418649262",
+      "package_versions": {
+        "httpx": "0.28.1",
+        "matplotlib": "3.10.8",
+        "networkx": "3.5",
+        "numpy": "2.3.5",
+        "pandas": "2.2.3",
+        "pytest": "9.2.0",
+        "scipy": "1.18.1"
+      },
+      "runner_repository": "wenwenzheng-gif/absorb-state-new",
+      "started_at": "2026-11-07T22:53:09+00:00",
+      "wall_seconds": 1624.7399722579999
+    }
+  ],
+  "llm_wall_seconds": 3604.794692987,
+  "package_versions": {
+    "httpx": "0.28.1",
+    "matplotlib": "3.10.8",
+    "networkx": "3.5",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "pytest": "9.2.0",
+    "scipy": "1.18.1"
+  },
+  "python": "3.13.18 (main, Oct 26 2026, 14:20:56) [GCC 13.3.0]",
+  "resolved_model": "gpt-5.4-nano-2026-03-17",
+  "source_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+  "started_at": "2026-11-07T22:02:48+00:00",
+  "status": "complete"
+}

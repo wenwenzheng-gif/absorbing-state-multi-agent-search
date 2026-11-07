@@ -1,0 +1,66 @@
+{
+  "FULL_V2_PREREGISTRATION_SHA": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+  "artifact_download_verified": true,
+  "artifact_downloaded_files": 68005,
+  "artifact_id": 13594458216,
+  "artifact_name": "full-v2-final-1",
+  "artifact_retention_days": 30,
+  "artifact_size_bytes": 182416823,
+  "both_main_branches_unchanged": true,
+  "canonical_branch": "experiment/needle-chain-no-transition-v1",
+  "canonical_main_sha": "87cfc41eb3bcbef3f5f70029c73f17708d324cc2",
+  "canonical_preregistration_ci_conclusion": "success",
+  "canonical_preregistration_ci_run": 42418633504,
+  "canonical_repository": "wenwenzheng-gif/absorbing-state-multi-agent-search",
+  "cleanup_status": "Automatic approval review rejected remote branch deletion because it was not explicitly authorized; branch retained without changing the scientific run.",
+  "conclusion": "success",
+  "execution_stage_timestamps": [
+    {
+      "completedAt": "2026-11-07T22:07:12Z",
+      "conclusion": "success",
+      "name": "All 4800 deterministic episodes and structural gate",
+      "startedAt": "2026-11-07T22:02:25Z"
+    },
+    {
+      "completedAt": "2026-11-07T22:16:59Z",
+      "conclusion": "success",
+      "name": "GPT Needle-Low 72 episodes",
+      "startedAt": "2026-11-07T22:08:16Z"
+    },
+    {
+      "completedAt": "2026-11-07T22:27:08Z",
+      "conclusion": "success",
+      "name": "GPT Needle-High 72 episodes",
+      "startedAt": "2026-11-07T22:18:08Z"
+    },
+    {
+      "completedAt": "2026-11-07T22:51:16Z",
+      "conclusion": "success",
+      "name": "GPT Chain-Short 72 episodes",
+      "startedAt": "2026-11-07T22:28:22Z"
+    },
+    {
+      "completedAt": "2026-11-07T23:22:06Z",
+      "conclusion": "success",
+      "name": "GPT Chain-Sufficient 72 episodes",
+      "startedAt": "2026-11-07T22:52:46Z"
+    }
+  ],
+  "full_run_executed": true,
+  "hosted_processed_archive_sha256": "10c00d218a1fb08f48c158898810ac0cbfc8b6235d64a91e4152560cdbe33579",
+  "job_completed_at": "2026-11-07T23:24:18Z",
+  "job_id": 128542107234,
+  "job_started_at": "2026-11-07T22:01:55Z",
+  "job_wall_seconds": 4943.0,
+  "run_attempt": "1",
+  "run_id": "42418649262",
+  "run_url": "https://github.com/wenwenzheng-gif/absorb-state-new/actions/runs/42418649262",
+  "runner_main_sha": "4ac8891b9684561519f37fded58110d558eda769",
+  "runner_repository": "wenwenzheng-gif/absorb-state-new",
+  "secret_migrated_or_modified": false,
+  "secret_reference_name_only": "OPENAI_API_KEY",
+  "source_commit": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+  "temporary_runner_branch_deleted_after_verified_import": false,
+  "temporary_runner_branch_retained": true,
+  "temporary_runner_branch_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78"
+}

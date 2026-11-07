@@ -55,6 +55,19 @@ The table directly reports P_success(d); intervals are marginal 95% Wilson inter
 ''']
     parts.append(table(['Condition','Agent','d','n','Successes','P_success','95% CI','Mean rounds','Invalid rate','API-error fraction'],
         [[r['condition'], 'D' if r['agent_type']=='deterministic' else 'G',r['degree'],r['episodes'],r['successes'],r['p_success'],[r['ci_low'],r['ci_high']],r['mean_rounds_used'],r['invalid_action_rate'],r['api_error_episode_fraction']] for r in rows]))
+    for kind, label in [('deterministic','Deterministic results'),('llm','GPT results')]:
+        observed=[]
+        for condition in config['conditions']:
+            sub=sorted([r for r in rows if r['agent_type']==kind and r['condition']==condition['name']],key=lambda r:r['degree'])
+            if sub:
+                counts=', '.join(f"{r['successes']}/{r['episodes']}" for r in sub)
+                observed.append(f"{condition['name']}: {counts} in ascending degree order")
+        parts.append(f"### {label}\n\n" + '; '.join(observed) + '.')
+    parts.append('The deterministic Needle-Low probability is 0.04 by construction, but the realized success fraction over 200 fixed seeds is a sample estimate. Its Wilson interval, rather than exact equality to 0.04, describes this sampling variation; seeds were not replaced.')
+    paired_low=[e for e in episodes if e['condition']=='Needle-Low' and e['agent_type']=='deterministic'
+                and e['degree']==0 and e['task_seed'] in config['llm_seeds']]
+    if paired_low:
+        parts.append(f"Within the {len(paired_low)} preregistered task seeds shared with GPT, the reference Needle-Low policy succeeded on {sum(e['success'] for e in paired_low)}/{len(paired_low)} tasks. Rare-event sampling limits interpretation of the GPT Low success cells; coverage and schedule departures provide additional behavioral measurements.")
     parts.append('''
 ## Paired endpoints and degree-effect models
 
@@ -76,6 +89,7 @@ Unique coverage counts actual valid tests. Duplicate fraction counts repeats ove
         [[r['condition'],r['agent_type'],r['degree'],r['mean_unique_candidates_tested'],r['mean_coverage_fraction'],r['mean_duplicate_tests'],r['mean_duplicate_fraction'],r['mean_schedule_departure_fraction'],r['target_batch_followed_fraction'],r['target_tested_episode_fraction']] for r in mechanisms]))
     parts.append(table(['Condition','Agent','d','Neighbor retests','Known negative','Known target','Neighbor fraction','Round 1 / episodes','Round 2 / episodes'],
         [[r['condition'],r['agent_type'],r['degree'],r['neighbor_reported_retests'],r['neighbor_known_negative_retests'],r['neighbor_known_target_retests'],r['neighbor_informed_duplicate_fraction'],r['round1_success_fraction_of_all_episodes'],r['round2_success_fraction_of_all_episodes']] for r in mechanisms]))
+    parts.append('The opportunity to count a neighbor-reported retest increases with the number of received neighbor records. In the two-pass High design, a reference agent repeats every candidate regardless of communication, so an increasing neighbor-retest fraction can coexist with unchanged total duplication. This opportunity effect and the logged schedule departures must be distinguished from claims about model motive or causal changes in efficiency.')
     parts.append(f'''### Needle-High positive control
 
 GPT successes: {successes}/{len(high)}; round 1 discoveries: {first}; round 2 discoveries: {second}. Among successes, round 1 fraction={fmt(first/successes if successes else None)}, round 2 fraction={fmt(second/successes if successes else None)}. The second pass rescued {second} first-round omissions ({fmt(second/len(high) if high else None)} of episodes). Per-degree fractions are in `needle_mechanisms.csv`; discovery rounds for every episode are in `needle_episodes.csv`.
@@ -90,6 +104,9 @@ This is a saturated positive-control regime showing whether success remains high
             groups[e['condition'],e['agent_type'],e['degree']].append(e)
     parts.append(table(['Condition','Agent','d','Mean max depth','Max depth','Illegal future attempts','Mean completion round (successes)'],
         [[*key,mean(e['maximum_depth'] for e in es),max(e['maximum_depth'] for e in es),sum(e['illegal_future_attempts'] for e in es),mean(e['round_of_success'] for e in es if e['success']) if any(e['success'] for e in es) else None] for key,es in sorted(groups.items())]))
+    invalid_chain=[e for e in llm if e['task']=='chain' and e['invalid_actions']]
+    if invalid_chain:
+        parts.append(f"Retained {sum(e['invalid_actions'] for e in invalid_chain)} invalid Chain action(s) in {len(invalid_chain)} GPT episode(s). These episodes remain in every result table. The shared chain can still advance when another agent submits a valid current-level capability; an invalid action is not itself a protocol violation. Detailed observed-action diagnostics are recorded in the independent final audit.")
     parts.append('''## Historical Hierarchical comparison
 
 No historical model calls were made. The archived source has 24 deterministic episodes, N=40, T=8, degrees 0,1,2,3,4,5,6,8 and seeds 95000–95002, from `wenwenzheng-gif/absorb-state-new`, commit `236a8e043c433239b03ef809f607b365fc933c81`. It initializes only wrong depth-one prefixes. It records incorrect-lineage extinction and growth, not verified target recovery. Execution `status: ok` is not task success. Thus a reproducible historical P_success curve is unavailable from these records; the existing success-model utilities cannot recover an outcome never recorded.
@@ -101,7 +118,11 @@ Figure 5A honestly displays P(wrong lineage extinct by T=8), not P_success. This
     for name,caption in [('figure_1_needle','Needle success'),('figure_2_chain','Chain success'),('figure_3_needle_mechanisms','Needle coverage and duplication'),('figure_4_chain_depth','Chain depth by global round'),('figure_5_historical_comparison','Historical extinction versus new verified task outcomes')]:
         parts.append(f'![{caption}](figures/{name}.png)\n\n[{caption}, vector PDF](figures/{name}.pdf)')
     parts.append('## Runtime, calls and tokens\n\nMeasured stage wall times exclude dependency installation, tests between stages, artifact uploads and offline analysis. Transport latency is not summed as wall time because calls are concurrent. Estimated cost uses frozen rates $0.20/M uncached input, $0.02/M cached input, $1.25/M output; it is not a billing statement.')
+    parts.append('The initial operational estimate used the v2 pilot throughput: 792 calls in 124.7625 seconds, giving about 68 minutes for the 25,920-call correct-policy full workload. This estimate was not a stopping rule. The table below reports the actual full-run measurements; hosted job elapsed time, including tests, analysis and uploads, is separately recorded in `hosted_provenance.json`.')
     parts.append(table(['Quantity','Measured value'],[[k,v] for k,v in runtime.items()]))
+    ambiguous=sum(e['ambiguous_or_transport_interrupted_attempts'] for e in llm)
+    if ambiguous:
+        parts.append(f"There were {ambiguous} HTTP attempt(s) without a saved completion event. They are included in attempted-call and retry accounting. Recorded token usage and estimated cost cover saved successful responses; provider-side processing or billing for an interrupted attempt cannot be reconstructed from these logs.")
     parts.append(f'''## Validation, deviations and limitations
 
 Expected episodes: {audit['expected_episodes']}; observed: {audit['episodes']}; missing: {len(audit['missing_episodes'])}. Protected pilot artifacts: {audit['protected_pilots']['status']}; frozen design: {audit['frozen_design']['status']}. Response models: {', '.join(audit['response_models']) or 'none yet'}. Detailed request-key, retry, source-SHA and raw-checkpoint audits are in the machine-readable validation/provenance files.

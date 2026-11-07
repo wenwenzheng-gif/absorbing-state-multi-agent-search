@@ -1,0 +1,227 @@
+{
+  "deterministic_gate": {
+    "episodes": 4800,
+    "low_baseline": 0.04,
+    "low_baseline_within_wilson_interval": true,
+    "note": "Low empirical sampling noise is reported; exact .04 coverage and paired invariance are structural gates. High success and Chain 0/1 are enforced.",
+    "paired_tasks_verified": 800,
+    "status": "passed"
+  },
+  "deviations": [
+    {
+      "description": "Temporary runner branch retained because automatic approval review rejected remote branch deletion as not explicitly authorized; scientific execution and results unchanged.",
+      "scope": "operational_cleanup"
+    }
+  ],
+  "episodes_checked": 5088,
+  "figure_sha256": {
+    "figures/figure_1_needle.pdf": "7d3179a99c79945575c45a89e91ccef528bfd1358ba1cb5b573fcf9fddf211c2",
+    "figures/figure_1_needle.png": "6fcda4ec82df335eca1c0cb1b9dbe5ed5ff50f06f662ccdab191b77996d31dc6",
+    "figures/figure_2_chain.pdf": "af9ba273f4408c6b594a143674db791dc38013df519ad9227dd991ff2089764a",
+    "figures/figure_2_chain.png": "8df946c5276c43f82f5a499a891c896d0d4540dadc98336c819fb1a914141806",
+    "figures/figure_3_needle_mechanisms.pdf": "b427c5072dde58899023c702ef1f00b9c4c0639f98bbfa8087c3c26f71b88cfb",
+    "figures/figure_3_needle_mechanisms.png": "119c85bdd7a0b3ffd8785294648259c349025d7a5fe947b6beafe1bef7ae077a",
+    "figures/figure_4_chain_depth.pdf": "a2ffb4cc50481076318f5f0377aa2287d533ae863fee417dcd8f83f281fa2095",
+    "figures/figure_4_chain_depth.png": "27b05020eb0f8785cac7962197ac3b83fc30c9e191a8b2f7f69427337870d548",
+    "figures/figure_5_historical_comparison.pdf": "d13b89845feadd353616b3801e739518a51b0a7623d88f92847aad8760fb3e25",
+    "figures/figure_5_historical_comparison.png": "038473d526b8ba9d387837b7e9a3fa4ad244cc6eb4cd979e1ed922ec9f583944"
+  },
+  "final_local_tests": "502 passed, 13 skipped, 934 subtests passed in 35.13s",
+  "frozen_design": {
+    "files_verified": 20,
+    "status": "unchanged"
+  },
+  "independent_final_audit": {
+    "checks": [
+      "exact episode IDs and fixed seed sets",
+      "per-cell sample counts",
+      "paired task and graph seed identities",
+      "undirected degree-correct graphs without self edges",
+      "actual Needle target tests and duplicate accounting",
+      "actual Chain completion depth and one-level barriers",
+      "exact GPT model",
+      "no deterministic API calls"
+    ],
+    "complete_cells": 48,
+    "episodes": 5088,
+    "frozen_design": {
+      "files_verified": 20,
+      "status": "unchanged"
+    },
+    "paired_tasks": 848,
+    "protected_local_raw": {
+      "files": 6128,
+      "status": "unchanged"
+    },
+    "protected_processed": {
+      "files_verified": 51,
+      "status": "unchanged",
+      "v1_frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+      "v2_frozen_commit": "487e6571f9029b571a6611a38b19c820ec93071d"
+    },
+    "reference_checkpoint_preserved": {
+      "episodes": 4800,
+      "status": "unchanged_after_gpt_stages"
+    },
+    "retained_invalid_actions": [
+      {
+        "agent_id": 8,
+        "available_pointer_status": "AVAILABLE",
+        "episode_id": "Chain-Short-Horizon_llm_s92001_d16",
+        "episode_success": false,
+        "future_attempt": false,
+        "maximum_depth": 6,
+        "response_status": "NO_CAPABILITY",
+        "round": 6,
+        "submitted_current_level": true,
+        "submitted_key_matches_available_key": false
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "AVAILABLE",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": true,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 6,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": true
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "NO_CAPABILITY",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": false,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 7,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": false
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "NO_CAPABILITY",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": false,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 8,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": false
+      }
+    ],
+    "source_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+    "status": "passed",
+    "technical_retry_or_error_episodes": [
+      {
+        "ambiguous_or_transport_interrupted_attempts": 1,
+        "api_attempts": 121,
+        "api_errors": 0,
+        "api_failed_attempts": 1,
+        "episode_id": "Chain-Short-Horizon_llm_s92007_d16",
+        "retry_count": 1,
+        "successful_api_calls": 120
+      }
+    ]
+  },
+  "offline_reproduction": {
+    "classification_and_runtime_unchanged": true,
+    "episode_archive_uncompressed_sha256": "ce74e372faa344fb28a8159cf98695da2d8b291e63eabf98c952f5cd2406b45d",
+    "episode_content_unchanged": true,
+    "hosted_vs_local_numerical_tables": [
+      "by_degree.csv",
+      "needle_mechanisms.csv",
+      "needle_episodes.csv",
+      "depth_by_round.csv",
+      "historical_hierarchical.csv"
+    ],
+    "new_model_calls": 0,
+    "numeric_tolerance": 1e-12,
+    "status": "passed"
+  },
+  "paired_tasks": "passed",
+  "post_execution_reporting_changes": [
+    "Figure titles, legend position and labeled horizontal offsets for overlapping intervals",
+    "Narrative descriptions of observed outcomes, uncertainty, invalid actions and interrupted HTTP attempt",
+    "Independent episode, graph, request, preservation and offline-reproduction audits"
+  ],
+  "protected_pilots": {
+    "files_verified": 51,
+    "status": "unchanged",
+    "v1_frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+    "v2_frozen_commit": "487e6571f9029b571a6611a38b19c820ec93071d"
+  },
+  "provider_calls": {
+    "ambiguous_attempts": 1,
+    "cross_episode_key_collisions": 0,
+    "llm_episodes_audited": 288,
+    "logical_request_keys": 25920,
+    "request_ledger_lines": 25920,
+    "response_model_counts": {
+      "gpt-5.4-nano-2026-03-17": 25920
+    },
+    "source_shas": [
+      "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78"
+    ],
+    "status": "passed",
+    "successful_responses": 25920,
+    "unique_response_ids": 25920
+  },
+  "scientific_deviations": [],
+  "secret_scan": {
+    "artifact_zip_sha256": "39f053af92196453daf0b16d477924c9ff98e8bc10128eabab0a7edb74f8ac52",
+    "credential_patterns_found": 0,
+    "github_artifact_digest": "sha256:39f053af92196453daf0b16d477924c9ff98e8bc10128eabab0a7edb74f8ac52",
+    "status": "passed",
+    "text_or_compressed_records_scanned": 67995
+  },
+  "status": "passed",
+  "structural_invariants": "passed",
+  "visual_inspection": {
+    "figures": [
+      {
+        "file": "figure_1_needle.pdf",
+        "pages": 1,
+        "pdf_bytes": 18252,
+        "rendered": true,
+        "unchanged_from_prior_visual_review": false
+      },
+      {
+        "file": "figure_2_chain.pdf",
+        "pages": 1,
+        "pdf_bytes": 17689,
+        "rendered": true,
+        "unchanged_from_prior_visual_review": false
+      },
+      {
+        "file": "figure_3_needle_mechanisms.pdf",
+        "pages": 1,
+        "pdf_bytes": 18571,
+        "rendered": true,
+        "unchanged_from_prior_visual_review": true
+      },
+      {
+        "file": "figure_4_chain_depth.pdf",
+        "pages": 1,
+        "pdf_bytes": 22536,
+        "rendered": true,
+        "unchanged_from_prior_visual_review": true
+      },
+      {
+        "file": "figure_5_historical_comparison.pdf",
+        "pages": 1,
+        "pdf_bytes": 20779,
+        "rendered": true,
+        "unchanged_from_prior_visual_review": true
+      }
+    ],
+    "notes": "All labels, intervals, legends and historical outcome distinctions inspected. Figures 1/2 use labeled horizontal marker offsets; Figures 3/4/5 final renders match previously inspected pixels.",
+    "pdf_renders_reviewed": 5,
+    "png_figures": 5,
+    "status": "passed",
+    "vector_pdf_figures": 5
+  }
+}

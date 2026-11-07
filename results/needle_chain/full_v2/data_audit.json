@@ -1,0 +1,160 @@
+{
+  "api_errors": 0,
+  "credential_scan": {
+    "artifact_zip_sha256": "39f053af92196453daf0b16d477924c9ff98e8bc10128eabab0a7edb74f8ac52",
+    "credential_patterns_found": 0,
+    "github_artifact_digest": "sha256:39f053af92196453daf0b16d477924c9ff98e8bc10128eabab0a7edb74f8ac52",
+    "status": "passed",
+    "text_or_compressed_records_scanned": 67995
+  },
+  "episode_archive_sha256": "10c00d218a1fb08f48c158898810ac0cbfc8b6235d64a91e4152560cdbe33579",
+  "episodes": 5088,
+  "expected_episodes": 5088,
+  "frozen_design": {
+    "files_verified": 20,
+    "status": "unchanged"
+  },
+  "independent_final_audit": {
+    "checks": [
+      "exact episode IDs and fixed seed sets",
+      "per-cell sample counts",
+      "paired task and graph seed identities",
+      "undirected degree-correct graphs without self edges",
+      "actual Needle target tests and duplicate accounting",
+      "actual Chain completion depth and one-level barriers",
+      "exact GPT model",
+      "no deterministic API calls"
+    ],
+    "complete_cells": 48,
+    "episodes": 5088,
+    "frozen_design": {
+      "files_verified": 20,
+      "status": "unchanged"
+    },
+    "paired_tasks": 848,
+    "protected_local_raw": {
+      "files": 6128,
+      "status": "unchanged"
+    },
+    "protected_processed": {
+      "files_verified": 51,
+      "status": "unchanged",
+      "v1_frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+      "v2_frozen_commit": "487e6571f9029b571a6611a38b19c820ec93071d"
+    },
+    "reference_checkpoint_preserved": {
+      "episodes": 4800,
+      "status": "unchanged_after_gpt_stages"
+    },
+    "retained_invalid_actions": [
+      {
+        "agent_id": 8,
+        "available_pointer_status": "AVAILABLE",
+        "episode_id": "Chain-Short-Horizon_llm_s92001_d16",
+        "episode_success": false,
+        "future_attempt": false,
+        "maximum_depth": 6,
+        "response_status": "NO_CAPABILITY",
+        "round": 6,
+        "submitted_current_level": true,
+        "submitted_key_matches_available_key": false
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "AVAILABLE",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": true,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 6,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": true
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "NO_CAPABILITY",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": false,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 7,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": false
+      },
+      {
+        "agent_id": 9,
+        "available_pointer_status": "NO_CAPABILITY",
+        "episode_id": "Chain-Sufficient-Horizon_llm_s92002_d0",
+        "episode_success": true,
+        "future_attempt": false,
+        "maximum_depth": 8,
+        "response_status": "LOCKED_OR_STALE",
+        "round": 8,
+        "submitted_current_level": false,
+        "submitted_key_matches_available_key": false
+      }
+    ],
+    "source_sha": "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78",
+    "status": "passed",
+    "technical_retry_or_error_episodes": [
+      {
+        "ambiguous_or_transport_interrupted_attempts": 1,
+        "api_attempts": 121,
+        "api_errors": 0,
+        "api_failed_attempts": 1,
+        "episode_id": "Chain-Short-Horizon_llm_s92007_d16",
+        "retry_count": 1,
+        "successful_api_calls": 120
+      }
+    ]
+  },
+  "missing_episodes": [],
+  "offline_reproduction": {
+    "classification_and_runtime_unchanged": true,
+    "episode_archive_uncompressed_sha256": "ce74e372faa344fb28a8159cf98695da2d8b291e63eabf98c952f5cd2406b45d",
+    "episode_content_unchanged": true,
+    "hosted_vs_local_numerical_tables": [
+      "by_degree.csv",
+      "needle_mechanisms.csv",
+      "needle_episodes.csv",
+      "depth_by_round.csv",
+      "historical_hierarchical.csv"
+    ],
+    "new_model_calls": 0,
+    "numeric_tolerance": 1e-12,
+    "status": "passed"
+  },
+  "protected_pilots": {
+    "files_verified": 51,
+    "status": "unchanged",
+    "v1_frozen_commit": "bfb1e3220a1be90e05c432bd33a363077bdb2543",
+    "v2_frozen_commit": "487e6571f9029b571a6611a38b19c820ec93071d"
+  },
+  "provider_calls": {
+    "ambiguous_attempts": 1,
+    "cross_episode_key_collisions": 0,
+    "llm_episodes_audited": 288,
+    "logical_request_keys": 25920,
+    "request_ledger_lines": 25920,
+    "response_model_counts": {
+      "gpt-5.4-nano-2026-03-17": 25920
+    },
+    "source_shas": [
+      "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78"
+    ],
+    "status": "passed",
+    "successful_responses": 25920,
+    "unique_response_ids": 25920
+  },
+  "response_models": [
+    "gpt-5.4-nano-2026-03-17"
+  ],
+  "retries": 1,
+  "source_shas": [
+    "c9246bf47a2f107e79413be6e9f4bda3e3ae9f78"
+  ],
+  "status": "passed",
+  "unique_episode_ids": 5088
+}

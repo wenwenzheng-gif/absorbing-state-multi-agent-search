@@ -1,0 +1,29 @@
+{
+  "actual_task_success_available": false,
+  "agents": 40,
+  "degrees": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    8
+  ],
+  "execution_commit": "236a8e043c433239b03ef809f607b365fc933c81",
+  "historical_llm_calls": 0,
+  "limitation": "Historical protocol initializes only wrong prefixes and measures lineage reproduction/extinction, not target recovery. Extinction and status=ok must not be relabeled as task success. Existing success_model/success_crossover utilities require actual evaluation outcomes that these records lack.",
+  "new_historical_calls": 0,
+  "observable_comparison": "fraction with A_post==0 at final round (wrong-lineage extinction)",
+  "original_episode_sha256": "828443bcca14b8b99a5cbfa19572b3b9a78c7a5dfe7d3511d2f961dbf30e2daf",
+  "records": 24,
+  "source_branch": "experiment/hierarchical-search-v1",
+  "source_location": "Existing authorized local hierarchical-search-v1 checkout, results/hierarchical-search-v1",
+  "source_repository": "wenwenzheng-gif/absorb-state-new",
+  "task_seeds": [
+    95000,
+    95001,
+    95002
+  ]
+}
