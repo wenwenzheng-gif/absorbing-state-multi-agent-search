@@ -1,0 +1,131 @@
+name: Needle Chain frozen full v2
+run-name: Needle Chain FULL v2 / frozen source ${{ github.sha }}
+on:
+  push:
+    branches: [experiment/needle-chain-no-transition-v1]
+    paths: [.github/workflows/needle-chain-hosted-full-v2.yml]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: needle-chain-full-v2
+  cancel-in-progress: false
+jobs:
+  full-v2:
+    if: github.repository == 'wenwenzheng-gif/absorb-state-new'
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUNBUFFERED: '1'
+      MPLBACKEND: Agg
+      MPLCONFIGDIR: ${{ github.workspace }}/runs/matplotlib-cache
+      XDG_CACHE_HOME: ${{ github.workspace }}/runs/xdg-cache
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: wenwenzheng-gif/absorbing-state-multi-agent-search
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install declared dependencies
+        run: python -m pip install -r requirements.txt -r requirements-agents.txt pytest
+      - name: Restore same-source checkpoint on infrastructure retry
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          repo, rid = os.environ['GITHUB_REPOSITORY'], os.environ['GITHUB_RUN_ID']
+          result = subprocess.run(['gh','api',f'repos/{repo}/actions/runs/{rid}/artifacts','--paginate'],capture_output=True,text=True,check=True)
+          artifacts = json.loads(result.stdout)['artifacts']
+          candidates = [a for a in artifacts if a['name'].startswith('full-v2-') and not a['expired']]
+          if candidates:
+              chosen = max(candidates,key=lambda a:a['created_at'])['name']
+              restored = subprocess.run(['gh','run','download',rid,'--repo',repo,'--name',chosen,'--dir','.'],capture_output=True,text=True)
+              if restored.returncode:
+                  raise RuntimeError('checkpoint restore failed; no live work started')
+              print('Restored existing checkpoint:',chosen)
+          else:
+              print('Fresh frozen run: no previous checkpoint')
+          PY
+      - name: Verify design and record non-secret provenance
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from src.agent_system.no_transition.preservation import verify_protected_pilots, verify_full_design
+          from src.agent_system.no_transition.report import write_json
+          print(verify_protected_pilots()); print(verify_full_design())
+          repo, rid = os.environ['GITHUB_REPOSITORY'],os.environ['GITHUB_RUN_ID']
+          write_json(Path('runs/needle_chain/full_v2/hosted_provenance.json'), {
+              'run_id':rid,'run_attempt':os.environ['GITHUB_RUN_ATTEMPT'],
+              'run_url':f'https://github.com/{repo}/actions/runs/{rid}',
+              'runner_repository':repo,'canonical_repository':'wenwenzheng-gif/absorbing-state-multi-agent-search',
+              'source_commit':os.environ['GITHUB_SHA'],'FULL_V2_PREREGISTRATION_SHA':os.environ['GITHUB_SHA'],
+              'secret_reference_name_only':'OPENAI_API_KEY','secret_migrated_or_modified':False,
+              'full_run_executed':True})
+          PY
+      - name: All 4800 deterministic episodes and structural gate
+        run: python -m src.agent_system.no_transition.cli --mode full --config configs/needle_chain/full_v2.json --execute-full --stage deterministic
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-v2-reference-${{ github.run_attempt }}
+          path: |
+            runs/needle_chain/full_v2/
+            results/needle_chain/full_v2/
+          retention-days: 30
+      - name: GPT Needle-Low 72 episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python -m src.agent_system.no_transition.cli --mode full --config configs/needle_chain/full_v2.json --execute-full --stage llm --condition Needle-Low
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-v2-low-${{ github.run_attempt }}
+          path: |
+            runs/needle_chain/full_v2/
+            results/needle_chain/full_v2/
+          retention-days: 30
+      - name: GPT Needle-High 72 episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python -m src.agent_system.no_transition.cli --mode full --config configs/needle_chain/full_v2.json --execute-full --stage llm --condition Needle-High
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-v2-high-${{ github.run_attempt }}
+          path: |
+            runs/needle_chain/full_v2/
+            results/needle_chain/full_v2/
+          retention-days: 30
+      - name: GPT Chain-Short 72 episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python -m src.agent_system.no_transition.cli --mode full --config configs/needle_chain/full_v2.json --execute-full --stage llm --condition Chain-Short-Horizon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: full-v2-short-${{ github.run_attempt }}
+          path: |
+            runs/needle_chain/full_v2/
+            results/needle_chain/full_v2/
+          retention-days: 30
+      - name: GPT Chain-Sufficient 72 episodes
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python -m src.agent_system.no_transition.cli --mode full --config configs/needle_chain/full_v2.json --execute-full --stage llm --condition Chain-Sufficient-Horizon
+      - name: Verify protected pilots after execution
+        if: always()
+        run: python -c 'from src.agent_system.no_transition.preservation import verify_protected_pilots, verify_full_design; print(verify_protected_pilots()); print(verify_full_design())'
+      - name: Preserve all results and crash-safe checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-v2-final-${{ github.run_attempt }}
+          path: |
+            runs/needle_chain/full_v2/
+            results/needle_chain/full_v2/
+          retention-days: 30
+          if-no-files-found: error

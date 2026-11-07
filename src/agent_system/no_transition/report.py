@@ -138,6 +138,9 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
 
 
 def analyze(run_dir: Path, output: Path, config: dict, execution: dict | None = None) -> dict:
+    if config["protocol_version"] == "needle_chain_full_v2":
+        from .full_analysis import analyze_full
+        return analyze_full(run_dir, output, config, execution or {})
     if config["protocol_version"] == "needle_chain_v2":
         from .report_v2 import analyze_v2
         return analyze_v2(run_dir, output, config, execution or {})

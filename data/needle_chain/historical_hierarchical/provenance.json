@@ -1,0 +1,23 @@
+{
+  "task_started_utc": "2026-11-06T21:28:29Z",
+  "report_completed_utc": "2026-11-06T21:35:21.373561+00:00",
+  "branch": "experiment/hierarchical-search-v1",
+  "base_commit": "4ac8891b9684561519f37fded58110d558eda769",
+  "execution_commit": "236a8e043c433239b03ef809f607b365fc933c81",
+  "run_command": "PYTHONPATH=. python scripts/run_hierarchical_search.py",
+  "source_sha256": {
+    "src/hierarchical_search/__init__.py": "38f42b505e1e30a8fb5532d25be5544c47c65f79ec7a85968ea13e4bba3adad1",
+    "src/hierarchical_search/model.py": "c6a8eed6ba0342e8f7d43d1a3121bb6086e24fd5af816cbde32cd17a890d970e",
+    "src/hierarchical_search/measurement.py": "1020c05031147b87c2db563ded247502b5425f51d5f4178529be74d9d15ac9e8",
+    "src/hierarchical_search/theory.py": "8cd736a371995d1fd06f2f231edd325d03489116a65324b5e650f257d1ee644e",
+    "scripts/run_hierarchical_search.py": "d3595f51ede5a72b7352e40fb07877d414c53a803252a94240e0bd259828dbea",
+    "configs/hierarchical-search-v1.json": "993411b7151a500865153b2024907f960e54e67d63370755051d4896a2118516",
+    "tests/test_hierarchical_search.py": "5933d3555a588609be363b1ea169604301d07a447eb84ad638d033ae63e0db4c",
+    "docs/hierarchical-search-v1.md": "ab24a9d4ab86fdf8e41c753ec2def942f8a5dbd4ac3bd1abc6acaf9b90f169e9"
+  },
+  "old_files_changed": [],
+  "scientific_settings_changed_after_observation": false,
+  "extra_scans": 0,
+  "api_requests": 0,
+  "api_tokens": 0
+}

@@ -18,7 +18,7 @@ import time
 from ..driver import load_env_file
 from ..storage import utc_now
 from .analysis import load_episodes, verify_invariants
-from .config import (ROOT, PROTOCOL_V2, fingerprint, git_sha, load_config, request_bound,
+from .config import (ROOT, PROTOCOL_V2, PROTOCOL_FULL_V2, fingerprint, git_sha, load_config, request_bound,
                      resolved_llm_settings, episode_seeds, expected_episode_count, artifact_label)
 from .report import analyze, write_json
 from .runner import episode_id, run_episode
@@ -41,6 +41,12 @@ def terminal_summary(summary: dict, mode: str) -> None:
             if r["agent_type"] == kind:
                 print(f"{r['condition']} d={r['degree']}: {r['successes']}/{r['episodes']} "
                       f"P={r['p_success']:.3f} CI=[{r['ci_low']:.3f}, {r['ci_high']:.3f}]")
+    if mode == 'full_v2':
+        print('\nFINAL SCIENTIFIC CLASSIFICATION: ' + summary['classification'])
+        print(json.dumps(summary['runtime'], indent=2))
+        print('Full report: results/needle_chain/full_v2/full_report.md')
+        print('No further experiments or main merge are authorized.')
+        return
     print("\nFinite communication transition: assess diagnostics; absence is not established by a small pilot.")
     print(json.dumps(summary["runtime"], indent=2))
     print("Recommended next action: review pilot. No automatic larger run or merge.")
@@ -48,8 +54,13 @@ def terminal_summary(summary: dict, mode: str) -> None:
     print("Remote branch: origin/experiment/needle-chain-no-transition-v1")
 
 
-async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, execution: dict) -> dict:
-    for kind in ("deterministic", "llm"):
+async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, execution: dict,
+                  stage: str = "all", selected_condition: str | None = None) -> dict:
+    kinds = ("deterministic", "llm") if stage == "all" else (stage,)
+    if config["protocol_version"] == PROTOCOL_FULL_V2 and stage == "llm":
+        from .full_analysis import deterministic_gate
+        deterministic_gate(run_dir, config)
+    for kind in kinds:
         if kind == "llm":
             # Completed cached episodes do not require credentials on resume.
             pending = any(not (run_dir / "episodes" / episode_id(c, kind, s, d) / "episode_result.json").exists()
@@ -62,6 +73,8 @@ async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, e
         try:
             # Config order is Needle low/high, then Chain short/sufficient.
             for condition in config["conditions"]:
+                if selected_condition and condition["name"] != selected_condition:
+                    continue
                 for seed in episode_seeds(config, condition, kind):
                     for degree in config["degrees"]:
                         result = await run_episode(config, condition, kind, seed, degree, run_dir, env_values)
@@ -72,9 +85,16 @@ async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, e
             execution[key] = execution.get(key, 0.0) + time.monotonic() - stage_start
             write_json(run_dir / "execution.json", execution)
         if kind == "deterministic":
-            verify_invariants(load_episodes(run_dir), config)
+            if config["protocol_version"] == PROTOCOL_FULL_V2:
+                from .full_analysis import deterministic_gate
+                deterministic_gate(run_dir, config)
+            else:
+                verify_invariants(load_episodes(run_dir), config)
             # Archive/analysis checkpoint before any live model calls.
-            analyze(run_dir, output, config, execution)
+            if config["protocol_version"] != PROTOCOL_FULL_V2 or stage == "all":
+                analyze(run_dir, output, config, execution)
+    if config["protocol_version"] == PROTOCOL_FULL_V2:
+        return {"complete": len(list((run_dir / "episodes").glob("*/episode_result.json"))) == expected_episode_count(config)}
     return analyze(run_dir, output, config, execution)
 
 
@@ -89,6 +109,8 @@ def main(argv=None) -> int:
     parser.add_argument("--analyze-existing", action="store_true")
     parser.add_argument("--validate-only", action="store_true")
     parser.add_argument("--execute-full", action="store_true", help="explicit launch gate for a subsequent full-run task")
+    parser.add_argument("--stage", choices=["all", "deterministic", "llm"], default="all")
+    parser.add_argument("--condition", choices=["Needle-Low", "Needle-High", "Chain-Short-Horizon", "Chain-Sufficient-Horizon"])
     args = parser.parse_args(argv)
     if args.test:
         return run_tests()
@@ -98,6 +120,15 @@ def main(argv=None) -> int:
     label = artifact_label(config)
     run_dir = args.run_dir or ROOT / f"runs/needle_chain/{label}"
     output = args.output_dir or ROOT / f"results/needle_chain/{label}"
+    if args.condition and args.stage != "llm":
+        parser.error("--condition is only an operational GPT-stage selector")
+    if args.stage != "all" and config["protocol_version"] != PROTOCOL_FULL_V2:
+        parser.error("stage selection is reserved for the preregistered full v2 run")
+    if config["protocol_version"] == PROTOCOL_FULL_V2:
+        from .preservation import guard_full_paths, verify_protected_pilots, verify_full_design
+        guard_full_paths(run_dir, output)
+        verify_protected_pilots()
+        verify_full_design()
     if config["protocol_version"] == PROTOCOL_V2:
         from .preservation import guard_v2_paths, verify_frozen_v1
         guard_v2_paths(run_dir, output)
@@ -143,7 +174,8 @@ def main(argv=None) -> int:
             "package_versions": {name: importlib.metadata.version(name)
                                  for name in ("numpy", "networkx", "scipy", "matplotlib", "pandas", "httpx", "pytest")}})
         try:
-            summary = asyncio.run(execute(config, run_dir, output, load_env_file(args.env_file), execution))
+            summary = asyncio.run(execute(config, run_dir, output, load_env_file(args.env_file), execution,
+                                          args.stage, args.condition))
             execution["status"] = "complete" if summary["complete"] else "incomplete"
             execution.pop("last_error_type", None)
         except Exception as exc:
@@ -157,9 +189,9 @@ def main(argv=None) -> int:
             execution["execution_wall_seconds"] = execution.get("execution_wall_seconds", 0) + duration
             execution["invocations"][-1]["wall_seconds"] = duration
             write_json(path, execution)
-            if load_episodes(run_dir):
-                analyze(run_dir, output, config, execution)
-        terminal_summary(analyze(run_dir, output, config, execution), label)
+            if any((run_dir / "episodes").glob("*/episode_result.json")):
+                summary = analyze(run_dir, output, config, execution)
+        terminal_summary(summary, label)
     return 0
 
 

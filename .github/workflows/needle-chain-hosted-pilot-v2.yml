@@ -2,9 +2,7 @@ name: Needle Chain preregistered v2 pilot
 run-name: Needle Chain v2 / frozen source ${{ github.sha }}
 
 on:
-  push:
-    branches: [experiment/needle-chain-no-transition-v1]
-    paths: [.github/workflows/needle-chain-hosted-pilot-v2.yml]
+  workflow_dispatch:
 
 permissions:
   contents: read

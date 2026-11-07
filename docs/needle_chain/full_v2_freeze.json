@@ -1,0 +1,41 @@
+{
+  "version": "full_v2",
+  "expected_deterministic_episodes": 4800,
+  "expected_gpt_episodes": 288,
+  "correct_policy_calls": 25920,
+  "maximum_unique_decisions": 28800,
+  "sha256": {
+    "configs/needle_chain/full_v2.json": "c83a81318c7e51bf223bdb78ec2a980ada3774f93aab00823b68d1f6e2902d90",
+    "configs/needle_chain/provider.json": "cbebd61c9800825efdaa179e3f5ad369b71ffccd4e0b64aab78567cd0c54cb30",
+    "docs/needle_chain/preregistration_full_v2.md": "908f1a7b209688e1c616282d9676b7582145091e6e67f54e1bd044642f776f3f",
+    "docs/needle_chain/protected_pilots_full_v2.json": "5757b13aaf2766be6ec637996772718f0419abfe5597d66c9c972912ecfc2910",
+    "src/agent_system/communication.py": "4843131c3a24e08178a19fdc8aba502835ab51ab5fbebdbd5d6696b722fbaf2b",
+    "src/agent_system/no_transition/__init__.py": "09c21d12fc2bbda9f8d739edd59a644342818df70774387d7e67f014f2e4d6c3",
+    "src/agent_system/no_transition/analysis.py": "222a531c91a1114fb45f4faf5a461cc2250e0a09be8e64cd5a2936ebec7d6d63",
+    "src/agent_system/no_transition/cli.py": "030290c2db74fd7afc5a89b939d377a0ec3421537f4f9e6115759ed9e4146d69",
+    "src/agent_system/no_transition/config.py": "2c0d1d47da99417001762e75f1363dbfd5713ac19c515ab4c5a9a0411e31ca2e",
+    "src/agent_system/no_transition/environments.py": "0d1ac695452619f902c66c99fa739a69429020b86c45589db05bcdd6e4db4a97",
+    "src/agent_system/no_transition/full_analysis.py": "499fb41b6cd14add005f1ed02a5bdf61056398ac01b2bcd62675470fac981521",
+    "src/agent_system/no_transition/full_audit.py": "b9c9170cf75808485f509be0e42443f0be44b5da81294a45ddef6311aba55ba1",
+    "src/agent_system/no_transition/hosted.py": "01dcb25b036a5b50c2601be4274820fa2c9763c2d87ee8f984c45636586610e5",
+    "src/agent_system/no_transition/policies.py": "e3bdf33a37d33786bfdd465089fcd13a51524f86f9192849a7eb9273f7741e92",
+    "src/agent_system/no_transition/preservation.py": "f14a1a7ae8c89e5a1a4a205365834b9a3c09b0078a33937a1b9a9909a9b17325",
+    "src/agent_system/no_transition/runner.py": "b7519eb8fffcf7ddbd16563321d361160b750483e5d7423584f1f68e9b4cbfd6",
+    "src/agent_system/policies/openai_policy.py": "79322f6eb76cf53d74c539d01ef8693332eb2771bb3a8bb38c03f6761c6a3cad",
+    "src/agent_system/schemas.py": "f5d80637d6a4c0b627131e6c7c5b80aca891398bdedb64012cb38587ace8cf23",
+    "src/agent_system/storage.py": "0313f76e0a00b0697fdd81bcc4e3f1e51258d62dcb150222f4febfdf6c81f87b",
+    "src/scaling_model.py": "3bc299775da0e9877e0062e7cf73c2cdc8f254c74c156c83c62e4b8eccb770e8"
+  },
+  "scientific_design_mutable_after_execution": false,
+  "preflight": {
+    "relevant_suite": "140 passed, 12 subtests passed",
+    "offline_mock_pipeline": {
+      "episodes": 48,
+      "actual_model_calls": 0,
+      "all_five_png_pdf_figures": true
+    },
+    "protected_processed_files": 51,
+    "protected_local_raw_files": 6128,
+    "complete_suite": "502 passed, 13 skipped, 934 subtests passed in 21.64s"
+  }
+}

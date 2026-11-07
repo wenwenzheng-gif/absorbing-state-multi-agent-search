@@ -9,6 +9,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[3]
 PROTOCOL = "needle_chain_v1"
 PROTOCOL_V2 = "needle_chain_v2"
+PROTOCOL_FULL_V2 = "needle_chain_full_v2"
 
 
 def fingerprint(value) -> str:
@@ -38,9 +39,14 @@ def resolved_llm_settings(config: dict, env_values: dict | None = None) -> dict:
 
 
 def validate(config: dict) -> None:
-    assert config["protocol_version"] in {PROTOCOL, PROTOCOL_V2}
+    assert config["protocol_version"] in {PROTOCOL, PROTOCOL_V2, PROTOCOL_FULL_V2}
     if config["protocol_version"] == PROTOCOL_V2:
         assert config["mode"] == "pilot", "v2 is pilot-only; a full design needs separate authorization"
+    if config["protocol_version"] == PROTOCOL_FULL_V2:
+        assert config["mode"] == "full" and config["agents"] == 20
+        assert config["degrees"] == [0, 4, 8, 12, 16, 19]
+        assert len(config["deterministic_seeds"]) == 200 and len(config["llm_seeds"]) == 12
+        assert not config.get("llm_seeds_by_condition")
     n = config["agents"]
     assert isinstance(n, int) and n >= 2
     assert len(config["degrees"]) == len(set(config["degrees"]))
@@ -65,9 +71,9 @@ def validate(config: dict) -> None:
             assert type(passes) is int and passes >= 1
             assert c["candidates"] * passes >= n * c["batch_size"] * c["horizon"]
             if passes > 1:
-                assert config["protocol_version"] == PROTOCOL_V2
+                assert config["protocol_version"] in {PROTOCOL_V2, PROTOCOL_FULL_V2}
                 assert c["name"] == "Needle-High" and c.get("policy_variant") == "needle_high_v2"
-                assert (c["candidates"], n, c["horizon"], c["batch_size"], passes) == (48, 6, 2, 8, 2)
+                assert (c["candidates"], c["horizon"], c["batch_size"], passes) == (n * 8, 2, 8, 2)
         else:
             assert c["chain_length"] > 0 and c["batch_size"] == 1
 
@@ -96,4 +102,6 @@ def expected_episode_count(config: dict, kind: str | None = None) -> int:
 
 
 def artifact_label(config: dict) -> str:
+    if config["protocol_version"] == PROTOCOL_FULL_V2:
+        return "full_v2"
     return "pilot_v2" if config["protocol_version"] == PROTOCOL_V2 else config["mode"]

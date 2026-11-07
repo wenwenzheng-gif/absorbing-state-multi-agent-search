@@ -57,7 +57,7 @@ def aggregate(episodes: list[dict], config: dict) -> list[dict]:
         successes, n = sum(e["success"] for e in es), len(es)
         attempts = sum(e["api_attempts"] for e in es)
         tests = sum(e["total_tests"] for e in es)
-        actions = sum(len(e["actions"]) for e in es)
+        actions = sum(e["action_count"] if "action_count" in e else len(e["actions"]) for e in es)
         rows.append({"condition": condition, "task": es[0]["task"], "agent_type": agent_type,
                      "degree": degree, "episodes": n, "successes": successes,
                      "p_success": successes / n, "ci_low": wilson(successes, n)[0],
