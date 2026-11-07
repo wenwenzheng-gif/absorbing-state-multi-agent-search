@@ -26,7 +26,8 @@ def wilson(successes: int, total: int, confidence: float = .95) -> list[float]:
     p, zz = successes / total, z * z
     center = (p + zz / (2 * total)) / (1 + zz / total)
     half = z * math.sqrt(p * (1 - p) / total + zz / (4 * total * total)) / (1 + zz / total)
-    return [max(0.0, center - half), min(1.0, center + half)]
+    return [0.0 if successes == 0 else max(0.0, center - half),
+            1.0 if successes == total else min(1.0, center + half)]
 
 
 def bh_adjust(values: list[float | None]) -> list[float | None]:
@@ -163,12 +164,15 @@ def degree_effect(es: list[dict], rng, resamples: int) -> dict:
     p = 1 / (1 + np.exp(-(result["intercept"] + result["coefficient"] * x)))
     bread = np.linalg.inv(design.T @ ((p * (1 - p))[:, None] * design))
     scores = [design[g].T @ (y[g] - p[g]) for g in groups]
-    covariance = bread @ sum(np.outer(s, s) for s in scores) @ bread
+    # Sum influence outer-products to avoid cancellation in sandwich products
+    # when every task has exactly the same outcome at all degrees.
+    influences = [bread @ score for score in scores]
+    covariance = sum(np.outer(v, v) for v in influences)
     if len(groups) > 1:
         covariance *= len(groups) / (len(groups) - 1)
     se = math.sqrt(max(0., float(covariance[1, 1])))
     result["cluster_robust_se"] = se
-    if len(groups) >= 6 and se > 1e-12:
+    if len(groups) >= 6 and se > 1e-12 and not result["bootstrap_degenerate"]:
         result["p_value"] = math.erfc(abs(result["coefficient"] / se) / math.sqrt(2))
         result["test"] = "asymptotic cluster-robust Wald; small cluster counts are exploratory"
     else:
@@ -272,4 +276,6 @@ def projection(episodes: list[dict], config: dict, full: dict, execution: dict) 
             "estimated_full_seconds": projected_seconds if llm else None,
             "estimated_full_cost_usd": projected_cost if llm else None,
             "full_executed": config["mode"] == "full",
+            "execution_status": execution.get("status", "in_progress"),
+            "blocker": execution.get("blocker"),
             "projection_assumptions": "Measured per-condition pilot throughput scaled by agents and episodes at unchanged concurrency. Larger messages, rate limits, provider load and changed stopping rounds can alter it. Token-based cost is an estimate, not a billing statement."}

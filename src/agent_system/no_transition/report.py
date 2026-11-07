@@ -40,17 +40,20 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
                       "partially consistent; deviations require diagnosis" if unexpected or crossover else
                       "consistent with theory at the tested resources; statistically inconclusive about absence of a transition")
     launch_status = "Full experiment **NOT launched**" if config["mode"] == "pilot" else "Explicitly authorized full configuration was executed"
+    blocker = runtime.get("blocker")
     lines = [f"# Needle / Chain {config['mode']} report", "", f"Status: **{'COMPLETE' if complete else 'INCOMPLETE'}**. {launch_status}.", "",
+             (f"**Execution blocker:** {blocker} Measured GPT throughput and full-run runtime/cost projections are unavailable, not assumed." if blocker else ""), "",
              "## A. Repository state", "", f"Repository: `{cleanup['repository']}`.", "",
              f"Branch: `experiment/needle-chain-no-transition-v1`. Starting main SHA: `87cfc41eb3bcbef3f5f70029c73f17708d324cc2`.",
              f"Pilot execution commit SHA(s): {', '.join('`' + s + '`' for s in shas)}.",
              "The final results commit is the commit containing this report (avoids a self-referential SHA); `git log -1 --format=%H -- results/needle_chain/pilot/pilot_report.md` resolves it.", "",
-             statuses + ". Local and origin absence verified before implementation. The separate `absorb-state-new` repository was not modified.", "",
+             statuses + ". Local and origin absence verified before implementation. No branches were deleted or code changed in the separate `absorb-state-new` repository.", "",
              "## B. Implementation", "",
              "Atomic candidate verification has exactly one target and no child/pruning API. The reference policy traverses a seed-shuffled permutation in disjoint agent/round batches. LLM agents receive the same public work assignment but can choose any legal candidate. Assignments use a separate RNG domain from target selection. Needle always expends the fixed two-round budget, including after discovery, so coverage diagnostics are not biased by early stopping.", "",
              "Chain uses a shared hidden sequence of capability keys, per-agent key possession, and a locked round transaction. A submission never releases the next key. The commit barrier advances zero or one level and gives the next key to every valid submitter; truthful neighbor receipts can convey it on the next round. No level is enumerable, readable or executable early, even if its key is guessed. Chain stops on completion.", "",
              "Reused: `Router` and its seeded exact-degree graphs, SplitMix64 `derived_rng`, `DecisionContext`, `LLMConfig`, `LLMBackend`, `RunStore`, and CSV/PNG/PDF conventions. A task-specific scheduler is necessary because the historical runner and `Policy.propose` require literal branching. No historical environment or finite-critical-degree fitter is changed or called.", "",
              "Tests cover target atomicity and coverage, future-level read/guess rejection, concurrent submissions, barriers, sufficient/insufficient horizons, truthful one-hop communication, observation isolation, failed decisions, cached responses and interrupted episode replay, paired statistics and boundary serialization.", "",
+             ("GPT integration has passed mocked backend tests but has not been validated with live API responses in this pilot." if not llm else "Live GPT response provenance is retained in the raw local ledgers and summarized below."), "",
              "## C. Exact pilot parameters", "", "```json", json.dumps(config, indent=2), "```", "",
              "Model identifier came from `configs/agents/gpt-5.4-nano-t1_seed1/synthetic_C0.json`. Runtime response model IDs: " + (", ".join(sorted({m for e in llm for m in e["response_models"]})) or "none; no completed live model response") + ".",
              "No scientific expectation or communication degree is included in decision prompts. The only degree-dependent input is naturally received neighbor evidence. API model sampling is stochastic; task/graph seeds are paired, and returned samples are archived. No seed-count reduction was applied.", ""]
@@ -89,9 +92,10 @@ def render_report(rows: list[dict], diag: list[dict], runtime: dict, invariants:
               f"Structural invariant checks: **{invariants['status']}**, {invariants['episodes_checked']} episodes. API-failed decisions: {sum(e['api_errors'] for e in episodes)}. Invalid environment actions: {sum(e['invalid_actions'] for e in episodes)}. Invalid/refused/truncated JSON decisions: {sum(e['behavior_errors'] for e in episodes)}.",
               "Deviation categories: A implementation error and E task-definition violation require concrete invariant/test evidence; B finite-sample noise is plausible for rare Needle-Low outcomes; C LLM behavior covers malformed/illegal choices; D API/runtime failure is recorded independently and retained in the success denominator; F genuine empirical deviation remains a possible interpretation if a reproducible contrast survives diagnosis. No failed seed is excluded or rerun for a better outcome.", "",
               "## K. Measured runtime and future scale", "", "```json", json.dumps(runtime, indent=2), "```", "",
-              "Cost uses measured prompt/completion/cache token counts and [published GPT-5.4 Nano rates](https://developers.openai.com/api/docs/models/gpt-5.4-nano). It is not a charge receipt. Full-run estimates scale measured per-condition calls and wall time by the larger population and number of episodes at unchanged concurrency. They do not include an unmeasured larger-context or rate-limit penalty.", "",
+              "The execution timer starts after the automatic test preflight and includes stage execution and intermediate analysis; it excludes the final report regeneration. Deterministic/LLM stage timers are separate. Cost uses measured prompt/completion/cache token counts and [published GPT-5.4 Nano rates](https://developers.openai.com/api/docs/models/gpt-5.4-nano). It is not a charge receipt. Full-run estimates scale measured per-condition calls and wall time by the larger population and number of episodes at unchanged concurrency. They do not include an unmeasured larger-context or rate-limit penalty. Null projections mean no live throughput has been measured.", "",
               "## L. Recommended next step", "",
-              ("Review this pilot before authorizing the larger run. The pipeline is ready for review; increase statistical replication only in a subsequent task. Two GPT seeds cannot validate equivalence or rule out a transition." if complete and not unexpected and not crossover else "Resolve the documented incomplete work or deviations and review this pilot before any larger run."), "",
+              ("Provide the location of the existing authenticated API setup, then resume the same pilot command. The 480 completed deterministic episodes will be reused. All 24 GPT episodes and measured GPT runtime/cost projections remain outstanding. Do not launch the full run." if blocker else
+               "Review this pilot before authorizing the larger run. The pipeline is ready for review; increase statistical replication only in a subsequent task. Two GPT seeds cannot validate equivalence or rule out a transition." if complete and not unexpected and not crossover else "Resolve the documented incomplete work or deviations and review this pilot before any larger run."), "",
               "## Reproduction and provenance", "", "See `docs/needle_chain/README.md` for tests, resume, offline reanalysis and the separately gated full command. Preregistered design: `docs/needle_chain/preregistration.md`. Theory: [arXiv:2609.38327v2, §§2.2–3.1](https://arxiv.org/html/2609.38327v2#S3.SS1).", ""]
     return "\n".join(lines)
 
@@ -108,6 +112,13 @@ def analyze(run_dir: Path, output: Path, config: dict, execution: dict | None = 
     runtime = projection(episodes, config, full, execution or {})
     expected = len(config["conditions"]) * len(config["degrees"]) * (len(config["deterministic_seeds"]) + len(config["llm_seeds"]))
     complete = len(episodes) == expected
+    write_json(output / "completion_status.json", {
+        "complete": complete, "completed_episodes": len(episodes), "expected_episodes": expected,
+        "completed_deterministic_episodes": sum(e["agent_type"] == "deterministic" for e in episodes),
+        "completed_llm_episodes": sum(e["agent_type"] == "llm" for e in episodes),
+        "missing_episodes": expected - len(episodes), "full_executed": config["mode"] == "full",
+        "blocker": (execution or {}).get("blocker"),
+        "measured_llm_runtime_projection_available": runtime["estimated_full_seconds"] is not None})
     write_csv(output / "by_degree.csv", rows)
     write_json(output / "config.json", config)
     write_json(output / "diagnostics.json", diag)

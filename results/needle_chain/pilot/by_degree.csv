@@ -1,0 +1,13 @@
+agent_type,api_error_episode_fraction,api_failure_rate,ci_high,ci_low,condition,coverage_fraction,dc,degree,duplicate_fraction,episodes,illegal_future_attempts,interpretation,invalid_action_rate,mean_maximum_depth,mean_rounds_used,mean_unique_candidates_tested,p_success,source,successes,task
+deterministic,0.0,,0.0876216011972866,0.0,Chain-Short-Horizon,,infinity,0,0.0,40,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.0876216011972866,0.0,Chain-Short-Horizon,,infinity,2,0.0,40,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,0.0876216011972866,0.0,Chain-Short-Horizon,,infinity,5,0.0,40,0,insufficient sequential horizon,0.0,6.0,6.0,0.0,0.0,theory,0,chain
+deterministic,0.0,,1.0,0.9123783988027133,Chain-Sufficient-Horizon,,0,0,0.0,40,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,40,chain
+deterministic,0.0,,1.0,0.9123783988027133,Chain-Sufficient-Horizon,,0,2,0.0,40,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,40,chain
+deterministic,0.0,,1.0,0.9123783988027133,Chain-Sufficient-Horizon,,0,5,0.0,40,0,no positive communication threshold,0.0,8.0,8.0,0.0,1.0,theory,40,chain
+deterministic,0.0,,1.0,0.9123783988027133,Needle-High,1.0,0,0,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,1.0,theory,40,needle
+deterministic,0.0,,1.0,0.9123783988027133,Needle-High,1.0,0,2,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,1.0,theory,40,needle
+deterministic,0.0,,1.0,0.9123783988027133,Needle-High,1.0,0,5,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,1.0,theory,40,needle
+deterministic,0.0,,0.12881368963474085,0.0044268315026814165,Needle-Low,0.04,0,0,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,0.025,theory,1,needle
+deterministic,0.0,,0.12881368963474085,0.0044268315026814165,Needle-Low,0.04,0,2,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,0.025,theory,1,needle
+deterministic,0.0,,0.12881368963474085,0.0044268315026814165,Needle-Low,0.04,0,5,0.0,40,0,no positive communication threshold,0.0,0.0,2.0,48.0,0.025,theory,1,needle

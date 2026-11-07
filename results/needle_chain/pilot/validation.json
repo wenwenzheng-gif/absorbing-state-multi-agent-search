@@ -1,0 +1,12 @@
+{
+  "command": ".venv/bin/python -m pytest tests -q",
+  "passed": 486,
+  "skipped": 13,
+  "subtests_passed": 934,
+  "seconds": 25.63,
+  "all_relevant_checks_passed": true,
+  "plot_visual_qa": "All three PNGs inspected; no clipping or missing observed series",
+  "offline_reanalysis": "passed without model calls",
+  "llm_live_validation": "blocked: credentials unavailable",
+  "full_run_executed": false
+}

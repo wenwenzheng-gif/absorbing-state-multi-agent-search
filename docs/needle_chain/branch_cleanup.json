@@ -22,5 +22,5 @@
     }
   ],
   "verified_local_and_remote_absent": true,
-  "unrelated_repository_untouched": "wenwenzheng-gif/absorb-state-new"
+  "unrelated_repository_no_branch_deletions_or_code_changes": "wenwenzheng-gif/absorb-state-new"
 }

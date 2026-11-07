@@ -1,0 +1,11 @@
+{
+  "blocker": "No authenticated OpenAI API setup is available: OPENAI_API_KEY is unset; no .env file was found in this checkout, and the requested GitHub repository has no Actions secrets. Supply the location of an existing environment file or authorized runner. No GPT calls were made.",
+  "complete": false,
+  "completed_deterministic_episodes": 480,
+  "completed_episodes": 480,
+  "completed_llm_episodes": 0,
+  "expected_episodes": 504,
+  "full_executed": false,
+  "measured_llm_runtime_projection_available": false,
+  "missing_episodes": 24
+}

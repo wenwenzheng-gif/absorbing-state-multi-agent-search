@@ -76,6 +76,14 @@ def test_bh_multiple_testing_and_missing_values():
     assert bh_adjust([.01, .04, None, .03]) == pytest.approx([.03, .04, None, .04], nan_ok=True)
 
 
+def test_identical_paired_outcomes_do_not_get_spurious_wald_precision():
+    es = [{'task_seed': s, 'degree': d, 'success': s == 0}
+          for s in range(40) for d in [0, 2, 5]]
+    result = degree_effect(es, np.random.default_rng(3), 100)
+    assert result['bootstrap_degenerate'] and result['p_value'] is None
+    assert abs(result['coefficient']) < 1e-12
+
+
 def test_deterministic_episode_metrics_and_degree_pairing(tmp_path):
     c = config()
     for condition in c['conditions']:

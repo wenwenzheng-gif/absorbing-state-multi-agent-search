@@ -54,7 +54,9 @@ async def execute(config: dict, run_dir: Path, output: Path, env_values: dict, e
             pending = any(not (run_dir / "episodes" / episode_id(c, kind, s, d) / "episode_result.json").exists()
                           for c in config["conditions"] for s in seeds for d in config["degrees"])
             if pending and not env_values.get(config["llm"]["api_key_env"]):
+                execution["blocker"] = "No authenticated OpenAI API setup is available: OPENAI_API_KEY is unset; supply the location of an existing environment file or authorized runner. No GPT calls were made."
                 raise RuntimeError("OPENAI_API_KEY is unavailable. Reference results are saved; resume with --env-file PATH. No GPT calls were made.")
+            execution.pop("blocker", None)
         stage_start = time.monotonic()
         try:
             # Config order is Needle low/high, then Chain short/sufficient.
