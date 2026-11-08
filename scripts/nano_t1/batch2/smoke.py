@@ -2,7 +2,7 @@
 """Small end-to-end task smoke. Never counts as one of the three new seeds."""
 import json,os,sys,subprocess
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[3]
 MODEL="gpt-5.4-nano-2026-03-17"
 task=sys.argv[1]
 if task not in ("synthetic","tcas","physics"):raise SystemExit("Invalid task")
