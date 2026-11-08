@@ -15,7 +15,7 @@ EXPECTED={"synthetic":87000,"tcas":87200,"physics":82240}
 POLICIES=("C0","C1","I1")
 REQUESTED_NEW=(7,8,9)
 REQUIRED={"temperature":1.0,"reasoning_effort":"none","enable_thinking":False}
-MODEL_SNAPSHOT_PATTERN=re.compile(r"^gpt-5\\.4-nano-\\d{4}-\\d{2}-\\d{2}$")
+MODEL_SNAPSHOT_PATTERN=re.compile(r"^gpt-5\.4-nano-\d{4}-\d{2}-\d{2}$")
 
 def save(report):
     OUT.parent.mkdir(parents=True,exist_ok=True)
@@ -75,7 +75,7 @@ def run():
         report["checks"]["hf_path_samples"]=files[:35]
         if not files: report["blockers"].append("Valid Nano t1 dataset path has no files.")
         # Find historical seed IDs from paths, ensure candidate identifiers truly unused.
-        ids=sorted({int(n) for p in files for n in re.findall(r"(?:^|[/_-])seed[_-]?(\\d+)(?:[/_.-]|$)",p)})
+        ids=sorted({int(n) for p in files for n in re.findall(r"(?:^|[/_-])seed[_-]?(\d+)(?:[/_.-]|$)",p)})
         report["checks"]["hf_seed_indices_observed_in_paths"]=ids
         if any(x in ids for x in REQUESTED_NEW):
             report["blockers"].append("Requested seed7-9 index overlaps HF existing paths.")
