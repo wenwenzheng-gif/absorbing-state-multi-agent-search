@@ -1,0 +1,152 @@
+name: Nano t1 Batch 2 checkpoint resume
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-batch2-seeds10-12]
+    paths: [scripts/nano_t1/batch2/resume.json]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nano-t1-batch2-resume-control
+  cancel-in-progress: false
+jobs:
+  source-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      source_run: ${{ steps.input.outputs.source_run }}
+      iteration: ${{ steps.input.outputs.iteration }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify continuation uses only this correct-model Batch 2 prior artifacts
+        id: input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.loads(Path("scripts/nano_t1/batch2/resume.json").read_text())
+          assert a["family"]=="gpt-5.4-nano-t1"
+          assert a["model"]=="gpt-5.4-nano-2026-03-17"
+          assert a["seed_indices"]==[10,11,12]
+          assert int(a["iteration"])>=2
+          assert int(a["source_run_id"])>0
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write("source_run="+str(a["source_run_id"])+"\n")
+              f.write("iteration="+str(a["iteration"])+"\n")
+          PY
+      - name: Confirm source is a completed Batch 2 run and all 9 checkpoints exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          RID="${{ steps.input.outputs.source_run }}"
+          gh api "repos/${{ github.repository }}/actions/runs/$RID" --jq '.status' | grep -qx 'completed'
+          gh api "repos/${{ github.repository }}/actions/runs/$RID/artifacts?per_page=100" > /tmp/nano-b2.json
+          python - <<'PY'
+          import json
+          a=json.load(open('/tmp/nano-b2.json'))
+          names={x['name'] for x in a['artifacts']}
+          expected={f'nano-t1-batch2-{t}-seed{s}-checkpoint'
+                    for t in ('synthetic','tcas','physics') for s in (10,11,12)}
+          assert expected.issubset(names),f'Missing corrected Batch 2 checkpoints: {expected-names}'
+          print('All 9 correct-model Batch 2 checkpoints ready for resume.')
+          PY
+  capacity:
+    needs: source-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      arms: ${{ steps.measure.outputs.arms }}
+      per_arm: ${{ steps.measure.outputs.per_arm }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-agents.txt
+      - name: Re-test real upstream capacity for safe continued 9-job scheduling
+        id: measure
+        run: python scripts/nano_t1/batch2/capacity.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-capacity-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/capacity.json
+          retention-days: 90
+  seeds:
+    needs: [source-audit,capacity]
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        task: [synthetic,tcas,physics]
+        seed: [10,11,12]
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      NANO_T1_ENFORCE: '1'
+      NANO_T1_PER_ARM_CONCURRENCY: ${{ needs.capacity.outputs.per_arm }}
+      NANO_T1_ARM_PARALLEL: ${{ needs.capacity.outputs.arms }}
+      NANO_T1_SLICE_SECONDS: '17400'
+      PYTHONUNBUFFERED: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
+      - name: Restore ONLY corrected Batch 2 seed checkpoint from prior verified run
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download "${{ needs.source-audit.outputs.source_run }}" --repo "${{ github.repository }}" --name "nano-t1-batch2-${{ matrix.task }}-seed${{ matrix.seed }}-checkpoint" --dir "outputs/gpt-5.4-nano-t1-none-new3-batch2/${{ matrix.task }}/seed_${{ matrix.seed }}/"
+      - name: Resume native episode checkpoints without duplicate successful episodes
+        run: python scripts/nano_t1/batch2/run_seed.py --task ${{ matrix.task }} --seed-index ${{ matrix.seed }}
+      - name: Preserve checkpoint ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-${{ matrix.task }}-seed${{ matrix.seed }}-checkpoint
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/${{ matrix.task }}/seed_${{ matrix.seed }}/
+          retention-days: 90
+          if-no-files-found: error
+      - name: Preserve status for automatic progress tracking
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-${{ matrix.task }}-seed${{ matrix.seed }}-status
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/${{ matrix.task }}/seed_${{ matrix.seed }}/seed_status.json
+          retention-days: 90
+          if-no-files-found: warn
+  collector:
+    needs: [source-audit,seeds]
+    if: always() && needs.source-audit.result == 'success' && needs.seeds.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NANO_T1_ITERATION: ${{ needs.source-audit.outputs.iteration }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read exact nine statuses for finished-versus-resume determination
+        run: python scripts/nano_t1/batch2/collect.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-collector-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/collector.json
+          retention-days: 90
+          if-no-files-found: warn
