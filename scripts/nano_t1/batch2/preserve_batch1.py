@@ -60,6 +60,8 @@ def main():
         assert proof["completed_episodes"]==171
         for member in namelist:
             if not member.endswith("/episodes.jsonl") or "runs/agents/" not in member:continue
+            # The ZIP also contains an analysis-only pooled seed7-9 view. Skip it.
+            if "/gpt-5.4-nano-t1_seed7-9/" in member:continue
             m=member.split("/")
             runid=m[-2]
             found=next(((t,i,a) for t,i,a in expected if runid==f"gpt-5.4-nano-t1_seed{i}_{t}_{a}"),None)
