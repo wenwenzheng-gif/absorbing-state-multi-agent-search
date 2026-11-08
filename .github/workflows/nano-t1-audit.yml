@@ -1,0 +1,31 @@
+name: Nano t1 provenance and seed audit
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [.github/workflows/nano-t1-audit.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install read-only Hugging Face client
+        run: python -m pip install huggingface_hub
+      - name: Audit six original Nano seeds, model version and unused new IDs
+        run: python scripts/nano_t1/audit.py
+      - name: Save only nonsecret original-data provenance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-audit-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3/audit.json
+          retention-days: 30
+          if-no-files-found: error
