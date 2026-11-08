@@ -232,8 +232,8 @@ async def monitor():
                 else:
                     best=(limit,rpm)
                     if now-last_failure>=600:
-                        control['upstream_rps']=min(5.0,control.get('upstream_rps',2.5)+.25)
-                        if limit<108:control['upstream_limit']=levels[levels.index(limit)+1]
+                        control['upstream_rps']=min(control.get('max_upstream_rps',5.0),control.get('upstream_rps',2.5)+.25)
+                        if limit<control.get('max_upstream_limit',108):control['upstream_limit']=min(control.get('max_upstream_limit',108),levels[levels.index(limit)+1])
             set_global_limit(control);last_proxy_metrics=proxy_metrics;last_success=counts.total('useful_responses');last_errors=counts.errors.copy();window=now;counts.latencies=[];counts.upstream_latencies=[];peak_calls=0
         if now-last_print>=300:
             print(f'Progress {done}/171; {progress["active_scientific_workers"]}/9 workers; upstream {limit}; {rpm:.1f} responses/min; errors {dict(delta)}',flush=True);last_print=now
