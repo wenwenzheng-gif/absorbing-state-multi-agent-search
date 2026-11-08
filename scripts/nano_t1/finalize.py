@@ -154,10 +154,13 @@ def analysis(run_dirs):
     merged=subprocess.run(cmd,cwd=ROOT,capture_output=True,text=True)
     if merged.returncode:
         raise RuntimeError("Existing merge_runs analysis failed: "+merged.stderr[-300:])
-    table=subprocess.run([sys.executable,"scripts/dc_table.py","--tag",output_tag],
+    # Run the same frozen three-stage analysis used for the six valid seeds:
+    # summarize, critical_degree (pre_own t>=1 and t>=2), then dc_table.
+    analysis=subprocess.run(["bash","scripts/analyze.sh","--tag",output_tag,
+                             "--convention","pre_own"],
           cwd=ROOT,capture_output=True,text=True)
-    if table.returncode:
-        raise RuntimeError("Existing dc_table analysis failed: "+table.stderr[-300:])
+    if analysis.returncode:
+        raise RuntimeError("Original Nano analysis pipeline failed: "+analysis.stderr[-500:])
     return output_tag
 
 def main():
