@@ -1,4 +1,5 @@
 name: GPT-5.4 Nano three tasks six seeds
+# Uses the CLI environment-variable injection compatibility fix.
 on:
   push:
     branches: [experiment/gpt54-nano-3tasks-6seeds-parallel]
