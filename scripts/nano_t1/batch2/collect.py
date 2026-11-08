@@ -24,7 +24,7 @@ def main():
     by_name={a["name"]:a for a in artifacts}
     progress={}
     blockers=[]
-    scratch=Path("outputs/gpt-5.4-nano-t1-none-new3/_collector")
+    scratch=Path("outputs/gpt-5.4-nano-t1-none-new3-batch2/_collector")
     for task in TASKS:
         for seed in SEEDS:
             key=f"{task}/seed_{seed}"
@@ -60,17 +60,11 @@ def main():
     OUT.write_text(json.dumps(result,indent=2))
     print("RUN",run_id,"PASS",iteration,"STATUS",state,"EPISODES",total,"/",target,flush=True)
     for b in blockers: print("BLOCKER:",b,flush=True)
-    if True:  # Marker-based continuation; branch-only workflow_dispatch is unsupported.
-        print("CHECKPOINT_READY: branch marker continuation, preserving completed science.",flush=True)
-    elif state=="COMPLETE":
-        run(["gh","workflow","run","nano-t1-finalize.yml","--repo",REPO,
-             "--ref",BRANCH,"-f",f"source_run_id={run_id}"])
-        print("Triggered validation/aggregation/HF publication.",flush=True)
-    elif state=="CONTINUE":
-        run(["gh","workflow","run","nano-t1-experiment.yml","--repo",REPO,
-             "--ref",BRANCH,"-f",f"resume_run_id={run_id}",
-             "-f",f"iteration={iteration+1}"])
-        print("Queued next checkpoint-resume pass; no completed episode will be restarted.",flush=True)
+    # Existing workflow is scoped to this experimental branch, so direct
+    # workflow_dispatch is intentionally disabled. A separate authorized
+    # branch-marker watcher resumes or finalizes only after inspecting this
+    # collector's complete verified status and checkpoint artifacts.
+    print("CHECKPOINT_READY: external branch-marker controller may continue or finalize.",flush=True)
     return 0 if state!="BLOCKED" else 1
 
 if __name__=="__main__":sys.exit(main())
