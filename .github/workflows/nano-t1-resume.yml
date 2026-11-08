@@ -37,7 +37,6 @@ jobs:
               f.write("iteration="+str(r["iteration"])+"\n")
           print("Verified resuming exact original Nano t1 new3 source run.")
           PY
-          gh api "repos/${{ github.repository }}/actions/runs/${{ steps.marker.outputs.source_run_id }}" > /dev/null
   capacity:
     needs: gate
     runs-on: ubuntu-latest
