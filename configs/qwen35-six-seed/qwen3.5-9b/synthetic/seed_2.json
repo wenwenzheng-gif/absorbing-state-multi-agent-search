@@ -1,0 +1,55 @@
+{
+  "name": "qwen3.5-9b_synthetic_seed_2",
+  "protocol_version": "agent_v1",
+  "agents": 40,
+  "branching": 2,
+  "experiments_per_agent": 1,
+  "initial_width": 8,
+  "degrees": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    30,
+    39
+  ],
+  "task_seeds": [
+    2
+  ],
+  "repeats": 1,
+  "candidate_pool": "proposed_allowed_v1",
+  "environment": {
+    "kind": "synthetic",
+    "families": 8,
+    "variants": 2,
+    "task_size": 4
+  },
+  "policy": {
+    "kind": "llm_full",
+    "llm": {
+      "model": "Qwen/Qwen3.5-9B",
+      "base_url": "http://127.0.0.1:8119/v1",
+      "api_key_env": "OPENAI_API_KEY",
+      "concurrency": 12,
+      "timeout_s": 300.0,
+      "transport_retries": 3,
+      "repair_attempts": 3,
+      "max_output_tokens": 3072,
+      "temperature": 0.2,
+      "enable_thinking": false,
+      "max_requests": 200000,
+      "max_wall_seconds": 54000.0,
+      "context_identity": true,
+      "team_objective": "device",
+      "evidence_attribution": true,
+      "shuffle_candidates": true,
+      "per_agent_seed": true
+    }
+  },
+  "epsilon_predictive": 0.001,
+  "output_root": "outputs/qwen3.5-9b/synthetic",
+  "notes": "Final LLM experiment, toy cell: synthetic M=8, K=2, T=4, b=2, m=1, N=40. Paired rule control: rule_toy."
+}

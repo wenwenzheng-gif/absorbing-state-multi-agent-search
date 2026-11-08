@@ -1,0 +1,53 @@
+{
+  "status": "BLOCKED_GPU_CAPACITY",
+  "observed_at": "2026-11-08T16:39:37.890954+00:00",
+  "models": [
+    {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "checkpoint": "/data4/toby/models/Qwen3.5-4B",
+      "revision": "851bf6e806efd8d0a36b00ddf55e13ccb7b8cd0a",
+      "weight_dtypes": [
+        "BF16",
+        "F32"
+      ],
+      "quantization": null,
+      "planned_backend": "vllm",
+      "reference_context_length": 65536,
+      "server_started": false,
+      "gpu_allocation": null
+    },
+    {
+      "model_id": "Qwen/Qwen3.5-9B",
+      "checkpoint": "/data4/toby/models/Qwen3.5-9B",
+      "revision": "c202236235762e1c871ad0ccb60c8ee5ba337b9a",
+      "weight_dtypes": [
+        "BF16",
+        "F32"
+      ],
+      "quantization": null,
+      "planned_backend": "vllm",
+      "reference_context_length": 65536,
+      "server_started": false,
+      "gpu_allocation": null
+    }
+  ],
+  "gpu_snapshot": "index, name, memory.total [MiB], memory.used [MiB], memory.free [MiB], utilization.gpu [%]\n0, NVIDIA RTX A6000, 49140 MiB, 46990 MiB, 1551 MiB, 0 %\n1, NVIDIA RTX A6000, 49140 MiB, 46990 MiB, 1551 MiB, 0 %\n2, NVIDIA RTX A6000, 49140 MiB, 47048 MiB, 1493 MiB, 0 %\n3, NVIDIA RTX A6000, 49140 MiB, 47048 MiB, 1493 MiB, 0 %\n",
+  "blocking_service": "pgym-qwen27b.service",
+  "blocking_server_pid": 185497,
+  "blocking_worker_pids": [
+    188041,
+    188043,
+    188040,
+    188042
+  ],
+  "blocking_model": "qwen3.8-27b",
+  "runs_launched": 0,
+  "episodes_completed": 0,
+  "required_runs": 36,
+  "required_episodes": 384,
+  "smokes_run": 0,
+  "capacity_tests_run": 0,
+  "uploads_attempted": 0,
+  "source_commit": "9460ea8",
+  "historical_data_modified": false
+}
