@@ -53,9 +53,6 @@ def main():
     target=sum(x["target_episodes"] for x in progress.values())
     state="BLOCKED" if blockers else "COMPLETE" if len(progress)==9 and all(
          x["status"]=="COMPLETE" for x in progress.values()) else "CONTINUE"
-    if state=="CONTINUE" and iteration>=24:
-        state="BLOCKED"
-        blockers.append("24 infrastructure slices exhausted; stopping automation without corrupting scientific data")
     result={"workflow_run_id":run_id,"iteration":iteration,"state":state,
             "completed_episodes":total,"target_episodes":target,
             "workers":progress,"blockers":blockers}
