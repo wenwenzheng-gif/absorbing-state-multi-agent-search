@@ -158,7 +158,7 @@ def schedule():
     return sorted(cells,key=lambda cell:str(cell_dir(*cell)/'config.json') not in live)
 
 class Counts:
-    def __init__(self):self.positions={};self.counts=collections.Counter();self.errors=collections.Counter();self.latencies=[]
+    def __init__(self):self.positions={};self.counts=collections.Counter();self.errors=collections.Counter();self.latencies=[];self.upstream_latencies=[]
     def update(self):
         for kind in ['requests','responses','api_attempts','transport_errors']:
             for p in (OUT/'runs').glob(f'agents/*/*/{kind}.jsonl'):
@@ -171,7 +171,10 @@ class Counts:
                         except ValueError:f.seek(pos);break
                         self.counts[(str(p.parent),kind)]+=1
                         if kind=='transport_errors':self.errors[r['kind']]+=1
-                        if kind=='responses':self.latencies.append(r.get('latency_s',0))
+                        if kind=='responses':
+                            self.latencies.append(r.get('latency_s',0))
+                            if (r.get('sampling_audit') or {}).get('upstream_latency_s') is not None:self.upstream_latencies.append(r['sampling_audit']['upstream_latency_s'])
+                            if r.get('finish_reason')=='stop' and not r.get('refusal'):self.counts[(str(p.parent),'useful_responses')]+=1
                     self.positions[str(p)]=f.tell()
     def total(self,kind):return sum(n for (p,k),n in self.counts.items() if k==kind)
 
@@ -198,37 +201,37 @@ def active_upstream_calls():
 
 async def monitor():
     import statistics
-    counts=Counts();counts.update();last_proxy_metrics=proxy_health().get('metrics',{});last_success=counts.total('responses');last_errors=counts.errors.copy();window=time.time();last_print=0;levels=[1,2,4,6,8,10,12,16,20,24,32,48,64,96,108];tested=set();best=None;peak_calls=0;last_failure=max([r.get('updated',0) for r in rows(OUT/'capacity.jsonl') if sum(r.get('window_errors',{}).values()) or sum(r.get('proxy_window_errors',{}).values())] or [time.time()])
+    counts=Counts();counts.update();last_proxy_metrics=proxy_health().get('metrics',{});last_success=counts.total('useful_responses');last_errors=counts.errors.copy();window=time.time();last_print=0;levels=[1,2,4,6,8,10,12,14,16,20,24,32,48,64,96,108];tested=set();best=None;peak_calls=0;last_failure=max([r.get('updated',0) for r in rows(OUT/'capacity.jsonl') if sum(r.get('window_errors',{}).values()) or sum(r.get('proxy_window_errors',{}).values())] or [time.time()])
     batch_meta=json.loads((OUT/'batch.json').read_text());batch_started=batch_meta.get('science_started',batch_meta['created_at']);baseline_done=None
     while True:
         await asyncio.sleep(10);counts.update();now=time.time();jobs=[]
         for task in TASKS:
             for seed in SEEDS:
                 jd=OUT/'jobs'/f'{task}_seed{seed}';sp=jd/'status.json';state=json.loads(sp.read_text()) if sp.exists() else {'status':'PENDING','started':now}
-                cells=[cell_dir(task,seed,p) for p in POLICIES];api=sum(counts.counts[(str(d),'api_attempts')] for d in cells);success=sum(counts.counts[(str(d),'responses')] for d in cells)
+                cells=[cell_dir(task,seed,p) for p in POLICIES];api=sum(counts.counts[(str(d),'api_attempts')] for d in cells);success=sum(counts.counts[(str(d),'useful_responses')] for d in cells)
                 errs=collections.Counter(r['kind'] for d in cells for r in rows(d/'transport_errors.jsonl'))
                 jobs.append({**SETTINGS,'task':task,'seed':seed,'status':state['status'],'completed_episodes':sum(len(completed(d)) for d in cells),'expected_episodes':expected(task),'api_requests':api,'successful_requests':success,'transport_retries':sum(errs.values()),'http_429':errs['HTTP 429'],'http_5xx':sum(n for k,n in errs.items() if k.startswith('HTTP 5')),'timeouts':sum(n for k,n in errs.items() if 'Timeout' in k),'wall_seconds':now-state.get('started',now),'last_progress_timestamp':max([p.stat().st_mtime for d in cells for p in [d/'responses.jsonl',d/'episodes.jsonl'] if p.exists()] or [state.get('started',now)])})
         done=sum(j['completed_episodes'] for j in jobs)
         if baseline_done is None:baseline_done=done
-        control=json.loads((OUT/'control.json').read_text());limit=control['upstream_limit'];health=proxy_health();proxy_metrics=health.get('metrics',{});proxy_delta={k:v-last_proxy_metrics.get(k,0) for k,v in proxy_metrics.items()};delta=counts.errors-last_errors;new_errors=sum(delta.values())+proxy_delta.get('upstream_429',0)+proxy_delta.get('upstream_5xx',0)+proxy_delta.get('upstream_transport_errors',0);elapsed=now-window;success=counts.total('responses')-last_success;rpm=success*60/max(elapsed,1)
+        control=json.loads((OUT/'control.json').read_text());limit=control['upstream_limit'];health=proxy_health();proxy_metrics=health.get('metrics',{});proxy_delta={k:v-last_proxy_metrics.get(k,0) for k,v in proxy_metrics.items()};delta=counts.errors-last_errors;new_errors=sum(delta.values())+proxy_delta.get('upstream_429',0)+proxy_delta.get('upstream_5xx',0)+proxy_delta.get('upstream_transport_errors',0);elapsed=now-window;success=counts.total('useful_responses')-last_success;rpm=success*60/max(elapsed,1)
         active_calls=active_upstream_calls();peak_calls=max(peak_calls,proxy_metrics.get('active_upstream_requests',0))
         progress={**SETTINGS,'proxy_admitted_requests_including_backoff':health.get('active_requests'),'proxy_active_upstream_calls':proxy_metrics.get('active_upstream_requests',0),'proxy_effective_limit':health.get('upstream_limit'),'proxy_metrics':proxy_metrics,'proxy_window_errors':{k:v for k,v in proxy_delta.items() if k in ['upstream_429','upstream_5xx','upstream_transport_errors','upstream_timeouts']},'active_upstream_calls':active_calls,'peak_active_upstream_calls':peak_calls,'pending_logical_requests':max(0,counts.total('requests')-counts.total('responses')-active_calls),'host_load_average':os.getloadavg(),'updated':now,'jobs':jobs,'completed_episodes':done,'expected_episodes':171,'upstream_limit':limit,'active_scientific_workers':sum(json.loads(p.read_text()).get('status')=='RUNNING' for p in (OUT/'runs/agents').glob('*/*/status.json')),'responses_per_min':rpm,'api_requests':counts.total('api_attempts'),'transport_errors':dict(counts.errors),'wall_seconds':now-batch_started}
         write(OUT/'progress.json',progress)
         if new_errors>=6 or elapsed>=300:
-            record={**progress,'window_seconds':elapsed,'successful_responses':success,'window_errors':dict(delta),'latency_mean_s':statistics.mean(counts.latencies) if counts.latencies else None,'latency_median_s':statistics.median(counts.latencies) if counts.latencies else None}
+            record={**progress,'window_seconds':elapsed,'successful_responses':success,'window_errors':dict(delta),'latency_mean_s':statistics.mean(counts.latencies) if counts.latencies else None,'latency_median_s':statistics.median(counts.latencies) if counts.latencies else None,'upstream_latency_mean_s':statistics.mean(counts.upstream_latencies) if counts.upstream_latencies else None,'upstream_latency_median_s':statistics.median(counts.upstream_latencies) if counts.upstream_latencies else None}
             added=done-baseline_done;record['observed_episodes_per_hour']=added*3600/max(now-batch_started,1);record['episode_eta_seconds']=(171-done)*(now-batch_started)/added if added>0 else None
             with (OUT/'capacity.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
-            unstable=new_errors>=6 or delta['HTTP 429']>=3 or proxy_delta.get('upstream_429',0)>=3
+            unstable=(new_errors>=6 and new_errors/max(1,success+new_errors)>.03) or delta['HTTP 429']>=3 or proxy_delta.get('upstream_429',0)>=3
             tested.add(limit)
             if unstable:
-                lower=[n for n in levels if n<=limit*.75];control['upstream_limit']=max(lower or [1]);best=None;last_failure=now
+                control['upstream_limit']=best[0] if best and best[0]<limit else levels[max(0,levels.index(limit)-1)];best=None;last_failure=now
             elif elapsed>=300:
                 if best and rpm<best[1]*.9 and limit>best[0]:control['upstream_limit']=best[0]
                 else:
                     best=(limit,rpm)
                     if limit<108 and now-last_failure>=600 and (now-batch_started<1800 or (record['episode_eta_seconds'] or 0)>39600-(now-batch_started)):
                         control['upstream_limit']=levels[levels.index(limit)+1]
-            set_global_limit(control);last_proxy_metrics=proxy_metrics;last_success=counts.total('responses');last_errors=counts.errors.copy();window=now;counts.latencies=[];peak_calls=0
+            set_global_limit(control);last_proxy_metrics=proxy_metrics;last_success=counts.total('useful_responses');last_errors=counts.errors.copy();window=now;counts.latencies=[];counts.upstream_latencies=[];peak_calls=0
         if now-last_print>=300:
             print(f'Progress {done}/171; {progress["active_scientific_workers"]}/9 workers; upstream {limit}; {rpm:.1f} responses/min; errors {dict(delta)}',flush=True);last_print=now
 
@@ -260,8 +263,9 @@ async def main(args):
             write(OUT/'jobs'/f'{task}_seed{seed}'/'status.json',{**SETTINGS,'task':task,'seed':seed,'status':'COMPLETE' if all(s=='COMPLETE' for s in statuses) else 'QUARANTINED','completed_episodes':sum(len(completed(cell_dir(task,seed,p))) for p in POLICIES),'expected_episodes':expected(task),'finished':time.time()})
     if not all(states):
         write(OUT/'final_status.json',{**SETTINGS,'status':'QUARANTINED','reason':'One or more incomplete jobs; upload prohibited.'});return
-    from audit import finish
-    await asyncio.to_thread(finish)
+    import audit,importlib
+    importlib.reload(audit)
+    await asyncio.to_thread(audit.finish)
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--env-file',type=pathlib.Path,default=pathlib.Path(ENV_DEFAULT));parser.add_argument('--watch-credentials',action='store_true');parser.add_argument('--preflight-only',action='store_true')

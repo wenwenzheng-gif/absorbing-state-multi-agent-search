@@ -22,6 +22,7 @@ def audit_cell(task,seed,policy):
         assert params.get('reasoning_effort')=='none' and isinstance(params.get('seed'),int)
         assert 'chat_template_kwargs' not in params and req.get('request_body_sha256')
         assert req['episode'] in target
+    incomplete_provenance=[]
     for response in responses:
         assert response.get('model','').startswith('gpt-6-luna'),'Backend model mismatch'
         assert response['episode'] in target
@@ -29,12 +30,24 @@ def audit_cell(task,seed,policy):
         assert details.get('reasoning_tokens')==0,'Reasoning tokens not proven to be zero'
         assert not response.get('reasoning'),'Thinking content returned'
         actual=response.get('sampling_audit') or {}
-        assert actual.get('actual_model')==response['model'] and actual.get('upstream_response_id')
-        assert actual.get('effective_temperature')==1.0 and actual.get('effective_reasoning_effort')=='none' and actual.get('reasoning_tokens')==0
-        assert actual.get('temperature_forwarded') is False and actual.get('seed_forwarded') is False
+        if actual.get('upstream_response_id'):
+            assert actual.get('actual_model')==response['model']
+            assert actual.get('effective_temperature')==1.0 and actual.get('effective_reasoning_effort')=='none' and actual.get('reasoning_tokens')==0
+            assert actual.get('temperature_forwarded') is False and actual.get('seed_forwarded') is False
+        else:
+            # A pre-fix incomplete reply has its original request and zero-token
+            # usage, but no raw terminal-response ID. Do not alter the record.
+            assert response.get('finish_reason')=='length','Missing actual-model provenance on a completed reply'
+            for key,value in [('actual_model',response['model']),('effective_temperature',1.0),('effective_reasoning_effort','none'),('reasoning_tokens',0)]:
+                if actual.get(key) is not None:assert actual[key]==value,'Contradictory incomplete-response metadata'
+            linked=[req for req in requests if req['cache_key']==response['cache_key']]
+            assert linked and all(req['request_parameters']['model']=='gpt-6-luna' and req['request_parameters']['reasoning_effort']=='none' and req['request_parameters']['temperature']==1.0 for req in linked)
+            preflight=json.loads((OUT/'preflight.json').read_text())
+            assert preflight['effective_temperature']==1.0 and preflight['reasoning_tokens']==0 and preflight['actual_model']=='gpt-6-luna'
+            incomplete_provenance.append(response['cache_key'])
     summary=json.loads((d/'run_summary.json').read_text());require_settings(summary)
     assert summary['planned_episodes']==len(target)
-    return {'cell':d.name,'task':task,'seed':seed,'policy':policy,'task_seed':c['task_seeds'][0],'episodes':len(good),'requests':len(requests),'responses':len(responses),'api_requests':len(rows(d/'api_attempts.jsonl')),'transport_errors':dict(collections.Counter(r['kind'] for r in rows(d/'transport_errors.jsonl'))),'actual_models':sorted({r['model'] for r in responses})}
+    return {'incomplete_response_provenance_gaps':incomplete_provenance,'incomplete_response_settings_evidence':'Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.','cell':d.name,'task':task,'seed':seed,'policy':policy,'task_seed':c['task_seeds'][0],'episodes':len(good),'requests':len(requests),'responses':len(responses),'api_requests':len(rows(d/'api_attempts.jsonl')),'transport_errors':dict(collections.Counter(r['kind'] for r in rows(d/'transport_errors.jsonl'))),'actual_models':sorted({r['model'] for r in responses})}
 
 def aggregate():
     codes={}
@@ -123,7 +136,13 @@ def upload(archive,report):
     api=HfApi(token=token());api.whoami()
     files=api.list_repo_files(DATASET,repo_type='dataset')
     paths={'archive':'gpt-6-luna/'+archive.name,'metadata':'gpt-6-luna/gpt-6-luna_seed7-9_metadata.json','readme':'gpt-6-luna/gpt-6-luna_seed7-9_README.md'}
-    assert all(p not in files for p in paths.values()),'Destination exists; refusing to replace existing valid data.'
+    if any(p in files for p in paths.values()):
+        assert all(p in files for p in paths.values()),'Partial destination collision; refusing replacement.'
+        info=api.repo_info(DATASET,repo_type='dataset',files_metadata=True)
+        remote=next(p for p in info.siblings if p.rfilename==paths['archive']);remote_sha=(getattr(remote.lfs,'sha256',None) or (remote.lfs.get('sha256') if isinstance(remote.lfs,dict) else None)) if remote.lfs else None
+        assert remote_sha==report['archive_sha256'],'Different data already exists; refusing replacement.'
+        write(OUT/'upload_status.json',{**SETTINGS,'status':'UPLOADED','dataset':DATASET,'paths':paths,'commit':info.sha,'idempotent_existing_archive':True})
+        return paths
     before={p.rfilename:(getattr(p.lfs,'sha256',None) or (p.lfs.get('sha256') if isinstance(p.lfs,dict) else None)) if p.lfs else p.blob_id for p in api.repo_info(DATASET,repo_type='dataset',files_metadata=True).siblings if p.rfilename.startswith('gpt-6-luna/')}
     ops=[CommitOperationAdd(path_in_repo=paths['archive'],path_or_fileobj=str(archive)),CommitOperationAdd(path_in_repo=paths['metadata'],path_or_fileobj=str(OUT/'validation_report.json')),CommitOperationAdd(path_in_repo=paths['readme'],path_or_fileobj=str(OUT/'validated_upload/README.md'))]
     commit=api.create_commit(DATASET,repo_type='dataset',operations=ops,commit_message='Add three validated temperature-one, reasoning-none GPT-6-Luna seed batches (7-9)')
@@ -137,7 +156,12 @@ def finish():
     cells=[audit_cell(t,s,p) for t in TASKS for s in SEEDS for p in POLICIES]
     for task in TASKS:
         for seed in SEEDS:assert json.loads((OUT/'jobs'/f'{task}_seed{seed}'/'status.json').read_text())['status']=='COMPLETE'
-    codes=aggregate();archive,report=stage(cells,codes)
+    archive=OUT/'gpt-6-luna_seed7-9_runs.zip';existing=OUT/'validation_report.json'
+    if archive.exists() and existing.exists() and hashlib.sha256(archive.read_bytes()).hexdigest()==json.loads(existing.read_text()).get('archive_sha256'):
+        report=json.loads(existing.read_text());require_settings(report)
+        assert report['seed_ids']==list(SEEDS) and report['completed_episodes_by_task']=={'synthetic':45,'tcas':63,'physics':63}
+    else:
+        codes=aggregate();archive,report=stage(cells,codes)
     write(OUT/'combined_summary.json',report)
     paths=upload(archive,report)
     report.update(status='COMPLETE',hugging_face_paths=paths,total_wall_seconds=time.time()-json.loads((OUT/'batch.json').read_text())['created_at'])

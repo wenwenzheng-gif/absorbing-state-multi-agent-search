@@ -47,14 +47,14 @@ def main():
             started = time.monotonic()
             def audited_events(resp):
                 for event in sse_events(resp):
-                    if event.get("type") == "response.completed":
+                    if event.get("type") in ("response.completed", "response.incomplete"):
                         r = event.get("response", {})
                         actual.update({"upstream_response_id": r.get("id"), "actual_model": r.get("model"),
                                        "effective_temperature": r.get("temperature"),
                                        "effective_reasoning_effort": (r.get("reasoning") or {}).get("effort"),
                                        "reasoning_tokens": ((r.get("usage") or {}).get("output_tokens_details") or {}).get("reasoning_tokens"),
                                        "upstream_latency_s": time.monotonic() - started})
-                        metric("completed_responses")
+                        metric("completed_responses" if event.get("type") == "response.completed" else "incomplete_responses")
                     yield event
             with upstream("/responses", body) as resp:
                 deltas = chat_deltas(audited_events(resp))''')
