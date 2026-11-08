@@ -69,10 +69,23 @@ def run():
         report["checks"]["hf_revision"]=info.sha
         root=list(api.list_repo_tree(DATASET,repo_type="dataset",path_in_repo="",recursive=False))
         report["checks"]["hf_top_level"]=[x.path for x in root if re.search("nano",x.path,re.I)][:30]
-        files=[obj.path for obj in api.list_repo_tree(DATASET,repo_type="dataset",
-                    path_in_repo=PREFIX,recursive=True) if obj.path and not obj.path.endswith("/")]
+        candidates=[PREFIX, "gpt-5.4-nano"]
+        families={}
+        for candidate in candidates:
+            try:
+                family_paths=[obj.path for obj in api.list_repo_tree(DATASET,repo_type="dataset",
+                    path_in_repo=candidate,recursive=True) if obj.path and not obj.path.endswith("/")]
+                families[candidate]=family_paths
+            except Exception as e:
+                families[candidate]=[]
+                report["checks"][candidate+"_read_issue"]=type(e).__name__
+        report["checks"]["hf_family_file_counts"]={k:len(v) for k,v in families.items()}
+        files=families[PREFIX] or families["gpt-5.4-nano"]
+        report["checks"]["hf_actual_family_path"]=PREFIX if families[PREFIX] else "gpt-5.4-nano"
+        if not families[PREFIX]:
+            report["blockers"].append("No original t1 directory on Hugging Face; alternate nano folder requires identity proof.")
         report["checks"]["hf_files_in_original_family"]=len(files)
-        report["checks"]["hf_path_samples"]=files[:35]
+        report["checks"]["hf_path_samples"]=files[:90]
         if not files: report["blockers"].append("Valid Nano t1 dataset path has no files.")
         # Find historical seed IDs from paths, ensure candidate identifiers truly unused.
         ids=sorted({int(n) for p in files for n in re.findall(r"(?:^|[/_-])seed[_-]?(\d+)(?:[/_.-]|$)",p)})
