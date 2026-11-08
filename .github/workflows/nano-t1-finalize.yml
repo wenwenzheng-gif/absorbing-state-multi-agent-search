@@ -1,0 +1,46 @@
+name: Nano t1 new3 strict validation aggregation and Hugging Face upload
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Final completed 9-seed-job experiment run ID"
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+jobs:
+  validate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN || secrets.HUGGINGFACE_TOKEN || secrets.HUGGING_FACE_HUB_TOKEN || secrets.HUGGINGFACE_HUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/gpt54-nano-t1-none-new3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt huggingface_hub
+      - name: Restore nine completed seed artifacts, validate every trajectory, aggregate and upload
+        run: python scripts/nano_t1/finalize.py --source-run-id ${{ inputs.source_run_id }}
+      - name: Commit only lightweight summary to dedicated branch (never main)
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/nano-t1-new3/final_report.json
+          git diff --cached --quiet || git commit -m "Finalize exact Nano t1 seed7-9 validation and results"
+          git push origin HEAD:experiment/gpt54-nano-t1-none-new3
+      - name: Preserve final analysis and publication status even if HF auth is unavailable
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-final-${{ github.run_id }}
+          path: |
+            outputs/gpt-5.4-nano-t1-none-new3/summary/
+            results/nano-t1-new3/
+          retention-days: 30
+          if-no-files-found: warn
