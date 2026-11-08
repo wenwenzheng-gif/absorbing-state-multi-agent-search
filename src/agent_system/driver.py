@@ -376,6 +376,11 @@ class RunDriver:
             "statuses": statuses,
             "llm_usage": self.backend.usage.as_dict() if self.backend is not None else {},
         }
+        if self.backend is not None:
+            summary.update(model=self.backend.config.model, temperature=self.backend.config.temperature,
+                           reasoning_effort=self.backend.config.reasoning_effort,
+                           enable_thinking=self.backend.config.enable_thinking,
+                           thinking="enabled" if self.backend.config.enable_thinking else "disabled")
         self.store.write_json("run_summary.json", summary)
         if self.backend is not None:
             await self.backend.aclose()

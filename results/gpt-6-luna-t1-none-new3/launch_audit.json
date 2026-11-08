@@ -1,0 +1,61 @@
+{
+  "model": "gpt-6-luna",
+  "temperature": 1.0,
+  "reasoning_effort": "none",
+  "enable_thinking": false,
+  "thinking": "disabled",
+  "seed_ids": [
+    7,
+    8,
+    9
+  ],
+  "task_seed_ids": {
+    "synthetic": {
+      "7": 87006,
+      "8": 87007,
+      "9": 87008
+    },
+    "tcas": {
+      "7": 87206,
+      "8": 87207,
+      "9": 87208
+    },
+    "physics": {
+      "7": 82246,
+      "8": 82247,
+      "9": 82248
+    }
+  },
+  "expected_episodes": {
+    "synthetic": 45,
+    "tcas": 63,
+    "physics": 63
+  },
+  "total_expected_episodes": 171,
+  "reference_archive_sha256": "dd7b47e0ed1d958ba8cc24d175fa8e1bf65331649ed8264d7f962cb6091fe740",
+  "status": "RUNNING",
+  "cleanup": {
+    "deleted_path": "/home/yyang462/projects/absorbing-state-multi-agent-search/outputs/gpt-6-luna",
+    "verified_invalid_manifests": 18,
+    "stopped_invalid_workers": 18,
+    "cancelled_output_absent": true,
+    "cancelled_processes_stopped": true,
+    "historical_valid_data_untouched": true
+  },
+  "preflight_status": "PASS",
+  "scientific_workers_launched": 9,
+  "smoke_tests_launched": 3,
+  "original_valid_data_preserved": true,
+  "required_api_behavior": "Only local codex_api; raw upstream provenance must confirm model gpt-6-luna, effective temperature 1.0, effort none, zero reasoning tokens.",
+  "hf_write_authentication_available": false,
+  "same_proxy_as_baseline": false,
+  "baseline_endpoint": "https://api.openai.com/v1",
+  "new_endpoint": "http://127.0.0.1:8765/v1",
+  "temperature_forwarded": false,
+  "effective_temperature": 1.0,
+  "sampling_seed_forwarded": false,
+  "endpoint_migration_recorded": true,
+  "smoke_tests_passed": 3,
+  "source_archive_validated": true,
+  "scientific_worker_pids_preserved": true
+}

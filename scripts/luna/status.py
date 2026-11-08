@@ -1,16 +1,11 @@
-from pathlib import Path
-import json,time,collections
-root=Path(__file__).resolve().parents[2]/'outputs/gpt-6-luna'
-print('Elapsed seconds:',round(time.time()-json.loads((root/'preflight.json').read_text())['started']))
-for task in ['synthetic','tcas','ode']:
- smoke=root/'_smoke'/task
- sd=json.loads((smoke/'status.json').read_text())
- states=[]; counts=collections.Counter()
- for d in (root/task).glob('seed_*'):
-  if (d/'status.json').exists():states.append(json.loads((d/'status.json').read_text())['status'])
-  for name in ['responses','transport_errors','episodes']:
-   p=d/f'{name}.jsonl'
-   if p.exists():counts[name]+=sum(1 for _ in p.open())
- print(task,'smoke:',sd['status'],'smoke responses:',sum(1 for _ in (smoke/'responses.jsonl').open()) if (smoke/'responses.jsonl').exists() else 0,'seeds:',dict(collections.Counter(states)),'counts:',dict(counts))
-print('Control:',(root/'control.json').read_text())
-print('Supervisor:',(root/'supervisor.log').read_text()[-1500:])
+#!/usr/bin/env python3
+"""Compact status for the isolated corrected batch."""
+import json
+from common import OUT
+p=OUT/'progress.json'
+if p.exists():
+    r=json.loads(p.read_text());print(f'{r["completed_episodes"]}/{r["expected_episodes"]} episodes; {r["active_scientific_workers"]}/9 workers; upstream={r["upstream_limit"]}; {r["responses_per_min"]:.1f} responses/min')
+    for job in r['jobs']:print(job['task'],job['seed'],job['status'],f'{job["completed_episodes"]}/{job["expected_episodes"]}',f'API={job["api_requests"]}',f'errors={job["transport_retries"]}')
+else:
+    p=OUT/'preflight.json'
+    print(json.dumps(json.loads(p.read_text()) if p.exists() else {'status':'NOT_STARTED'},indent=2))

@@ -465,7 +465,7 @@ class LLMBackend:
             if record.get("refusal"):
                 raise PolicyFailure(f"model refused: {record['refusal']!r}")
             if record.get("finish_reason") == "length":
-                raise IncompleteOutput("the recorded answer was cut off before the JSON was finished")
+                raise IncompleteOutput("the answer was cut off before the JSON was finished; the commentary was too long")
             return record
         self._check_ceilings()
         thinking = self.config.enable_thinking or self.config.reasoning == "thinking"
@@ -504,6 +504,8 @@ class LLMBackend:
                     "model": self.config.model,
                     "schema_name": schema_name,
                     "messages": messages,
+                    "request_parameters": {k: v for k, v in body.items() if k not in ("messages", "response_format")},
+                    "request_body_sha256": hashlib.sha256(json.dumps(body, sort_keys=True).encode()).hexdigest(),
                     **metadata,
                 }
             )
@@ -515,11 +517,17 @@ class LLMBackend:
                 self.usage.transport_retries += 1
                 # Back off before retrying so a rate limit (HTTP 429) or a
                 # transient server error has time to clear.
-                await asyncio.sleep(min(60.0, 2.0 ** transport_attempt))
+                jitter = 0.85 + (time.monotonic_ns() % 3001) / 10000
+                await asyncio.sleep(min(60.0, (2.0 ** transport_attempt) * jitter))
             started = time.monotonic()
             try:
                 await self._execution_gate()
                 async with self.semaphore, self._proxy_slot():
+                    control, job = os.environ.get("LUNA_CONTROL"), os.environ.get("LUNA_JOB")
+                    if control and job:
+                        attempt_path = Path(control).parent / job / "api_attempts.jsonl"
+                        with attempt_path.open("a") as stream:
+                            stream.write(json.dumps({"time": time.time(), "cache_key": cache_key, "transport_attempt": transport_attempt, "model": body["model"], "temperature": body.get("temperature"), "reasoning_effort": body.get("reasoning_effort"), "thinking": "disabled" if not thinking else "enabled"}) + "\n")
                     response = await self._client.post("/chat/completions", json=body)
                 elapsed = time.monotonic() - started
                 self.usage.latency_s += elapsed
@@ -555,6 +563,7 @@ class LLMBackend:
                 "content": message.get("content"),
                 "refusal": message.get("refusal"),
                 "reasoning": message.get("reasoning"),
+                "sampling_audit": payload.get("sampling_audit"),
                 "usage": usage,
                 "latency_s": elapsed,
                 **metadata,
