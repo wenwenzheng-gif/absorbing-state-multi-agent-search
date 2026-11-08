@@ -129,15 +129,24 @@ def scan_secrets(paths):
 def analysis(run_dirs):
     # Pure analysis projection: original source manifests and JSONL remain unmodified.
     run_root=ROOT/"runs"/"agents"
+    config_root=ROOT/"configs"/"agents"
     for seed in SEEDS:
         tag=f"{FAMILY}_seed{seed}"
         (run_root/tag).mkdir(parents=True,exist_ok=True)
+        (config_root/tag).mkdir(parents=True,exist_ok=True)
         for task in TASKS:
             for arm in ARMS:
                 name=f"{tag}_{task}_{arm}"
                 source=run_dirs[(task,seed,arm)]
                 dest=run_root/tag/name
-                if dest.exists() or dest.is_symlink():dest.unlink()
+                # Existing merge_runs.py reads both configs/agents/<tag>/
+                # and runs/agents/<tag>/. Build an analysis-only projection.
+                cfg=source.parent/"configs"/(arm+".json")
+                shutil.copy2(cfg,config_root/tag/(task+"_"+arm+".json"))
+                if dest.is_symlink():
+                    dest.unlink()
+                elif dest.exists():
+                    raise ValueError("Refusing to overwrite existing analysis directory: "+str(dest))
                 dest.symlink_to(source,target_is_directory=True)
     output_tag=FAMILY+"_seed7-9"
     cmd=[sys.executable,"scripts/merge_runs.py","--out-tag",output_tag,
@@ -212,7 +221,6 @@ def main():
                         cfg=seed_root/"configs"/(arm+".json")
                         zout.write(cfg,arcname=f"configs/agents/{tag}/{task}_{arm}.json")
             # Canonical pooled new-3 analysis, no old or cancelled data.
-            pooled=ROOT/"runs/agents"/tag
             for f in sorted((ROOT/"runs/agents"/(FAMILY+"_seed7-9")).rglob("*")):
                 if f.is_file() and f.suffix in (".json",".jsonl",".csv",".md"):
                     zout.write(f,arcname=str(f.relative_to(ROOT)))
