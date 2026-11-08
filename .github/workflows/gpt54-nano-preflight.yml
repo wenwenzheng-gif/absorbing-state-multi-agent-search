@@ -1,0 +1,36 @@
+name: GPT-5.4 Nano exact-model preflight
+on:
+  push:
+    branches:
+      - experiment/gpt54-nano-3tasks-6seeds-parallel
+    paths:
+      - scripts/nano/preflight.py
+      - .github/workflows/gpt54-nano-preflight.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gpt54-nano-preflight
+  cancel-in-progress: false
+jobs:
+  model-access:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify exact model access and minimum structured request
+        run: python scripts/nano/preflight.py
+      - name: Preserve only safe preflight status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpt54-nano-preflight-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano/preflight.json
+          retention-days: 30
+          if-no-files-found: warn
