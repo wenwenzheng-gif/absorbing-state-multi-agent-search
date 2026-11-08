@@ -1,0 +1,36 @@
+name: Nano t1 Hugging Face upload credential gate
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [.github/workflows/nano-t1-hf-auth.yml]
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN || secrets.HUGGINGFACE_TOKEN || secrets.HUGGING_FACE_HUB_TOKEN || secrets.HUGGINGFACE_HUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install huggingface_hub
+      - name: Confirm whether secure HF write authorization exists (never print credentials)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          key=os.environ.get('HF_TOKEN','')
+          if not key:
+              print('HF_UPLOAD_CREDENTIAL: ABSENT; scientific runs must continue without upload.')
+          else:
+              try:
+                  info=HfApi(token=key).whoami()
+                  print('HF_UPLOAD_CREDENTIAL: PRESENT; provider token authenticated.')
+              except Exception as err:
+                  print('HF_UPLOAD_CREDENTIAL: INVALID_OR_UNAVAILABLE; error type:',type(err).__name__)
+          PY
