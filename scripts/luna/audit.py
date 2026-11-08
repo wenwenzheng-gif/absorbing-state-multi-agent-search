@@ -6,6 +6,30 @@ def require_settings(mapping):
     for key in ['model','temperature','reasoning_effort','enable_thinking']:
         assert mapping.get(key)==SETTINGS[key],f'Invalid {key}: {mapping.get(key)!r}'
 
+def audit_transport_fragment(response, requests, responses):
+    """Prove a failed proxy envelope was rejected, never a scientific action.
+
+    Preserve its bytes and do not infer missing upstream settings or usage.
+    Require a native repair with actual upstream provenance.
+    """
+    assert response.get('finish_reason')=='stop'
+    assert (response.get('usage') or {}).get('total_tokens')==0
+    try:
+        json.loads(response.get('content'))
+    except (TypeError,ValueError):
+        pass
+    else:
+        raise AssertionError('Unproven response could have supplied a scientific action')
+    context=['episode','agent','round','phase','batch','slot']
+    repairs=[r for r in responses if all(r.get(k)==response.get(k) for k in context) and r.get('attempt')==response.get('attempt',0)+1]
+    assert len(repairs)==1,'Transport fragment has no unique native repair'
+    repair=repairs[0];actual=repair.get('sampling_audit') or {}
+    assert actual.get('upstream_response_id') and actual.get('actual_model')=='gpt-6-luna'
+    assert actual.get('effective_temperature')==1.0 and actual.get('effective_reasoning_effort')=='none' and actual.get('reasoning_tokens')==0
+    linked=[r for r in requests if r['cache_key']==repair['cache_key']]
+    assert linked and all('Your previous answer broke a hard constraint:' in r['messages'][-1]['content'] for r in linked)
+    return {'cache_key':response['cache_key'],'repair_cache_key':repair['cache_key'],'classification':'rejected unterminated transport fragment; upstream settings unavailable; not a scientific action'}
+
 def audit_cell(task,seed,policy):
     d=cell_dir(task,seed,policy);manifest=json.loads((d/'manifest.json').read_text());c=manifest['config'];want=config(task,seed,policy)
     assert c==want,f'Configuration differs from pinned baseline: {d.name}'
@@ -22,7 +46,7 @@ def audit_cell(task,seed,policy):
         assert params.get('reasoning_effort')=='none' and isinstance(params.get('seed'),int)
         assert 'chat_template_kwargs' not in params and req.get('request_body_sha256')
         assert req['episode'] in target
-    incomplete_provenance=[]
+    incomplete_provenance=[];transport_fragments=[]
     for response in responses:
         assert response.get('model','').startswith('gpt-6-luna'),'Backend model mismatch'
         assert response['episode'] in target
@@ -30,6 +54,9 @@ def audit_cell(task,seed,policy):
         assert details.get('reasoning_tokens')==0,'Reasoning tokens not proven to be zero'
         assert not response.get('reasoning'),'Thinking content returned'
         actual=response.get('sampling_audit') or {}
+        if not actual.get('upstream_response_id') and response.get('finish_reason')=='stop':
+            transport_fragments.append(audit_transport_fragment(response,requests,responses))
+            continue
         if actual.get('upstream_response_id'):
             assert actual.get('actual_model')==response['model']
             assert actual.get('effective_temperature')==1.0 and actual.get('effective_reasoning_effort')=='none' and actual.get('reasoning_tokens')==0
@@ -47,7 +74,7 @@ def audit_cell(task,seed,policy):
             incomplete_provenance.append(response['cache_key'])
     summary=json.loads((d/'run_summary.json').read_text());require_settings(summary)
     assert summary['planned_episodes']==len(target)
-    return {'incomplete_response_provenance_gaps':incomplete_provenance,'incomplete_response_settings_evidence':'Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.','cell':d.name,'task':task,'seed':seed,'policy':policy,'task_seed':c['task_seeds'][0],'episodes':len(good),'requests':len(requests),'responses':len(responses),'api_requests':len(rows(d/'api_attempts.jsonl')),'transport_errors':dict(collections.Counter(r['kind'] for r in rows(d/'transport_errors.jsonl'))),'actual_models':sorted({r['model'] for r in responses})}
+    return {'rejected_transport_fragments':transport_fragments,'incomplete_response_provenance_gaps':incomplete_provenance,'incomplete_response_settings_evidence':'Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.','cell':d.name,'task':task,'seed':seed,'policy':policy,'task_seed':c['task_seeds'][0],'episodes':len(good),'requests':len(requests),'responses':len(responses),'api_requests':len(rows(d/'api_attempts.jsonl')),'transport_errors':dict(collections.Counter(r['kind'] for r in rows(d/'transport_errors.jsonl'))),'actual_models':sorted({r['model'] for r in responses})}
 
 def aggregate():
     codes={}
@@ -116,7 +143,7 @@ def stage(cells,analysis_codes):
                   upstream_http_5xx=proxy_totals['upstream_5xx'],timeouts=sum(n for k,n in errors.items() if 'Timeout' in k)+proxy_totals['upstream_timeouts'],proxy_metrics=dict(proxy_totals))
     write(target/'metadata.json',report)
     preflight=json.loads((OUT/'preflight.json').read_text());assert preflight['status']=='PASS' and preflight['effective_temperature']==1.0 and preflight['reasoning_tokens']==0;write(target/'request_path_preflight.json',preflight)
-    readme=f'''# GPT-6-Luna: additional seed batches 7, 8, 9\n\nExtends `{REF['source_archive']}` without replacing its six valid seed batches.\nModel gpt-6-luna; requested and effective temperature 1.0; reasoning effort none; thinking disabled.\nTask seeds: {json.dumps(report['task_seed_ids'])}.\nThe original C0/C1/I1 scientific configurations are unchanged. The valid baseline used the official API; this authorized extension uses local codex_api. The proxy omits temperature (raw upstream response proves the default is 1.0) and does not forward per-request sampling seeds. This transport difference is explicitly recorded; local task RNG seeds and request-seed derivation are unchanged. Nine independent task/seed jobs cover 27 cells and 171 successful episodes.\nSmoke tests, cancelled outputs, failed episodes, credentials, logs and process state are excluded. See metadata.json and request_path_preflight.json for audit evidence.\n'''
+    readme=f'''# GPT-6-Luna: additional seed batches 7, 8, 9\n\nExtends `{REF['source_archive']}` without replacing its six valid seed batches.\nModel gpt-6-luna; requested and effective temperature 1.0; reasoning effort none; thinking disabled.\nTask seeds: {json.dumps(report['task_seed_ids'])}.\nThe original C0/C1/I1 scientific configurations are unchanged. The valid baseline used the official API; this authorized extension uses local codex_api. The proxy omits temperature (raw upstream response proves the default is 1.0) and does not forward per-request sampling seeds. This transport difference is explicitly recorded; local task RNG seeds and request-seed derivation are unchanged. Nine independent task/seed jobs cover 27 cells and 171 successful episodes.\nRejected transport fragments are retained unmodified in raw ledgers and individually listed in the audit; invalid JSON and a verified native repair prove they supplied no scientific action. Their missing upstream settings are not inferred. Smoke tests, cancelled outputs, failed scientific episodes, credentials, logs and process state are excluded. See metadata.json and request_path_preflight.json for audit evidence.\n'''
     (target/'README.md').write_text(readme)
     from dotenv import dotenv_values
     from huggingface_hub import get_token

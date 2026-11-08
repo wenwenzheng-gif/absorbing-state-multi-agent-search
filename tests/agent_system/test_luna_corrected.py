@@ -9,6 +9,16 @@ from src.agent_system.schemas import LLMConfig,load_run_config
 from src.agent_system.policies.openai_policy import LLMBackend
 
 class CorrectedConfigurationTests(unittest.TestCase):
+    def test_unproven_transport_fragment_requires_rejection_and_audited_repair(self):
+        from audit import audit_transport_fragment
+        fragment=dict(cache_key='fragment',episode='d0',agent=1,round=2,phase='branch',batch=0,attempt=0,content='{"updates":',finish_reason='stop',usage={'total_tokens':0})
+        repair=dict(fragment,cache_key='repair',attempt=1,content='{}',sampling_audit={'upstream_response_id':'resp_test','actual_model':'gpt-6-luna','effective_temperature':1.0,'effective_reasoning_effort':'none','reasoning_tokens':0})
+        requests=[{'cache_key':'repair','messages':[{'content':'Your previous answer broke a hard constraint: invalid JSON'}]}]
+        self.assertEqual(audit_transport_fragment(fragment,requests,[fragment,repair])['repair_cache_key'],'repair')
+        with self.assertRaises(AssertionError):audit_transport_fragment(dict(fragment,content='{}'),requests,[fragment,repair])
+        with self.assertRaises(AssertionError):audit_transport_fragment(fragment,requests,[fragment])
+        with self.assertRaises(AssertionError):audit_transport_fragment(fragment,[],[fragment,repair])
+
     def test_exactly_three_unused_seed_batches_and_original_grids(self):
         self.assertEqual(SEEDS,(7,8,9))
         for task in TASKS:
