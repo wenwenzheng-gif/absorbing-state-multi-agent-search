@@ -43,7 +43,8 @@ def main():
     base["policy"]["llm"].update(model=MODEL, base_url="https://api.openai.com/v1",
                                   api_style="openai", reasoning_effort="medium",
                                   temperature=None, top_p=None, transport_retries=8,
-                                  concurrency=int(os.getenv("NANO_INTERNAL_CONCURRENCY", "4")))
+                                  concurrency=int(os.getenv("NANO_INTERNAL_CONCURRENCY", "4")),
+                                  max_output_tokens=8192)
     target = len(base["degrees"])
     atomic(d / "config.json", base)
     start = time.time()
