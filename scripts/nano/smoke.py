@@ -13,7 +13,7 @@ base.update(name=f"nano_smoke_{task}",agents=2,initial_width=1,degrees=[0],task_
             output_root=str(ROOT/"outputs/gpt-5.4-nano/_smoke"))
 base["policy"]["llm"].update(model="gpt-5.4-nano",base_url="https://api.openai.com/v1",
     api_style="openai",reasoning_effort="medium",temperature=None,top_p=None,
-    concurrency=2,transport_retries=8)
+    concurrency=2,transport_retries=8,max_output_tokens=8192)
 out=ROOT/"outputs/gpt-5.4-nano/_smoke"/task
 out.mkdir(parents=True,exist_ok=True)
 config=out/"config.json"
