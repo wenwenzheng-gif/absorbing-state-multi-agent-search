@@ -151,8 +151,15 @@ def main():
     for arm in ARMS:
         config=exact_config(task,seed,arm,root,concurrency)
         cfg=root/"configs"/f"{arm}.json"
-        if cfg.exists() and json.loads(cfg.read_text())!=config:
-            raise SystemExit("BLOCKED: existing corrected-run config changed: "+str(cfg))
+        if cfg.exists():
+            previous=json.loads(cfg.read_text())
+            # A later infrastructure slice may adjust ONLY per-process API
+            # concurrency after measuring fresh upstream capacity. All
+            # scientific settings, model, temperature, and reasoning must be
+            # identical to the original validated Batch 2 configuration.
+            previous["policy"]["llm"]["concurrency"]=config["policy"]["llm"]["concurrency"]
+            if previous!=config:
+                raise SystemExit("BLOCKED: Batch 2 scientific config drift: "+str(cfg))
         write(cfg,config)
         rd=root/config["name"]
         rd.mkdir(parents=True,exist_ok=True)
