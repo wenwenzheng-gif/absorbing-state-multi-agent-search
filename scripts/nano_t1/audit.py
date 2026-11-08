@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read-only original Nano t1 provenance audit. Never print credentials or raw trajectories."""
-import json, os, re, sys
+import json, os, re, sys, zipfile
 from collections import defaultdict
 from pathlib import Path
 from urllib.error import HTTPError
@@ -82,40 +82,67 @@ def run():
         report["checks"]["hf_family_file_counts"]={k:len(v) for k,v in families.items()}
         files=families[PREFIX] or families["gpt-5.4-nano"]
         report["checks"]["hf_actual_family_path"]=PREFIX if families[PREFIX] else "gpt-5.4-nano"
-        if not families[PREFIX]:
-            report["blockers"].append("No original t1 directory on Hugging Face; alternate nano folder requires identity proof.")
+        archive="gpt-5.4-nano/gpt-5.4-nano-t1_runs.zip"
+        if not families[PREFIX] and archive not in files:
+            report["blockers"].append("No original t1 dataset path or t1 archive found on Hugging Face.")
         report["checks"]["hf_files_in_original_family"]=len(files)
         report["checks"]["hf_path_samples"]=files[:90]
         if not files: report["blockers"].append("Valid Nano t1 dataset path has no files.")
-        # Find historical seed IDs from paths, ensure candidate identifiers truly unused.
-        ids=sorted({int(n) for p in files for n in re.findall(r"(?:^|[/_-])seed[_-]?(\d+)(?:[/_.-]|$)",p)})
-        report["checks"]["hf_seed_indices_observed_in_paths"]=ids
-        if any(x in ids for x in REQUESTED_NEW):
-            report["blockers"].append("Requested seed7-9 index overlaps HF existing paths.")
-        names=[p for p in files if p.endswith("/manifest.json") or p.endswith("/config.json")]
-        responses=[p for p in files if p.endswith("/responses.jsonl")]
-        report["checks"]["hf_manifest_count"]=len(names)
-        report["checks"]["hf_response_ledger_count"]=len(responses)
-        # Sample across different tasks, seeking actual model version in recorded response.
+        # The original valid t1 runs are packaged as a ZIP inside the public Nano folder.
+        archive="gpt-5.4-nano/gpt-5.4-nano-t1_runs.zip"
         snapshots=set()
         sampled=[]
-        for task in EXPECTED:
-            selected=next((p for p in responses if task in p.lower()),None)
-            if not selected: continue
-            try:
-                loc=hf_hub_download(repo_id=DATASET,repo_type="dataset",filename=selected,
-                                    token=token)
-                # Keep only model identifiers; never print or save prompts/content.
-                with open(loc,encoding="utf-8") as inp:
-                    for row in inp:
-                        if row.strip():
-                            obj=json.loads(row)
-                            ident=obj.get("model")
-                            if ident: snapshots.add(str(ident))
-                            sampled.append({"task":task,"file":selected,"model":ident})
-                            break
-            except Exception as e:
-                report["blockers"].append(f"Cannot read original response model for {task}: {type(e).__name__}")
+        ids=[]
+        if archive in files:
+            report["checks"]["original_data_source"]=archive
+            objects=list(api.list_repo_tree(DATASET,repo_type="dataset",
+                              path_in_repo="gpt-5.4-nano",recursive=False))
+            report["checks"]["t1_archive_size_bytes"]=next(
+                (getattr(x,"size",None) for x in objects if x.path==archive),None)
+            local=hf_hub_download(repo_id=DATASET,repo_type="dataset",filename=archive,token=token)
+            with zipfile.ZipFile(local) as z:
+                entries=z.namelist()
+                report["checks"]["archive_entry_count"]=len(entries)
+                report["checks"]["archive_path_samples"]=entries[:35]
+                ids=sorted({int(n) for p in entries for n in
+                   re.findall(r"(?:^|[/_-])seed[_-]?(\d+)(?:[/_.-]|$)",p)})
+                responses=[p for p in entries if p.endswith("responses.jsonl")]
+                manifest=[p for p in entries if p.endswith("manifest.json")]
+                episodes=[p for p in entries if p.endswith("episodes.jsonl")]
+                report["checks"]["hf_manifest_count"]=len(manifest)
+                report["checks"]["hf_response_ledger_count"]=len(responses)
+                report["checks"]["hf_episode_ledger_count"]=len(episodes)
+                for p in responses:
+                    with z.open(p) as inp:
+                        for raw in inp:
+                            if raw.strip():
+                                obj=json.loads(raw)
+                                ident=obj.get("model")
+                                if ident: snapshots.add(str(ident))
+                                if len(sampled)<12:
+                                    sampled.append({"file":p,"model":ident})
+                                break
+                checks=[]
+                for p in manifest[:54]:
+                    with z.open(p) as inp: m=json.load(inp)
+                    conf=m.get("config",{})
+                    llm=conf.get("policy",{}).get("llm",{})
+                    checks.append({"path":p,"config_model":llm.get("model"),
+                                   "temperature":llm.get("temperature"),
+                                   "reasoning_effort":llm.get("reasoning_effort"),
+                                   "thinking":llm.get("enable_thinking"),
+                                   "task_seeds":conf.get("task_seeds")})
+                report["checks"]["historical_manifest_samples"]=checks[:18]
+                bad=[c for c in checks if any(c.get(k)!=v for k,v in
+                        (("temperature",1.0),("reasoning_effort","none"),("thinking",False)))]
+                if bad: report["blockers"].append("Original archive manifest sampling differs from expected t1.")
+                if not responses or not manifest or not episodes:
+                    report["blockers"].append("Original ZIP lacks required scientific ledgers.")
+        else:
+            report["blockers"].append("Original t1 ZIP archive not found.")
+        report["checks"]["hf_seed_indices_observed_in_paths"]=ids
+        if any(x in ids for x in REQUESTED_NEW):
+            report["blockers"].append("Requested seed7-9 index overlaps existing original t1 ZIP.")
         report["checks"]["original_response_model_ids"]=sorted(snapshots)
         report["checks"]["original_response_samples"]=sampled
         if not sampled:
