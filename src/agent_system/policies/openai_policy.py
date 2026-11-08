@@ -432,6 +432,40 @@ class LLMBackend:
         if extra_body:
             body.update(extra_body)
 
+        # Strict, opt-in Nano t1 replay guard. This checks the FINAL outgoing
+        # request after all compatibility/sampling overrides, without changing
+        # scientific messages, schema, or the request body sent upstream.
+        if os.environ.get("NANO_T1_ENFORCE") == "1":
+            expected = "gpt-5.4-nano-2026-03-17"
+            correct = (
+                self.config.api_style == "openai"
+                and body.get("model") == expected
+                and body.get("temperature") == 1.0
+                and body.get("reasoning_effort") == "none"
+                and self.config.enable_thinking is False
+                and self.config.reasoning != "thinking"
+                and body.get("max_completion_tokens") == 3072
+                and "chat_template_kwargs" not in body
+                and os.environ.get("OPENAI_MODEL") == expected
+                and self.config.base_url.rstrip("/") == "https://api.openai.com/v1"
+            )
+            if not correct:
+                raise PolicyFailure("Nano t1 exact model and sampling invariant failed before API send")
+            probe = os.environ.get("NANO_T1_PROBE_PATH")
+            if probe:
+                destination = Path(probe)
+                if not destination.exists():
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_text(json.dumps({
+                        "model": body["model"],
+                        "temperature": body["temperature"],
+                        "reasoning_effort": body["reasoning_effort"],
+                        "enable_thinking": False,
+                        "max_completion_tokens": body["max_completion_tokens"],
+                        "api_style": "openai",
+                        "endpoint": "https://api.openai.com/v1/chat/completions",
+                    }, indent=2))
+
         if self.request_sink is not None:
             self.request_sink(
                 {
@@ -468,6 +502,8 @@ class LLMBackend:
                         break
                     continue
                 payload = response.json()
+                if os.environ.get("NANO_T1_ENFORCE") == "1" and payload.get("model") != "gpt-5.4-nano-2026-03-17":
+                    raise PolicyFailure("Nano t1 API returned a different model snapshot")
             except (httpx.HTTPError, ValueError) as error:  # transport or decoding
                 self.usage.latency_s += time.monotonic() - started
                 last_error = error
