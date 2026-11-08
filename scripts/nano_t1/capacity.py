@@ -7,7 +7,7 @@ MODEL="gpt-5.4-nano-2026-03-17"
 OUT=Path("outputs/gpt-5.4-nano-t1-none-new3/capacity.json")
 LEVELS=(8,16,24,32)
 BODY={"model":MODEL,"temperature":1.0,"reasoning_effort":"none",
-      "messages":[{"role":"user","content":"Return {\\\"ok\\\":true} as JSON."}],
+      "messages":[{"role":"user","content":"Return a JSON object whose ok field is true."}],
       "max_completion_tokens":128,
       "response_format":{"type":"json_schema","json_schema":{
          "name":"nano_t1_capacity","strict":True,
@@ -64,6 +64,6 @@ async def main():
     OUT.parent.mkdir(parents=True,exist_ok=True)
     OUT.write_text(json.dumps(report,indent=2))
     with open(os.environ.get("GITHUB_OUTPUT","/dev/null"),"a") as f:
-        f.write(f"arms={arms}\\nper_arm=1\\n")
+        f.write(f"arms={arms}\nper_arm=1\n")
     print("ADMISSION: workers 9, arms per worker",arms,"total initial API in flight",9*arms,flush=True)
 if __name__=="__main__":asyncio.run(main())
