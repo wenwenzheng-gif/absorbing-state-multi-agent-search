@@ -1,4 +1,5 @@
 name: Nano t1 static reproducibility checks
+# Revalidate finalizer and exact original analysis integration after fixes.
 on:
   push:
     branches: [experiment/gpt54-nano-t1-none-new3]
