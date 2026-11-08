@@ -1,91 +1,20 @@
-name: GPT-5.4 Nano three tasks six seeds
-# Uses env injection fix and 8192 output-token compatibility headroom.
+name: GPT-5.4 Nano experiment PAUSED
+# User requested that the experiment stop; do not run model requests.
 on:
   push:
     branches: [experiment/gpt54-nano-3tasks-6seeds-parallel]
-    paths:
-      - .github/workflows/gpt54-nano-full.yml
+    paths: [.github/workflows/gpt54-nano-full.yml]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
+  # Same group as the formerly running experiment.
+  # This replacement run cancels the already-active 18-seed run.
   group: gpt54-nano-full
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
-  preflight:
+  paused:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_BASE_URL: https://api.openai.com/v1
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python scripts/nano/preflight.py
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nano-model-preflight
-          path: outputs/gpt-5.4-nano/preflight.json
-          if-no-files-found: warn
-  smoke:
-    needs: preflight
-    strategy:
-      fail-fast: false
-      matrix:
-        task: [synthetic, tcas, ode]
-    runs-on: ubuntu-latest
-    timeout-minutes: 120
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_BASE_URL: https://api.openai.com/v1
-      OPENAI_MODEL: gpt-5.4-nano
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
-      - run: python scripts/nano/smoke.py ${{ matrix.task }}
-      - if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nano-smoke-${{ matrix.task }}
-          path: outputs/gpt-5.4-nano/_smoke/${{ matrix.task }}/
-          if-no-files-found: warn
-  seeds:
-    needs: smoke
-    strategy:
-      fail-fast: false
-      max-parallel: 18
-      matrix:
-        task: [synthetic, tcas, ode]
-        seed: [0, 1, 2, 3, 4, 5]
-    runs-on: ubuntu-latest
-    timeout-minutes: 360
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_BASE_URL: https://api.openai.com/v1
-      OPENAI_MODEL: gpt-5.4-nano
-      NANO_INTERNAL_CONCURRENCY: '4'
-      PYTHONUNBUFFERED: '1'
-      OPENBLAS_NUM_THREADS: '1'
-      OMP_NUM_THREADS: '1'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
-      - name: Execute full seed using native checkpoint and bounded retries
-        run: python scripts/nano/run_seed.py --task ${{ matrix.task }} --seed ${{ matrix.seed }}
-      - name: Preserve experiment outputs even on failed seed
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: nano-${{ matrix.task }}-seed-${{ matrix.seed }}
-          path: outputs/gpt-5.4-nano/${{ matrix.task }}/seed_${{ matrix.seed }}/
-          retention-days: 30
-          if-no-files-found: warn
+      - run: echo 'GPT-5.4 Nano experiment paused by user request; no model requests run.'
