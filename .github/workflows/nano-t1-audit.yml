@@ -1,4 +1,5 @@
 name: Nano t1 provenance and seed audit
+# Read-only v2: also inspect the alternate Nano folder without treating it as t1.
 on:
   push:
     branches: [experiment/gpt54-nano-t1-none-new3]
