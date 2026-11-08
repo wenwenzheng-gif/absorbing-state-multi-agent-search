@@ -201,9 +201,18 @@ def active_upstream_calls():
                 active+=1
     return active
 
+def capacity_unstable(client,proxy,successes):
+    # HTTP 502 with no upstream HTTP/network error is a failed response
+    # stream. Small clusters did not improve when request rates were lowered.
+    quota=client.get('HTTP 429',0)+proxy.get('upstream_429',0)
+    resource=sum(n for kind,n in client.items() if kind not in ['HTTP 502','HTTP 429'])+proxy.get('upstream_5xx',0)+proxy.get('upstream_transport_errors',0)
+    stream=client.get('HTTP 502',0)
+    total=max(1,successes+resource+stream+quota)
+    return quota>=3 or (resource>=6 and resource/total>.03) or (stream>=10 and stream/total>.10)
+
 async def monitor():
     import statistics
-    counts=Counts();counts.update();last_proxy_metrics=proxy_health().get('metrics',{});last_success=counts.total('useful_responses');last_errors=counts.errors.copy();window=time.time();last_print=0;levels=[1,2,4,6,8,10,12,14,16,20,24,32,48,64,96,108];tested=set();best=None;peak_calls=0;last_failure=max([r.get('updated',0) for r in rows(OUT/'capacity.jsonl') if sum(r.get('window_errors',{}).values()) or sum(r.get('proxy_window_errors',{}).values())] or [time.time()])
+    counts=Counts();counts.update();last_proxy_metrics=proxy_health().get('metrics',{});last_success=counts.total('useful_responses');last_errors=counts.errors.copy();window=time.time();last_print=0;levels=[1,2,4,6,8,10,12,14,16,20,24,32,48,64,96,108];tested=set();best=None;peak_calls=0;last_failure=max([r.get('updated',0) for r in rows(OUT/'capacity.jsonl') if capacity_unstable(r.get('window_errors',{}),r.get('proxy_window_errors',{}),r.get('successful_responses',0))] or [time.time()])
     batch_meta=json.loads((OUT/'batch.json').read_text());batch_started=batch_meta.get('science_started',batch_meta['created_at']);baseline_done=None
     while True:
         await asyncio.sleep(10);counts.update();now=time.time();jobs=[]
@@ -212,18 +221,18 @@ async def monitor():
                 jd=OUT/'jobs'/f'{task}_seed{seed}';sp=jd/'status.json';state=json.loads(sp.read_text()) if sp.exists() else {'status':'PENDING','started':now}
                 cells=[cell_dir(task,seed,p) for p in POLICIES];api=sum(counts.counts[(str(d),'api_attempts')] for d in cells);success=sum(counts.counts[(str(d),'useful_responses')] for d in cells)
                 errs=collections.Counter(r['kind'] for d in cells for r in rows(d/'transport_errors.jsonl'))
-                jobs.append({**SETTINGS,'task':task,'seed':seed,'status':state['status'],'completed_episodes':sum(len(completed(d)) for d in cells),'expected_episodes':expected(task),'api_requests':api,'successful_requests':success,'transport_retries':sum(errs.values()),'http_429':errs['HTTP 429'],'http_5xx':sum(n for k,n in errs.items() if k.startswith('HTTP 5')),'timeouts':sum(n for k,n in errs.items() if 'Timeout' in k),'wall_seconds':now-state.get('started',now),'last_progress_timestamp':max([p.stat().st_mtime for d in cells for p in [d/'responses.jsonl',d/'episodes.jsonl'] if p.exists()] or [state.get('started',now)])})
+                jobs.append({**SETTINGS,'task':task,'seed':seed,'status':state['status'],'completed_episodes':sum(len(completed(d)) for d in cells),'expected_episodes':expected(task),'api_requests':api,'successful_requests':success,'transport_retries':sum(errs.values()),'error_count_scope':'client-side; upstream internal retries are tracked globally','http_429':errs['HTTP 429'],'http_5xx':sum(n for k,n in errs.items() if k.startswith('HTTP 5')),'timeouts':sum(n for k,n in errs.items() if 'Timeout' in k),'wall_seconds':now-state.get('started',now),'last_progress_timestamp':max([p.stat().st_mtime for d in cells for p in [d/'responses.jsonl',d/'episodes.jsonl'] if p.exists()] or [state.get('started',now)])})
         done=sum(j['completed_episodes'] for j in jobs)
         if baseline_done is None:baseline_done=done
         control=json.loads((OUT/'control.json').read_text());limit=control['upstream_limit'];health=proxy_health();proxy_metrics=health.get('metrics',{});proxy_delta={k:v-last_proxy_metrics.get(k,0) for k,v in proxy_metrics.items()};delta=counts.errors-last_errors;new_errors=sum(delta.values())+proxy_delta.get('upstream_429',0)+proxy_delta.get('upstream_5xx',0)+proxy_delta.get('upstream_transport_errors',0);elapsed=now-window;success=counts.total('useful_responses')-last_success;rpm=success*60/max(elapsed,1)
         active_calls=active_upstream_calls();peak_calls=max(peak_calls,proxy_metrics.get('active_upstream_requests',0))
         progress={**SETTINGS,'proxy_admitted_requests_including_backoff':health.get('active_requests'),'proxy_active_upstream_calls':proxy_metrics.get('active_upstream_requests',0),'upstream_starts_per_second':health.get('upstream_starts_per_second'),'proxy_effective_limit':health.get('upstream_limit'),'proxy_metrics':proxy_metrics,'proxy_window_errors':{k:v for k,v in proxy_delta.items() if k in ['upstream_429','upstream_5xx','upstream_transport_errors','upstream_timeouts']},'active_upstream_calls':active_calls,'peak_active_upstream_calls':peak_calls,'pending_logical_requests':max(0,counts.total('requests')-counts.total('responses')-active_calls),'host_load_average':os.getloadavg(),'updated':now,'jobs':jobs,'completed_episodes':done,'expected_episodes':171,'upstream_limit':limit,'active_scientific_workers':sum(json.loads(p.read_text()).get('status')=='RUNNING' for p in (OUT/'runs/agents').glob('*/*/status.json')),'responses_per_min':rpm,'api_requests':counts.total('api_attempts'),'transport_errors':dict(counts.errors),'wall_seconds':now-batch_started}
         write(OUT/'progress.json',progress)
-        if new_errors>=6 or elapsed>=300:
+        unstable=capacity_unstable(delta,proxy_delta,success)
+        if unstable or elapsed>=300:
             record={**progress,'window_seconds':elapsed,'successful_responses':success,'window_errors':dict(delta),'latency_mean_s':statistics.mean(counts.latencies) if counts.latencies else None,'latency_median_s':statistics.median(counts.latencies) if counts.latencies else None,'upstream_latency_mean_s':statistics.mean(counts.upstream_latencies) if counts.upstream_latencies else None,'upstream_latency_median_s':statistics.median(counts.upstream_latencies) if counts.upstream_latencies else None}
             added=done-baseline_done;record['observed_episodes_per_hour']=added*3600/max(now-batch_started,1);record['episode_eta_seconds']=(171-done)*(now-batch_started)/added if added>0 else None
             with (OUT/'capacity.jsonl').open('a') as f:f.write(json.dumps(record)+'\n')
-            unstable=(new_errors>=6 and new_errors/max(1,success+new_errors)>.03) or delta['HTTP 429']>=3 or proxy_delta.get('upstream_429',0)>=3
             tested.add(limit)
             if unstable:
                 control['upstream_limit']=best[0] if best and best[0]<limit else levels[max(0,levels.index(limit)-1)];control['upstream_rps']=max(.5,control.get('upstream_rps',2.5)*.8);best=None;last_failure=now

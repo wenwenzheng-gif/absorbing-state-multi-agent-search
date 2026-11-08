@@ -52,6 +52,13 @@ class CorrectedConfigurationTests(unittest.TestCase):
         self.assertEqual({(task,seed) for task,seed,policy in queue[:9]},{(task,seed) for task in TASKS for seed in SEEDS})
         self.assertTrue(all(policy=='C0' for task,seed,policy in queue[:9]))
 
+    def test_small_stream_error_clusters_do_not_reset_capacity_observation(self):
+        import run as corrected_runner
+        self.assertFalse(corrected_runner.capacity_unstable({'HTTP 502':6},{},123))
+        self.assertTrue(corrected_runner.capacity_unstable({'ReadTimeout':6},{},123))
+        self.assertTrue(corrected_runner.capacity_unstable({}, {'upstream_429':3},1000))
+        self.assertTrue(corrected_runner.capacity_unstable({'HTTP 502':20},{},50))
+
     def test_upload_audit_rejects_incorrect_sampling(self):
         from audit import require_settings
         require_settings({'model':'gpt-6-luna','temperature':1.0,'reasoning_effort':'none','enable_thinking':False})

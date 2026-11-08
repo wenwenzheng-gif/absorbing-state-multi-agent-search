@@ -92,8 +92,10 @@ def stage(cells,analysis_codes):
     def stable_window(r):
         if r.get('window_seconds',0)<180:return False
         client=r.get('window_errors',{});proxy=r.get('proxy_window_errors',{})
-        errors=sum(client.values())+sum(proxy.get(k,0) for k in ['upstream_429','upstream_5xx','upstream_transport_errors'])
-        return client.get('HTTP 429',0)<3 and proxy.get('upstream_429',0)<3 and not (errors>=6 and errors/max(1,r.get('successful_responses',0)+errors)>.03)
+        quota=client.get('HTTP 429',0)+proxy.get('upstream_429',0)
+        resource=sum(n for kind,n in client.items() if kind not in ['HTTP 502','HTTP 429'])+proxy.get('upstream_5xx',0)+proxy.get('upstream_transport_errors',0)
+        stream=client.get('HTTP 502',0);total=max(1,r.get('successful_responses',0)+resource+stream+quota)
+        return quota<3 and not (resource>=6 and resource/total>.03) and not (stream>=10 and stream/total>.10)
     stable=[r for r in capacities if stable_window(r)]
     report['peak_stable_global_limit']=max([r['upstream_limit'] for r in stable] or [0])
     report['peak_stable_upstream_concurrency']=max([r.get('peak_active_upstream_calls',0) for r in stable] or [0])
