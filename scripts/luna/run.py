@@ -20,6 +20,21 @@ def config(task,seed,smoke=False):
  if smoke: c.update(degrees=[0], agents=2, initial_width=1)
  return c
 async def command(args,log,env=None):
+ # Adopt a live worker after a supervisor restart; never duplicate its run.
+ pidfile=log.with_suffix('.pid.json')
+ if pidfile.exists():
+  oldpid=json.loads(pidfile.read_text())['pid']
+  proc=pathlib.Path(f'/proc/{oldpid}')
+  try: matches=(proc/'cmdline').read_bytes().decode().rstrip('\0').split('\0')==args
+  except OSError: matches=False
+  if matches:
+   print('Adopting worker',oldpid,log,flush=True)
+   while proc.exists():
+    try:
+     if (proc/'stat').read_text().split(') ',1)[1].startswith('Z'): break
+    except OSError: break
+    await asyncio.sleep(2)
+   return 0
  with log.open('ab') as f:
   p=await asyncio.create_subprocess_exec(*args,cwd=ROOT,env=env,stdout=f,stderr=f)
   write(log.with_suffix('.pid.json'),{'pid':p.pid,'started':time.time()})
