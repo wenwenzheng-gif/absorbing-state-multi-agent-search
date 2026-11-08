@@ -491,6 +491,14 @@ class LLMBackend:
                     response = await self._client.post("/chat/completions", json=body)
                 elapsed = time.monotonic() - started
                 self.usage.latency_s += elapsed
+                if os.environ.get("NANO_T1_TRANSPORT_LOG"):
+                    log_path = Path(os.environ["NANO_T1_TRANSPORT_LOG"])
+                    log_path.parent.mkdir(parents=True, exist_ok=True)
+                    with log_path.open("a", encoding="utf-8") as telemetry:
+                        telemetry.write(json.dumps({
+                            "at": time.time(), "status": response.status_code,
+                            "latency_s": elapsed,
+                        }) + "\n")
                 if response.status_code >= 400:
                     last_error = RuntimeError(
                         f"HTTP {response.status_code}: {response.text[:400]}"
@@ -505,6 +513,14 @@ class LLMBackend:
                 if os.environ.get("NANO_T1_ENFORCE") == "1" and payload.get("model") != "gpt-5.4-nano-2026-03-17":
                     raise PolicyFailure("Nano t1 API returned a different model snapshot")
             except (httpx.HTTPError, ValueError) as error:  # transport or decoding
+                if os.environ.get("NANO_T1_TRANSPORT_LOG"):
+                    log_path = Path(os.environ["NANO_T1_TRANSPORT_LOG"])
+                    log_path.parent.mkdir(parents=True, exist_ok=True)
+                    with log_path.open("a", encoding="utf-8") as telemetry:
+                        telemetry.write(json.dumps({
+                            "at": time.time(), "status": "TRANSPORT_ERROR",
+                            "error_type": type(error).__name__,
+                        }) + "\n")
                 self.usage.latency_s += time.monotonic() - started
                 last_error = error
                 continue
