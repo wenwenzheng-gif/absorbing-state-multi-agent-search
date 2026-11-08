@@ -50,7 +50,7 @@ def restore(run_id):
             dest.mkdir(parents=True,exist_ok=True)
             gh("run","download",str(run_id),"--repo",
                "wenwenzheng-gif/absorbing-state-multi-agent-search",
-               "--name",f"nano-t1-{task}-seed{seed}-checkpoint","--dir",str(dest))
+               "--name",f"nano-t1-batch2-{task}-seed{seed}-checkpoint","--dir",str(dest))
 
 def count_and_verify(path,task,seed,arm):
     degrees,start=TASKS[task]
