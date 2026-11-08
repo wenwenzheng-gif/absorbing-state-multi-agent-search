@@ -1,0 +1,15 @@
+name: Nano t1 harmless dispatch invocation test
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [.github/workflows/nano-t1-dispatch-test.yml]
+permissions:
+  contents: read
+  actions: write
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - run: gh workflow run nano-t1-dispatch-noop.yml --repo "${{ github.repository }}" --ref experiment/gpt54-nano-t1-none-new3
