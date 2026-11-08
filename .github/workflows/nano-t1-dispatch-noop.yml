@@ -1,0 +1,10 @@
+name: Nano t1 harmless dispatch target
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Dispatch control-plane test: no model requests."
