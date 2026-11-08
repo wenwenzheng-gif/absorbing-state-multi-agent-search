@@ -138,6 +138,8 @@ def main():
         raise SystemExit("BLOCKED: strict request guard not enabled")
     concurrency=int(os.environ.get("NANO_T1_PER_ARM_CONCURRENCY","2"))
     if not 1<=concurrency<=12:raise SystemExit("Invalid per-arm API concurrency")
+    arm_parallel=int(os.environ.get("NANO_T1_ARM_PARALLEL","3"))
+    if not 1<=arm_parallel<=3: raise SystemExit("Invalid arm parallelism")
     work_slice=int(os.environ.get("NANO_T1_SLICE_SECONDS","17400"))
     if not 60<=work_slice<=18000:raise SystemExit("Invalid checkpoint slice")
     start=time.time()
@@ -187,7 +189,8 @@ def main():
                  "started_at":start,"updated_at":time.time(),
                  "completed_episodes":sum(data[a]["completed_episodes"] for a in ARMS),
                  "target_episodes":sum(data[a]["target_episodes"] for a in ARMS),
-                 "arms":data,"per_arm_concurrency":concurrency}
+                 "arms":data,"per_arm_concurrency":concurrency,
+                 "arm_parallel":arm_parallel}
         write(root/"seed_status.json",summary)
         return all_done
     if update_seed_status():
@@ -215,6 +218,7 @@ def main():
             if entry["proc"] is not None:continue
             if states[arm]["status"] in ("COMPLETE","FAILED_AFTER_RETRIES"):continue
             if time.time()<entry["ready"] or time.time()>deadline-30:continue
+            if sum(x["proc"] is not None for x in tasks.values())>=arm_parallel:continue
             states[arm]["attempts"]+=1
             attempt=states[arm]["attempts"]
             sanitize_before_resume(entry["rundir"],attempt)
