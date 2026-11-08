@@ -28,6 +28,8 @@ import asyncio
 from dataclasses import dataclass, replace
 import hashlib
 import json
+import os
+from pathlib import Path
 import re
 import statistics
 import time
@@ -350,6 +352,28 @@ class LLMBackend:
             timeout=httpx.Timeout(config.timeout_s),
         )
 
+    async def _execution_gate(self) -> None:
+        control = os.environ.get("LUNA_CONTROL")
+        job = os.environ.get("LUNA_JOB", "")
+        if not control or job.startswith("_smoke/"):
+            return
+        while True:
+            try:
+                state = json.loads(Path(control).read_text())
+                if state["concurrency"] == 18 or job in state["allowed"]:
+                    return
+            except (OSError, ValueError, KeyError):
+                return
+            await asyncio.sleep(1)
+
+    def _transport_event(self, kind: str) -> None:
+        control = os.environ.get("LUNA_CONTROL")
+        job = os.environ.get("LUNA_JOB")
+        if control and job:
+            path = Path(control).parent / job / "transport_errors.jsonl"
+            with path.open("a") as stream:
+                stream.write(json.dumps({"time": time.time(), "kind": kind}) + "\n")
+
     async def aclose(self) -> None:
         await self._client.aclose()
 
@@ -453,11 +477,13 @@ class LLMBackend:
                 await asyncio.sleep(min(60.0, 2.0 ** transport_attempt))
             started = time.monotonic()
             try:
+                await self._execution_gate()
                 async with self.semaphore:
                     response = await self._client.post("/chat/completions", json=body)
                 elapsed = time.monotonic() - started
                 self.usage.latency_s += elapsed
                 if response.status_code >= 400:
+                    self._transport_event(f"HTTP {response.status_code}")
                     last_error = RuntimeError(
                         f"HTTP {response.status_code}: {response.text[:400]}"
                     )
@@ -469,6 +495,7 @@ class LLMBackend:
                     continue
                 payload = response.json()
             except (httpx.HTTPError, ValueError) as error:  # transport or decoding
+                self._transport_event(type(error).__name__)
                 self.usage.latency_s += time.monotonic() - started
                 last_error = error
                 continue
