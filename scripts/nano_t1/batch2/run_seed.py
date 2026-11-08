@@ -19,7 +19,7 @@ import subprocess
 import sys
 import time
 
-ROOT=Path(__file__).resolve().parents[2]
+ROOT=Path(__file__).resolve().parents[3]
 OUT=ROOT/"outputs/gpt-5.4-nano-t1-none-new3-batch2"
 MODEL="gpt-5.4-nano-2026-03-17"
 FAMILY="gpt-5.4-nano-t1"
