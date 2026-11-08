@@ -191,8 +191,12 @@ def upload(archive,report):
 def finish():
     verify_sources();assert not (ROOT/'outputs/gpt-6-luna').exists()
     cells=[audit_cell(t,s,p) for t in TASKS for s in SEEDS for p in POLICIES]
+    metadata=json.loads((OUT/'batch.json').read_text())
+    if 'science_finished' not in metadata:
+        metadata['science_finished']=max(json.loads((OUT/'jobs'/f'{t}_seed{s}'/'status.json').read_text())['finished'] for t in TASKS for s in SEEDS)
+        write(OUT/'batch.json',metadata)
     if (OUT/'progress.json').exists():
-        progress=json.loads((OUT/'progress.json').read_text());progress.update(completed_episodes=171,expected_episodes=171,active_scientific_workers=0,scientific_status='COMPLETE')
+        progress=json.loads((OUT/'progress.json').read_text());progress.update(completed_episodes=171,expected_episodes=171,active_scientific_workers=0,scientific_status='COMPLETE',responses_per_min=0)
         for job in progress.get('jobs',[]):
             job.update(status='COMPLETE',completed_episodes=sum(c['episodes'] for c in cells if c['task']==job['task'] and c['seed']==job['seed']))
         write(OUT/'progress.json',progress)
@@ -204,13 +208,22 @@ def finish():
         assert report['seed_ids']==list(SEEDS) and report['completed_episodes_by_task']=={'synthetic':45,'tcas':63,'physics':63}
     else:
         codes=aggregate();archive,report=stage(cells,codes)
+    report['scientific_wall_seconds']=metadata['science_finished']-metadata['science_started']
     write(OUT/'combined_summary.json',report)
+    # Preserve and push validated science even if HF credentials arrive later.
+    report.update(status='SCIENTIFIC_COMPLETE_UPLOAD_PENDING',hugging_face_status='PENDING')
+    publish_report(report,'Preserve validated GPT-6-Luna results while awaiting dataset upload')
     paths=upload(archive,report)
-    report.update(status='COMPLETE',hugging_face_paths=paths,total_wall_seconds=time.time()-json.loads((OUT/'batch.json').read_text())['created_at'])
+    report.update(status='COMPLETE',hugging_face_status='UPLOADED',hugging_face_paths=paths,total_wall_seconds=time.time()-metadata['created_at'])
+    sha=publish_report(report,'Finalize and audit three corrected GPT-6-Luna seed batches')
+    write(OUT/'final_status.json',{'status':'COMPLETE','hugging_face_paths':paths,'git_commit':sha,**SETTINGS})
+
+def publish_report(report,message):
     compact=ROOT/'results/gpt-6-luna-t1-none-new3';write(compact/'final_report.json',report);write(OUT/'final_report.json',report)
     branch=subprocess.check_output(['git','branch','--show-current'],cwd=ROOT,text=True).strip();assert branch.startswith('experiment/') and branch!='main'
     subprocess.run(['git','add','scripts/luna','src/agent_system/policies/openai_policy.py','src/agent_system/driver.py','tests/agent_system/test_luna_corrected.py',str(compact.relative_to(ROOT))],cwd=ROOT,check=True)
-    subprocess.run(['git','-c','user.name=Codex','-c','user.email=codex@openai.com','commit','-m','Finalize and audit three corrected GPT-6-Luna seed batches'],cwd=ROOT,check=True)
+    if subprocess.run(['git','diff','--cached','--quiet'],cwd=ROOT).returncode:
+        subprocess.run(['git','-c','user.name=Codex','-c','user.email=codex@openai.com','commit','-m',message],cwd=ROOT,check=True)
     subprocess.run(['git','push','origin',branch],cwd=ROOT,check=True)
     sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip();write(OUT/'publication.json',{'commit':sha,'branch':branch,'status':'PUSHED',**SETTINGS})
-    write(OUT/'final_status.json',{'status':'COMPLETE','hugging_face_paths':paths,'git_commit':sha,**SETTINGS})
+    return sha
