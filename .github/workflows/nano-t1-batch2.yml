@@ -1,0 +1,163 @@
+name: Nano t1 Batch 2 exact seeds 10-12
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-batch2-seeds10-12]
+    paths: [.github/workflows/nano-t1-batch2.yml]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nano-t1-batch2-main
+  cancel-in-progress: false
+jobs:
+  frozen-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt huggingface_hub
+      - name: Verify all 27 Batch 2 configs and no scientific changes
+        run: |
+          python -m compileall -q scripts/nano_t1/batch2
+          python scripts/nano_t1/batch2/selftest.py
+      - name: Verify exact prior nine valid seeds, reserved new IDs and empty Batch 2 output tree
+        run: python scripts/nano_t1/batch2/audit.py
+      - name: Make the exact historical dated model and sampling smoke request
+        run: python scripts/nano_t1/batch2/preflight.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-frozen-audit-${{ github.run_id }}
+          path: |
+            outputs/gpt-5.4-nano-t1-none-new3-batch2/audit.json
+            outputs/gpt-5.4-nano-t1-none-new3-batch2/preflight.json
+          retention-days: 90
+          if-no-files-found: warn
+  smoke:
+    needs: frozen-audit
+    strategy:
+      fail-fast: false
+      matrix:
+        task: [synthetic, tcas, physics]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      NANO_T1_ENFORCE: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
+      - name: Verify one small task pipeline and actual outgoing model request
+        run: python scripts/nano_t1/batch2/smoke.py ${{ matrix.task }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-smoke-${{ matrix.task }}-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/_smoke/${{ matrix.task }}/
+          retention-days: 30
+          if-no-files-found: warn
+  capacity:
+    needs: frozen-audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      arms: ${{ steps.measure.outputs.arms }}
+      per_arm: ${{ steps.measure.outputs.per_arm }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-agents.txt
+      - name: Brief capacity test at 8 16 24 32 48 64 parallel requests
+        id: measure
+        run: python scripts/nano_t1/batch2/capacity.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-capacity-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/capacity.json
+          retention-days: 90
+          if-no-files-found: warn
+  seeds:
+    needs: [frozen-audit, smoke, capacity]
+    if: ${{ always() && needs.frozen-audit.result == 'success' && needs.smoke.result == 'success' && needs.capacity.result == 'success' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        task: [synthetic, tcas, physics]
+        seed: [10, 11, 12]
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      NANO_T1_ENFORCE: '1'
+      NANO_T1_PER_ARM_CONCURRENCY: ${{ needs.capacity.outputs.per_arm }}
+      NANO_T1_ARM_PARALLEL: ${{ needs.capacity.outputs.arms }}
+      NANO_T1_SLICE_SECONDS: '17400'
+      PYTHONUNBUFFERED: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
+      - name: Run full exact-model C0 C1 I1 cells with native per-episode checkpoints
+        run: python scripts/nano_t1/batch2/run_seed.py --task ${{ matrix.task }} --seed-index ${{ matrix.seed }}
+      - name: Preserve entire isolated Batch 2 per-seed scientific checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-${{ matrix.task }}-seed${{ matrix.seed }}-checkpoint
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/${{ matrix.task }}/seed_${{ matrix.seed }}/
+          retention-days: 90
+          if-no-files-found: error
+      - name: Preserve compact progress and transport status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-${{ matrix.task }}-seed${{ matrix.seed }}-status
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/${{ matrix.task }}/seed_${{ matrix.seed }}/seed_status.json
+          retention-days: 90
+          if-no-files-found: warn
+  collector:
+    needs: [frozen-audit, seeds]
+    if: always() && needs.frozen-audit.result == 'success' && needs.seeds.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NANO_T1_ITERATION: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate all nine status artifact records and account for remaining work
+        run: python scripts/nano_t1/batch2/collect.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch2-collector-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3-batch2/collector.json
+          retention-days: 90
+          if-no-files-found: warn
