@@ -1,0 +1,48 @@
+name: GPT-5.4 Nano finalize preserved runs
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Completed Nano experiment workflow run ID"
+        required: true
+        type: string
+permissions:
+  actions: read
+  contents: write
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: experiment/gpt54-nano-3tasks-6seeds-parallel
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt huggingface_hub
+      - name: Restore all 18 seed artifacts, validate, aggregate, and safely upload
+        run: python scripts/nano/finalize.py --run-id ${{ inputs.run_id }}
+      - name: Commit lightweight report to experimental branch, never main
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/gpt-5.4-nano/final_report.json
+          git diff --cached --quiet || git commit -m "Finalize GPT-5.4 Nano 18-seed experiment"
+          git push origin HEAD:experiment/gpt54-nano-3tasks-6seeds-parallel
+      - name: Preserve final reports even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-finalization-${{ github.run_id }}
+          path: |
+            outputs/gpt-5.4-nano/summary/
+            outputs/gpt-5.4-nano/*/summary.json
+            outputs/gpt-5.4-nano/secret_audit.json
+            results/gpt-5.4-nano/
+          retention-days: 30
+          if-no-files-found: warn
