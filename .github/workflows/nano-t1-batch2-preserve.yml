@@ -1,0 +1,29 @@
+name: Preserve validated Nano t1 Batch 1 release
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-batch2-seeds10-12]
+    paths: [.github/workflows/nano-t1-batch2-preserve.yml]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independently verify 171 Batch 1 episodes and publish immutable SHA256 release archive
+        run: python scripts/nano_t1/batch2/preserve_batch1.py
+      - name: Preserve separate local-on-runner backup and pending HF upload manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-batch1-validated-backup-${{ github.run_id }}
+          path: |
+            outputs/gpt-5.4-nano-t1-none-new3-batch1-preserved/gpt-5.4-nano-t1_new_seeds7-9_runs.zip
+            outputs/gpt-5.4-nano-t1-none-new3-batch1-preserved/batch1_upload_pending.json
+            outputs/gpt-5.4-nano-t1-none-new3-batch1-preserved/batch1_final_report.json
+          retention-days: 90
+          if-no-files-found: warn
