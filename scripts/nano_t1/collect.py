@@ -63,7 +63,9 @@ def main():
     OUT.write_text(json.dumps(result,indent=2))
     print("RUN",run_id,"PASS",iteration,"STATUS",state,"EPISODES",total,"/",target,flush=True)
     for b in blockers: print("BLOCKER:",b,flush=True)
-    if state=="COMPLETE":
+    if os.environ.get("NANO_T1_NO_DISPATCH") == "1":
+        print("CHECKPOINT_READY: no direct dispatch; external authorized branch marker continues workflow.",flush=True)
+    elif state=="COMPLETE":
         run(["gh","workflow","run","nano-t1-finalize.yml","--repo",REPO,
              "--ref",BRANCH,"-f",f"source_run_id={run_id}"])
         print("Triggered validation/aggregation/HF publication.",flush=True)
