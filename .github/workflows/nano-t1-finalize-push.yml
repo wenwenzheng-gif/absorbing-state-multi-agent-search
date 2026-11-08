@@ -1,0 +1,60 @@
+name: Nano t1 finalize from verified branch marker
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [scripts/nano_t1/finalize_trigger.json]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  finalizer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HF_TOKEN: ${{ secrets.HF_TOKEN || secrets.HUGGINGFACE_TOKEN || secrets.HUGGING_FACE_HUB_TOKEN || secrets.HUGGINGFACE_HUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt huggingface_hub
+      - name: Validate exact frozen model and final source run ID from marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          x=json.loads(Path("scripts/nano_t1/finalize_trigger.json").read_text())
+          assert x["family"]=="gpt-5.4-nano-t1"
+          assert x["model"]=="gpt-5.4-nano-2026-03-17"
+          assert int(x["source_run_id"])>0
+          print("Validated finalization source marker.")
+          PY
+      - name: Strict per-trajectory validation, original analysis, additive Hugging Face upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          RID="$(python -c 'import json;print(json.load(open("scripts/nano_t1/finalize_trigger.json"))["source_run_id"])')"
+          python scripts/nano_t1/finalize.py --source-run-id "$RID"
+      - name: Commit only safe lightweight report to experiment branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add results/nano-t1-new3/final_report.json
+          git diff --cached --quiet || git commit -m "Report exact Nano t1 seed7-9 validation"
+          git push origin HEAD:experiment/gpt54-nano-t1-none-new3
+      - name: Preserve final validated data ZIP and report even if HF auth is blocked
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-final-branch-${{ github.run_id }}
+          path: |
+            outputs/gpt-5.4-nano-t1-none-new3/summary/
+            results/nano-t1-new3/
+          retention-days: 30
+          if-no-files-found: warn
