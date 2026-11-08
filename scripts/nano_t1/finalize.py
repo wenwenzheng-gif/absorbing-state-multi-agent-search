@@ -224,6 +224,17 @@ def main():
             for f in sorted((ROOT/"runs/agents"/(FAMILY+"_seed7-9")).rglob("*")):
                 if f.is_file() and f.suffix in (".json",".jsonl",".csv",".md"):
                     zout.write(f,arcname=str(f.relative_to(ROOT)))
+            # Include the repository's existing analysis-ready critical-degree
+            # tables and strict pre-upload validation, not only raw ledgers.
+            analysis_tables=ROOT/"results"/"llm_agents"/(FAMILY+"_seed7-9")
+            if not analysis_tables.is_dir():
+                raise ValueError("Expected original dc_table analysis directory missing")
+            tables=[p for p in analysis_tables.rglob("*") if p.is_file() and p.suffix in (".csv",".md",".json")]
+            if not tables:
+                raise ValueError("Original critical-degree analysis returned no tables")
+            for file in sorted(tables):
+                zout.write(file,arcname=str(file.relative_to(ROOT)))
+            zout.write(summary/"validation.json",arcname="NEW3_VALIDATION.json")
             payload=json.dumps({"dataset_family":FAMILY,"actual_model_snapshot":MODEL,
                    "temperature":1.0,"reasoning_effort":"none","enable_thinking":False,
                    "new_seed_indices":list(SEEDS),"completed_episodes":171,
