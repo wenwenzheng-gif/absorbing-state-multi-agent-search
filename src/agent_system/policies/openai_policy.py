@@ -26,6 +26,8 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass, replace
+from contextlib import asynccontextmanager
+import fcntl
 import hashlib
 import json
 import os
@@ -352,6 +354,36 @@ class LLMBackend:
             timeout=httpx.Timeout(config.timeout_s),
         )
 
+    @asynccontextmanager
+    async def _proxy_slot(self):
+        """Match the shared proxy's known limit without timing out in its queue."""
+        control = os.environ.get("LUNA_CONTROL")
+        if not control:
+            yield
+            return
+        handle = None
+        while handle is None:
+            try:
+                limit = int(json.loads(Path(control).read_text()).get("upstream_limit", 4))
+            except (OSError, ValueError):
+                limit = 4
+            for offset in range(limit):
+                index = (os.getpid() + self.usage.attempts + offset) % limit
+                candidate = (Path(control).parent / f"_proxy_slot_{index}.lock").open("a")
+                try:
+                    fcntl.flock(candidate, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    handle = candidate
+                    break
+                except BlockingIOError:
+                    candidate.close()
+            if handle is None:
+                await asyncio.sleep(0.1 + (time.monotonic_ns() % 100) / 1000)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle, fcntl.LOCK_UN)
+            handle.close()
+
     async def _execution_gate(self) -> None:
         control = os.environ.get("LUNA_CONTROL")
         job = os.environ.get("LUNA_JOB", "")
@@ -478,7 +510,7 @@ class LLMBackend:
             started = time.monotonic()
             try:
                 await self._execution_gate()
-                async with self.semaphore:
+                async with self.semaphore, self._proxy_slot():
                     response = await self._client.post("/chat/completions", json=body)
                 elapsed = time.monotonic() - started
                 self.usage.latency_s += elapsed

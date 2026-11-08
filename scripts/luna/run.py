@@ -95,9 +95,11 @@ async def monitor():
   delta=errors-previous; previous=errors
   streak=streak+1 if delta>=12 else 0
   if streak>=2 and level<3: level+=1; streak=0
-  n=levels[level]; selected=(active+active)[cursor:cursor+n] if active else []
+  n=levels[level]; selected=active[:n]
   if len(active)<=n: selected=active
-  write(OUT/'control.json',{'concurrency':n,'allowed':selected,'transport_errors':errors,'updated':time.time()})
+  from dotenv import dotenv_values
+  proxy_limit=int(dotenv_values('/data4/toby/codex_api/.env').get('MAX_CONCURRENCY',4))
+  write(OUT/'control.json',{'upstream_limit':proxy_limit,'concurrency':n,'allowed':selected,'transport_errors':errors,'updated':time.time()})
   if active: cursor=(cursor+n)%len(active)
   await asyncio.sleep(30)
 async def main():
