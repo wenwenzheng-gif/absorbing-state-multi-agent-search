@@ -229,11 +229,11 @@ def main():
             analysis_tables=ROOT/"runs"/"agents"/(FAMILY+"_seed7-9")
             if not analysis_tables.is_dir():
                 raise ValueError("Expected pooled dc_table analysis directory missing")
-            tables=[p for p in analysis_tables.rglob("*") if p.is_file() and p.suffix in (".csv",".md",".json")]
-            if not tables:
+            tables=[analysis_tables/"dc_table.csv",analysis_tables/"dc_table.md"]
+            if not all(table.is_file() for table in tables):
                 raise ValueError("Pooled critical-degree analysis returned no tables")
-            for file in sorted(tables):
-                zout.write(file,arcname=str(file.relative_to(ROOT)))
+            # Both tables were already added by the pooled directory rglob,
+            # so do not add duplicate ZIP member names here.
             zout.write(summary/"validation.json",arcname="NEW3_VALIDATION.json")
             payload=json.dumps({"dataset_family":FAMILY,"actual_model_snapshot":MODEL,
                    "temperature":1.0,"reasoning_effort":"none","enable_thinking":False,
