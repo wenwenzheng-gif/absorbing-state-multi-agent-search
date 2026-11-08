@@ -329,6 +329,25 @@ class RunDriver:
 
     async def run(self, *, resume: bool = False) -> dict:
         completed = self.store.completed_episodes() if resume else set()
+        if resume and isinstance(self.backend, LLMBackend):
+            # Reuse exact recorded samples when reconstructing an interrupted
+            # episode. Cache keys include the complete prompt and trajectory.
+            response_path = self.store.path / "responses.jsonl"
+            if response_path.exists():
+                with response_path.open(encoding="utf-8") as stream:
+                    for line in stream:
+                        if line.strip():
+                            record = json.loads(line)
+                            key = record.get("cache_key")
+                            if key:
+                                # Match offline replay: the latest retained
+                                # sample belongs to the most recent attempt.
+                                self.backend.responses[key] = record
+                                self.backend.resume_responses[key] = record
+                                self.backend.usage.requests += 1
+                                usage = record.get("usage") or {}
+                                self.backend.usage.prompt_tokens += int(usage.get("prompt_tokens") or 0)
+                                self.backend.usage.completion_tokens += int(usage.get("completion_tokens") or 0)
         plan = self.episode_plan()
         started = time.monotonic()
         statuses: dict[str, int] = {}

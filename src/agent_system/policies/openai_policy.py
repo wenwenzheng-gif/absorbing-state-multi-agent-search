@@ -348,6 +348,7 @@ class LLMBackend:
         self.request_sink = request_sink
         self.response_sink = response_sink
         self.responses: dict[str, dict] = {}
+        self.resume_responses: dict[str, dict] = {}
         self._client = httpx.AsyncClient(
             base_url=config.base_url.rstrip("/"),
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
@@ -458,6 +459,14 @@ class LLMBackend:
         metadata: dict[str, Any],
         extra_body: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        if cache_key in self.resume_responses:
+            record = self.resume_responses.pop(cache_key)
+            self.usage.cache_hits += 1
+            if record.get("refusal"):
+                raise PolicyFailure(f"model refused: {record['refusal']!r}")
+            if record.get("finish_reason") == "length":
+                raise IncompleteOutput("the recorded answer was cut off before the JSON was finished")
+            return record
         self._check_ceilings()
         thinking = self.config.enable_thinking or self.config.reasoning == "thinking"
         max_tokens = self.config.max_output_tokens

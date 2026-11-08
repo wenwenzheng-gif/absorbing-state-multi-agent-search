@@ -85,7 +85,9 @@ class RunStore:
                 if not line:
                     continue
                 try:
-                    done.add(json.loads(line)["episode_id"])
+                    row = json.loads(line)
+                    if row.get("status") == "ok":
+                        done.add(row["episode_id"])
                 except (json.JSONDecodeError, KeyError):
                     continue
         return done

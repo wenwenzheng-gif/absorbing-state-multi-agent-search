@@ -83,7 +83,8 @@ def _run(config: RunConfig, args: argparse.Namespace, *, replay_dir: Path | None
     if not root.is_absolute():
         root = PACKAGE_ROOT / root
     with RunStore(root, run_id) as store:
-        store.write_manifest(_manifest(config, env_values, run_id))
+        if not (getattr(args, "resume", False) and (store.path / "manifest.json").exists()):
+            store.write_manifest(_manifest(config, env_values, run_id))
         driver = RunDriver(config, store=store, env_values=env_values, replay_dir=replay_dir)
         summary = asyncio.run(driver.run(resume=getattr(args, "resume", False)))
         print(json.dumps(summary, indent=2, ensure_ascii=False))

@@ -16,7 +16,7 @@ def rows(p):
 def config(task,seed,smoke=False):
  c=json.loads((ROOT/f'configs/agents/{TASKS[task]}.json').read_text())
  c.update(name=f'luna_{task}_{seed}',task_seeds=[seed],output_root=str(OUT/task))
- c['policy']['llm'].update(model='gpt-6-luna',api_style='openai',reasoning_effort='medium',temperature=None,transport_retries=8)
+ c['policy']['llm'].update(model='gpt-6-luna',api_style='openai',reasoning_effort='medium',temperature=None,transport_retries=8, max_wall_seconds=172800)
  if smoke: c.update(degrees=[0], agents=2, initial_width=1)
  return c
 async def command(args,log,env=None):
@@ -49,7 +49,7 @@ async def run(task,seed,smoke=False):
  for attempt in range(1,4):
   write(d/'status.json',{'status':'RUNNING','attempt':attempt,'seed':seed,'task':task,'started':start,'reasoning_effort':'medium'})
   rc=await command([PYTHON,'-m','src.agent_system.cli','run','--config',str(d/'config.json'),'--env-file','/data4/toby/codex_api/.env','--output-root',str(d.parent),'--run-id',d.name,'--resume'],d/'stdout.log',env)
-  records=rows(d/'episodes.jsonl'); successful=[r for r in records if r['status']=='ok']
+  records=rows(d/'episodes.jsonl'); successful=list({r['episode_id']:r for r in records if r['status']=='ok'}.values())
   good=len(successful)==len(c['degrees'])
   history.append({'attempt':attempt,'returncode':rc,'ok_episodes':len(successful),'failed_episodes':[r for r in records if r['status']!='ok']})
   if (d/'run_summary.json').exists(): shutil.copyfile(d/'run_summary.json',d/f'attempt_{attempt}_summary.json')
@@ -57,7 +57,7 @@ async def run(task,seed,smoke=False):
   if attempt<3:
    # Preserve every failed trajectory while the native resume skips successful episodes.
    shutil.copyfile(d/'episodes.jsonl',d/f'attempt_{attempt}_episodes.jsonl') if (d/'episodes.jsonl').exists() else None
-   (d/'episodes.jsonl').write_text(''.join(json.dumps(r)+'\n' for r in successful))
+   # Keep the original episode ledger append-only; native resume skips only successes.
    await asyncio.sleep(2**attempt)
  write(d/'status.json',{'status':'COMPLETE' if good else 'FAILED_AFTER_RETRIES','seed':seed,'task':task,'started':start,'finished':time.time(),'wall_seconds':time.time()-start,'attempts':history,'reasoning_effort':'medium'})
  print(task,seed,'smoke' if smoke else 'experiment','COMPLETE' if good else 'FAILED_AFTER_RETRIES',flush=True)
@@ -99,23 +99,25 @@ async def family(task):
  await asyncio.gather(*(run(task,s) for s in range(6)))
  await aggregate(task)
 async def monitor():
- levels=[18,12,9,6]; level=0; cursor=0; previous=0; streak=0
+ cursor=0
  while True:
   active=[]
   for task in TASKS:
-   for s in range(6):
-    p=OUT/task/f'seed_{s}/status.json'
-    if p.exists() and json.loads(p.read_text()).get('status')=='RUNNING': active.append(f'{task}/seed_{s}')
+   for seed in range(6):
+    p=OUT/task/f'seed_{seed}/status.json'
+    if p.exists() and json.loads(p.read_text()).get('status')=='RUNNING': active.append(f'{task}/seed_{seed}')
   errors=sum(len(rows(p)) for p in OUT.glob('*/seed_*/transport_errors.jsonl'))
-  delta=errors-previous; previous=errors
-  streak=streak+1 if delta>=12 else 0
-  if streak>=2 and level<3: level+=1; streak=0
-  n=levels[level]; selected=active[:n]
-  if len(active)<=n: selected=active
   from dotenv import dotenv_values
   proxy_limit=int(dotenv_values('/data4/toby/codex_api/.env').get('MAX_CONCURRENCY',4))
+  n=min(18,proxy_limit+4) if proxy_limit>=12 else 18
+  priority=[job for job in active if job.startswith('tcas/')]
+  others=[job for job in active if not job.startswith('tcas/')]
+  if others:
+   cursor%=len(others)
+   others=others[cursor:]+others[:cursor]
+   cursor=(cursor+1)%len(others)
+  selected=(priority+others)[:n]
   write(OUT/'control.json',{'upstream_limit':proxy_limit,'concurrency':n,'allowed':selected,'transport_errors':errors,'updated':time.time()})
-  if active: cursor=(cursor+n)%len(active)
   await asyncio.sleep(30)
 async def main():
  from dotenv import dotenv_values
