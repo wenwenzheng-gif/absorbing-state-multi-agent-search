@@ -1,0 +1,134 @@
+name: Nano t1 resume exact new3 checkpoints
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [scripts/nano_t1/resume.json]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: nano-t1-new3-resume-control
+  cancel-in-progress: false
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      source_run_id: ${{ steps.marker.outputs.source_run_id }}
+      iteration: ${{ steps.marker.outputs.iteration }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: marker
+        name: Validate immutable original provenance and resumption marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads(Path("scripts/nano_t1/resume.json").read_text())
+          assert r["family"]=="gpt-5.4-nano-t1"
+          assert r["model"]=="gpt-5.4-nano-2026-03-17"
+          assert int(r["source_run_id"])>0 and 2<=int(r["iteration"])<=24
+          with open(os.environ["GITHUB_OUTPUT"],"a") as f:
+              f.write("source_run_id="+str(r["source_run_id"])+"\n")
+              f.write("iteration="+str(r["iteration"])+"\n")
+          print("Verified resuming exact original Nano t1 new3 source run.")
+          PY
+          gh api "repos/${{ github.repository }}/actions/runs/${{ steps.marker.outputs.source_run_id }}" > /dev/null
+  capacity:
+    needs: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      arms: ${{ steps.measure.outputs.arms }}
+      per_arm: ${{ steps.measure.outputs.per_arm }}
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-agents.txt
+      - id: measure
+        run: python scripts/nano_t1/capacity.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-capacity-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3/capacity.json
+          if-no-files-found: warn
+  seeds:
+    needs: [gate, capacity]
+    strategy:
+      fail-fast: false
+      max-parallel: 9
+      matrix:
+        task: [synthetic, tcas, physics]
+        seed: [7, 8, 9]
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-nano-2026-03-17
+      OPENAI_BASE_URL: https://api.openai.com/v1
+      NANO_T1_ENFORCE: '1'
+      NANO_T1_PER_ARM_CONCURRENCY: ${{ needs.capacity.outputs.per_arm }}
+      NANO_T1_ARM_PARALLEL: ${{ needs.capacity.outputs.arms }}
+      NANO_T1_SLICE_SECONDS: '17400'
+      PYTHONUNBUFFERED: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements.txt -r requirements-agents.txt
+      - name: Restore ONLY the prior corrected Nano-t1 new3 checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh run download "${{ needs.gate.outputs.source_run_id }}" --repo "${{ github.repository }}" --name "nano-t1-${{ matrix.task }}-seed${{ matrix.seed }}-checkpoint" --dir "outputs/gpt-5.4-nano-t1-none-new3/${{ matrix.task }}/seed_${{ matrix.seed }}/"
+      - name: Resume only incomplete episodes in all original C0 C1 I1 arms
+        run: python scripts/nano_t1/run_seed.py --task ${{ matrix.task }} --seed-index ${{ matrix.seed }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-${{ matrix.task }}-seed${{ matrix.seed }}-checkpoint
+          path: outputs/gpt-5.4-nano-t1-none-new3/${{ matrix.task }}/seed_${{ matrix.seed }}/
+          retention-days: 30
+          if-no-files-found: warn
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-${{ matrix.task }}-seed${{ matrix.seed }}-status
+          path: outputs/gpt-5.4-nano-t1-none-new3/${{ matrix.task }}/seed_${{ matrix.seed }}/seed_status.json
+          retention-days: 30
+          if-no-files-found: warn
+  collector:
+    needs: [gate, seeds]
+    if: always() && needs.gate.result == 'success' && needs.seeds.result != 'skipped'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NANO_T1_ITERATION: ${{ needs.gate.outputs.iteration }}
+      NANO_T1_NO_DISPATCH: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate completed/remaining episodes; wait for authorized branch marker trigger
+        run: python scripts/nano_t1/collect.py
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nano-t1-collector-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3/collector.json
+          retention-days: 30
+          if-no-files-found: warn
