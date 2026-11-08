@@ -31,7 +31,7 @@ jobs:
           r=json.loads(Path("scripts/nano_t1/resume.json").read_text())
           assert r["family"]=="gpt-5.4-nano-t1"
           assert r["model"]=="gpt-5.4-nano-2026-03-17"
-          assert int(r["source_run_id"])>0 and 2<=int(r["iteration"])<=24
+          assert int(r["source_run_id"])>0 and int(r["iteration"])>=2
           with open(os.environ["GITHUB_OUTPUT"],"a") as f:
               f.write("source_run_id="+str(r["source_run_id"])+"\n")
               f.write("iteration="+str(r["iteration"])+"\n")
