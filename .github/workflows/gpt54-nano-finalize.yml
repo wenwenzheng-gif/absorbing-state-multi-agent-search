@@ -1,5 +1,8 @@
 name: GPT-5.4 Nano finalize preserved runs
 on:
+  push:
+    branches: [experiment/gpt54-nano-3tasks-6seeds-parallel]
+    paths: [scripts/nano/FINALIZE_42502083463.txt]
   workflow_dispatch:
     inputs:
       run_id:
@@ -25,7 +28,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt -r requirements-agents.txt huggingface_hub
       - name: Restore all 18 seed artifacts, validate, aggregate, and safely upload
-        run: python scripts/nano/finalize.py --run-id ${{ inputs.run_id }}
+        run: python scripts/nano/finalize.py --run-id ${{ inputs.run_id || '42502083463' }}
       - name: Commit lightweight report to experimental branch, never main
         if: success()
         run: |
