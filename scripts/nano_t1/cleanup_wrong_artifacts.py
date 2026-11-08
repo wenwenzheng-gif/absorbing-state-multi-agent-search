@@ -16,7 +16,7 @@ EXPECTED={
     42501667950:{"GPT-5.4 Nano three tasks six seeds"},
     42502083463:{"GPT-5.4 Nano three tasks six seeds"},
 }
-VALID_NAME=re.compile(r"^(?:nano-(?:model-preflight|smoke-(?:synthetic|tcas|ode)|(?:synthetic|tcas|ode)-seed-[0-5])|gpt54-nano-preflight-\\d+)$")
+VALID_NAME=re.compile(r"^(?:nano-(?:model-preflight|smoke-(?:synthetic|tcas|ode)|(?:synthetic|tcas|ode)-seed-[0-5])|gpt54-nano-preflight-\d+)$")
 OUT=Path("outputs/gpt-5.4-nano-t1-none-new3/incorrect_run_cleanup.json")
 
 def gh(path,delete=False):
