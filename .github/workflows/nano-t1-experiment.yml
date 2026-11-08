@@ -1,5 +1,5 @@
 name: Nano t1 exact snapshot NEW seeds 7-9
-# Rerun after guarded-transport import fix; model, protocol, and seeds unchanged.
+# Rerun after strict guarded-transport imports fixed, science unchanged.
 on:
   push:
     branches: [experiment/gpt54-nano-t1-none-new3]
