@@ -2,7 +2,7 @@
 
 Run `.venv/bin/python -u scripts/luna/run.py` from this repository in a detached session. The current execution uses a detached Python session with stdin disconnected, logs at `outputs/gpt-6-luna/supervisor.log`, and PID at `outputs/gpt-6-luna/supervisor.pid`.
 
-The runner copies the documented final `llm_toy.json`, `llm_tcas.json`, and `llm_physics.json` protocols. ODE is the physics `support_v1` task. Every experiment uses literal task seeds 0–5 and `reasoning_effort=medium`. All degrees, 40 agents, task sizes, round counts, budgets, prompts, and stopping criteria remain as defined by those configurations. Three separate smoke tests each use degree zero and otherwise retain the task protocol; they are not experimental seeds.
+The runner copies the documented final `llm_toy.json`, `llm_tcas.json`, and `llm_physics.json` protocols. ODE is the physics `support_v1` task. Every experiment uses literal task seeds 0–5 and `reasoning_effort=medium`. All degrees, 40 agents, task sizes, round counts, budgets, prompts, and stopping criteria remain as defined by those configurations. Three separate smoke tests each use degree zero, two agents, and initial width one; task round counts and environment logic remain unchanged; they are not experimental seeds.
 
 Compatibility configuration selects the existing OpenAI request style and omits unsupported temperature. The local proxy ignores sampling seed and temperature/top_p; independent local RNG states and trajectories remain, but remote sampling cannot be deterministically seeded. The proxy translates Chat Completions to Responses and maps max_completion_tokens to max_output_tokens. No other model is requested.
 

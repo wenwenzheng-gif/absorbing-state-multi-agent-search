@@ -17,7 +17,7 @@ def config(task,seed,smoke=False):
  c=json.loads((ROOT/f'configs/agents/{TASKS[task]}.json').read_text())
  c.update(name=f'luna_{task}_{seed}',task_seeds=[seed],output_root=str(OUT/task))
  c['policy']['llm'].update(model='gpt-6-luna',api_style='openai',reasoning_effort='medium',temperature=None,transport_retries=8)
- if smoke: c.update(degrees=[0])
+ if smoke: c.update(degrees=[0], agents=2, initial_width=1)
  return c
 async def command(args,log,env=None):
  with log.open('ab') as f:
