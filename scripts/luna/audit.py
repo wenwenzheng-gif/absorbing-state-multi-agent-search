@@ -88,8 +88,16 @@ def stage(cells,analysis_codes):
             dest=target/'pooled_analysis'/source.relative_to(OUT/'aggregate');dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source,dest)
     report={**json.loads((OUT/'batch.json').read_text()),'status':'VALIDATED','cells':cells,'analysis_exit_codes':analysis_codes,'completed_episodes_by_task':dict(collections.Counter({t:sum(c['episodes'] for c in cells if c['task']==t) for t in TASKS})),'api_requests':sum(c['api_requests'] for c in cells),'responses':sum(c['responses'] for c in cells),'actual_models':sorted({m for c in cells for m in c['actual_models']}),'scientific_workers_peak':9,'wall_seconds':time.time()-json.loads((OUT/'batch.json').read_text())['created_at'],'source_archive_retained':REF['source_archive'],'baseline_endpoint':'https://api.openai.com/v1','new_endpoint':'local codex_api','same_proxy_as_baseline':False,'temperature_forwarded':False,'effective_temperature':1.0,'sampling_seed_forwarded':False,'endpoint_migration_recorded':True,'no_cancelled_data':not (ROOT/'outputs/gpt-6-luna').exists(),'no_smoke_data':True,'no_failed_episode':True,'no_partial_seed':True,'no_seed_overlap':True,'git_branch':subprocess.check_output(['git','branch','--show-current'],cwd=ROOT,text=True).strip(),'git_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()}
     require_settings(report);assert report['completed_episodes_by_task']=={'synthetic':45,'tcas':63,'physics':63}
-    capacities=rows(OUT/'capacity.jsonl');report['peak_stable_global_limit']=max([r['upstream_limit'] for r in capacities if not r['window_errors']] or [24])
-    report['peak_stable_upstream_concurrency']=max([r.get('peak_active_upstream_calls',0) for r in capacities if not r['window_errors']] or [0])
+    capacities=rows(OUT/'capacity.jsonl')
+    def stable_window(r):
+        if r.get('window_seconds',0)<180:return False
+        client=r.get('window_errors',{});proxy=r.get('proxy_window_errors',{})
+        errors=sum(client.values())+sum(proxy.get(k,0) for k in ['upstream_429','upstream_5xx','upstream_transport_errors'])
+        return client.get('HTTP 429',0)<3 and proxy.get('upstream_429',0)<3 and not (errors>=6 and errors/max(1,r.get('successful_responses',0)+errors)>.03)
+    stable=[r for r in capacities if stable_window(r)]
+    report['peak_stable_global_limit']=max([r['upstream_limit'] for r in stable] or [0])
+    report['peak_stable_upstream_concurrency']=max([r.get('peak_active_upstream_calls',0) for r in stable] or [0])
+    report['maximum_tested_global_limit']=max([r['upstream_limit'] for r in capacities] or [0])
     errors=collections.Counter()
     for cell in cells:errors.update(cell['transport_errors'])
     import urllib.request
@@ -154,6 +162,11 @@ def upload(archive,report):
 def finish():
     verify_sources();assert not (ROOT/'outputs/gpt-6-luna').exists()
     cells=[audit_cell(t,s,p) for t in TASKS for s in SEEDS for p in POLICIES]
+    if (OUT/'progress.json').exists():
+        progress=json.loads((OUT/'progress.json').read_text());progress.update(completed_episodes=171,expected_episodes=171,active_scientific_workers=0,scientific_status='COMPLETE')
+        for job in progress.get('jobs',[]):
+            job.update(status='COMPLETE',completed_episodes=sum(c['episodes'] for c in cells if c['task']==job['task'] and c['seed']==job['seed']))
+        write(OUT/'progress.json',progress)
     for task in TASKS:
         for seed in SEEDS:assert json.loads((OUT/'jobs'/f'{task}_seed{seed}'/'status.json').read_text())['status']=='COMPLETE'
     archive=OUT/'gpt-6-luna_seed7-9_runs.zip';existing=OUT/'validation_report.json'

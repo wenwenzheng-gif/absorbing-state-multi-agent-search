@@ -45,7 +45,8 @@ class CorrectedConfigurationTests(unittest.TestCase):
 
     def test_initial_pool_starts_all_nine_task_seed_jobs(self):
         import run as corrected_runner
-        queue=corrected_runner.schedule()
+        with patch.object(corrected_runner.pathlib.Path,'iterdir',return_value=[]):
+            queue=corrected_runner.schedule()
         self.assertEqual(len(queue),27)
         self.assertEqual(len(set(queue)),27)
         self.assertEqual({(task,seed) for task,seed,policy in queue[:9]},{(task,seed) for task in TASKS for seed in SEEDS})
