@@ -1,0 +1,27 @@
+name: Clean cancelled incorrect Nano artifacts only
+on:
+  push:
+    branches: [experiment/gpt54-nano-t1-none-new3]
+    paths: [.github/workflows/nano-t1-cleanup.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify four exact invalid workflow identities and delete matching artifacts only
+        run: python scripts/nano_t1/cleanup_wrong_artifacts.py
+      - name: Save deletion audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanup-incorrect-nano-${{ github.run_id }}
+          path: outputs/gpt-5.4-nano-t1-none-new3/incorrect_run_cleanup.json
+          retention-days: 30
+          if-no-files-found: warn
