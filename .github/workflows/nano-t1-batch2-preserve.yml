@@ -1,4 +1,5 @@
 name: Preserve validated Nano t1 Batch 1 release
+# Retry verified archival with pooled analysis view excluded from source episode count.
 on:
   push:
     branches: [experiment/gpt54-nano-t1-none-batch2-seeds10-12]
