@@ -226,12 +226,12 @@ def main():
                     zout.write(f,arcname=str(f.relative_to(ROOT)))
             # Include the repository's existing analysis-ready critical-degree
             # tables and strict pre-upload validation, not only raw ledgers.
-            analysis_tables=ROOT/"results"/"llm_agents"/(FAMILY+"_seed7-9")
+            analysis_tables=ROOT/"runs"/"agents"/(FAMILY+"_seed7-9")
             if not analysis_tables.is_dir():
-                raise ValueError("Expected original dc_table analysis directory missing")
+                raise ValueError("Expected pooled dc_table analysis directory missing")
             tables=[p for p in analysis_tables.rglob("*") if p.is_file() and p.suffix in (".csv",".md",".json")]
             if not tables:
-                raise ValueError("Original critical-degree analysis returned no tables")
+                raise ValueError("Pooled critical-degree analysis returned no tables")
             for file in sorted(tables):
                 zout.write(file,arcname=str(file.relative_to(ROOT)))
             zout.write(summary/"validation.json",arcname="NEW3_VALIDATION.json")
