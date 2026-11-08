@@ -41,7 +41,7 @@ def _manifest(config: RunConfig, env_values: dict[str, str], run_id: str) -> dic
 
 def command_validate(args: argparse.Namespace) -> int:
     config = read_config(args.config)
-    env_values = load_env_file(args.env_file) if args.env_file else {}
+    env_values = load_env_file(args.env_file)
     estimate = estimate_requests(config)
     report = {
         "status": "ok",
@@ -77,7 +77,7 @@ def command_validate(args: argparse.Namespace) -> int:
 
 
 def _run(config: RunConfig, args: argparse.Namespace, *, replay_dir: Path | None = None) -> int:
-    env_values = load_env_file(args.env_file) if getattr(args, "env_file", None) else {}
+    env_values = load_env_file(getattr(args, "env_file", None))
     run_id = getattr(args, "run_id", None) or default_run_id(config)
     root = Path(args.output_root or config.output_root)
     if not root.is_absolute():
