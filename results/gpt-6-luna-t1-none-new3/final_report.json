@@ -77,7 +77,7 @@
   "created_at": 1794161605.4019077,
   "science_started": 1794162656.4093835,
   "science_finished": 1794182610.103765,
-  "status": "SCIENTIFIC_COMPLETE_UPLOAD_PENDING",
+  "status": "COMPLETE",
   "cells": [
     {
       "rejected_transport_fragments": [],
@@ -728,5 +728,11 @@
   },
   "archive_sha256": "66f70a2b6110d70bf44bc410be33e6fecbd55f0d8e64f8285e75e20acba93bee",
   "scientific_wall_seconds": 19953.69438147545,
-  "hugging_face_status": "PENDING"
+  "hugging_face_status": "UPLOADED",
+  "hugging_face_paths": {
+    "archive": "gpt-6-luna/gpt-6-luna_seed7-9_runs.zip",
+    "metadata": "gpt-6-luna/gpt-6-luna_seed7-9_metadata.json",
+    "readme": "gpt-6-luna/gpt-6-luna_seed7-9_README.md"
+  },
+  "total_wall_seconds": 38144.92899918556
 }
