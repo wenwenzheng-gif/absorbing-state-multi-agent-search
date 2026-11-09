@@ -1,0 +1,10 @@
+{
+  "family": "gpt-5.4-nano-t1",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "seed_indices": [
+    10,
+    11,
+    12
+  ],
+  "source_run_id": 42521879889
+}
