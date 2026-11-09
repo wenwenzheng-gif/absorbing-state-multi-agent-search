@@ -1,0 +1,732 @@
+{
+  "model": "gpt-6-luna",
+  "temperature": 1.0,
+  "reasoning_effort": "none",
+  "enable_thinking": false,
+  "thinking": "disabled",
+  "batch": "gpt-6-luna-t1-none-new3",
+  "seed_ids": [
+    7,
+    8,
+    9
+  ],
+  "task_seed_ids": {
+    "synthetic": {
+      "7": 87006,
+      "8": 87007,
+      "9": 87008
+    },
+    "tcas": {
+      "7": 87206,
+      "8": 87207,
+      "9": 87208
+    },
+    "physics": {
+      "7": 82246,
+      "8": 82247,
+      "9": 82248
+    }
+  },
+  "valid_seed_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "valid_task_seeds": {
+    "synthetic": [
+      87000,
+      87001,
+      87002,
+      87003,
+      87004,
+      87005
+    ],
+    "tcas": [
+      87200,
+      87201,
+      87202,
+      87203,
+      87204,
+      87205
+    ],
+    "physics": [
+      82240,
+      82241,
+      82242,
+      82243,
+      82244,
+      82245
+    ]
+  },
+  "policies": [
+    "C0",
+    "C1",
+    "I1"
+  ],
+  "expected_episodes": {
+    "synthetic": 45,
+    "tcas": 63,
+    "physics": 63
+  },
+  "total_expected_episodes": 171,
+  "reference_archive_sha256": "dd7b47e0ed1d958ba8cc24d175fa8e1bf65331649ed8264d7f962cb6091fe740",
+  "cancelled_output_root_absent": true,
+  "created_at": 1794161605.4019077,
+  "science_started": 1794162656.4093835,
+  "science_finished": 1794182610.103765,
+  "status": "SCIENTIFIC_COMPLETE_UPLOAD_PENDING",
+  "cells": [
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_synthetic_C0",
+      "task": "synthetic",
+      "seed": 7,
+      "policy": "C0",
+      "task_seed": 87006,
+      "episodes": 5,
+      "requests": 969,
+      "responses": 969,
+      "api_requests": 973,
+      "transport_errors": {
+        "HTTP 502": 4
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_synthetic_C1",
+      "task": "synthetic",
+      "seed": 7,
+      "policy": "C1",
+      "task_seed": 87006,
+      "episodes": 5,
+      "requests": 1321,
+      "responses": 1321,
+      "api_requests": 1330,
+      "transport_errors": {
+        "HTTP 502": 9
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_synthetic_I1",
+      "task": "synthetic",
+      "seed": 7,
+      "policy": "I1",
+      "task_seed": 87006,
+      "episodes": 5,
+      "requests": 1286,
+      "responses": 1286,
+      "api_requests": 1291,
+      "transport_errors": {
+        "HTTP 502": 5
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_synthetic_C0",
+      "task": "synthetic",
+      "seed": 8,
+      "policy": "C0",
+      "task_seed": 87007,
+      "episodes": 5,
+      "requests": 1026,
+      "responses": 1026,
+      "api_requests": 1030,
+      "transport_errors": {
+        "HTTP 502": 4
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_synthetic_C1",
+      "task": "synthetic",
+      "seed": 8,
+      "policy": "C1",
+      "task_seed": 87007,
+      "episodes": 5,
+      "requests": 1304,
+      "responses": 1304,
+      "api_requests": 1311,
+      "transport_errors": {
+        "HTTP 502": 7
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_synthetic_I1",
+      "task": "synthetic",
+      "seed": 8,
+      "policy": "I1",
+      "task_seed": 87007,
+      "episodes": 5,
+      "requests": 1337,
+      "responses": 1337,
+      "api_requests": 1351,
+      "transport_errors": {
+        "HTTP 502": 14
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [
+        "7b6f1043df48719efaef83737210e4955db9879cbcd4507b0b4a95d6ce4ec3b7"
+      ],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_synthetic_C0",
+      "task": "synthetic",
+      "seed": 9,
+      "policy": "C0",
+      "task_seed": 87008,
+      "episodes": 5,
+      "requests": 930,
+      "responses": 930,
+      "api_requests": 932,
+      "transport_errors": {
+        "HTTP 502": 2
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_synthetic_C1",
+      "task": "synthetic",
+      "seed": 9,
+      "policy": "C1",
+      "task_seed": 87008,
+      "episodes": 5,
+      "requests": 1277,
+      "responses": 1277,
+      "api_requests": 1285,
+      "transport_errors": {
+        "HTTP 502": 8
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_synthetic_I1",
+      "task": "synthetic",
+      "seed": 9,
+      "policy": "I1",
+      "task_seed": 87008,
+      "episodes": 5,
+      "requests": 1314,
+      "responses": 1314,
+      "api_requests": 1319,
+      "transport_errors": {
+        "HTTP 502": 5
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [
+        "a168eb2c9c653c3e5b73d6b27a2b802cbf0cab0565ca1ef968adfd8dadf37d73",
+        "ce675dfa6b309fea60e146afa50e60c34852516792b300f7f2e69b9b1ab28cd9"
+      ],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_tcas_C0",
+      "task": "tcas",
+      "seed": 7,
+      "policy": "C0",
+      "task_seed": 87206,
+      "episodes": 7,
+      "requests": 2488,
+      "responses": 2488,
+      "api_requests": 2500,
+      "transport_errors": {
+        "HTTP 502": 12
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [
+        {
+          "cache_key": "80d15eb129fca3d17c121d2bc67e572cf49c1647a668bf2a653f6f3d63566fa2",
+          "repair_cache_key": "23ffa926c02ad8329b0eb5eaecf7de8bb3374a929edb47b522b9b6f8ca129c38",
+          "classification": "rejected unterminated transport fragment; upstream settings unavailable; not a scientific action"
+        }
+      ],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_tcas_C1",
+      "task": "tcas",
+      "seed": 7,
+      "policy": "C1",
+      "task_seed": 87206,
+      "episodes": 7,
+      "requests": 3792,
+      "responses": 3792,
+      "api_requests": 3852,
+      "transport_errors": {
+        "HTTP 502": 60
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_tcas_I1",
+      "task": "tcas",
+      "seed": 7,
+      "policy": "I1",
+      "task_seed": 87206,
+      "episodes": 7,
+      "requests": 3621,
+      "responses": 3621,
+      "api_requests": 3653,
+      "transport_errors": {
+        "HTTP 502": 32
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_tcas_C0",
+      "task": "tcas",
+      "seed": 8,
+      "policy": "C0",
+      "task_seed": 87207,
+      "episodes": 7,
+      "requests": 2494,
+      "responses": 2494,
+      "api_requests": 2504,
+      "transport_errors": {
+        "HTTP 502": 10
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [
+        {
+          "cache_key": "92566f822e0fc232f3ad4ecb1b1fe2685033a9d83792de260ac0d5299802e403",
+          "repair_cache_key": "bb022ca19b91e7fdd9617c0c70a468e64cd11ff4d6c6df7145ecf551c2c09cc3",
+          "classification": "rejected unterminated transport fragment; upstream settings unavailable; not a scientific action"
+        }
+      ],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_tcas_C1",
+      "task": "tcas",
+      "seed": 8,
+      "policy": "C1",
+      "task_seed": 87207,
+      "episodes": 7,
+      "requests": 3697,
+      "responses": 3697,
+      "api_requests": 3743,
+      "transport_errors": {
+        "HTTP 502": 46
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [
+        {
+          "cache_key": "cef91216f6f9e2dba2ac23c580557a4e4ab87ffa4db9be828cab95330835ba6a",
+          "repair_cache_key": "e001e9f6b21b9bed69968da1b77136791b064351247a4b1f89d36bce13d5582f",
+          "classification": "rejected unterminated transport fragment; upstream settings unavailable; not a scientific action"
+        },
+        {
+          "cache_key": "a99bc0820c8b1d82c67ae7fb6cc974f4134971b0b7cfc1fbabc4c484d9301d2d",
+          "repair_cache_key": "232d03eec48b91f8c2a9b0d580b036a65201ff48a320369673f2c00b0e8bd9ca",
+          "classification": "rejected unterminated transport fragment; upstream settings unavailable; not a scientific action"
+        }
+      ],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_tcas_I1",
+      "task": "tcas",
+      "seed": 8,
+      "policy": "I1",
+      "task_seed": 87207,
+      "episodes": 7,
+      "requests": 3675,
+      "responses": 3675,
+      "api_requests": 3716,
+      "transport_errors": {
+        "HTTP 502": 41
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_tcas_C0",
+      "task": "tcas",
+      "seed": 9,
+      "policy": "C0",
+      "task_seed": 87208,
+      "episodes": 7,
+      "requests": 2530,
+      "responses": 2530,
+      "api_requests": 2541,
+      "transport_errors": {
+        "HTTP 502": 11
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_tcas_C1",
+      "task": "tcas",
+      "seed": 9,
+      "policy": "C1",
+      "task_seed": 87208,
+      "episodes": 7,
+      "requests": 3616,
+      "responses": 3616,
+      "api_requests": 3654,
+      "transport_errors": {
+        "HTTP 502": 38
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [
+        {
+          "cache_key": "cf6d4a20ce124e07dc39bacf585f3ff6b12e6a756e691c98f13a0649581944a6",
+          "repair_cache_key": "c9f46030172dbc2e9bccd980b0a5a363f5c9ef85a7b570ee40d30d42f7c260e2",
+          "classification": "rejected unterminated transport fragment; upstream settings unavailable; not a scientific action"
+        }
+      ],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_tcas_I1",
+      "task": "tcas",
+      "seed": 9,
+      "policy": "I1",
+      "task_seed": 87208,
+      "episodes": 7,
+      "requests": 3505,
+      "responses": 3505,
+      "api_requests": 3539,
+      "transport_errors": {
+        "HTTP 502": 34
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_physics_C0",
+      "task": "physics",
+      "seed": 7,
+      "policy": "C0",
+      "task_seed": 82246,
+      "episodes": 7,
+      "requests": 1414,
+      "responses": 1414,
+      "api_requests": 1427,
+      "transport_errors": {
+        "HTTP 502": 13
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_physics_C1",
+      "task": "physics",
+      "seed": 7,
+      "policy": "C1",
+      "task_seed": 82246,
+      "episodes": 7,
+      "requests": 1952,
+      "responses": 1952,
+      "api_requests": 1967,
+      "transport_errors": {
+        "HTTP 502": 15
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed7_physics_I1",
+      "task": "physics",
+      "seed": 7,
+      "policy": "I1",
+      "task_seed": 82246,
+      "episodes": 7,
+      "requests": 1914,
+      "responses": 1914,
+      "api_requests": 1926,
+      "transport_errors": {
+        "HTTP 502": 12
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_physics_C0",
+      "task": "physics",
+      "seed": 8,
+      "policy": "C0",
+      "task_seed": 82247,
+      "episodes": 7,
+      "requests": 1414,
+      "responses": 1414,
+      "api_requests": 1426,
+      "transport_errors": {
+        "HTTP 502": 12
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_physics_C1",
+      "task": "physics",
+      "seed": 8,
+      "policy": "C1",
+      "task_seed": 82247,
+      "episodes": 7,
+      "requests": 1991,
+      "responses": 1991,
+      "api_requests": 2014,
+      "transport_errors": {
+        "HTTP 502": 23
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed8_physics_I1",
+      "task": "physics",
+      "seed": 8,
+      "policy": "I1",
+      "task_seed": 82247,
+      "episodes": 7,
+      "requests": 1967,
+      "responses": 1967,
+      "api_requests": 1979,
+      "transport_errors": {
+        "HTTP 502": 12
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_physics_C0",
+      "task": "physics",
+      "seed": 9,
+      "policy": "C0",
+      "task_seed": 82248,
+      "episodes": 7,
+      "requests": 1384,
+      "responses": 1384,
+      "api_requests": 1394,
+      "transport_errors": {
+        "HTTP 502": 10
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_physics_C1",
+      "task": "physics",
+      "seed": 9,
+      "policy": "C1",
+      "task_seed": 82248,
+      "episodes": 7,
+      "requests": 1965,
+      "responses": 1965,
+      "api_requests": 1981,
+      "transport_errors": {
+        "HTTP 502": 16
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    },
+    {
+      "rejected_transport_fragments": [],
+      "incomplete_response_provenance_gaps": [],
+      "incomplete_response_settings_evidence": "Unmodified recorded request + zero reasoning-token usage + verified backend default; raw upstream response ID is unavailable for listed early incomplete replies.",
+      "cell": "gpt-6-luna_seed9_physics_I1",
+      "task": "physics",
+      "seed": 9,
+      "policy": "I1",
+      "task_seed": 82248,
+      "episodes": 7,
+      "requests": 1960,
+      "responses": 1960,
+      "api_requests": 1975,
+      "transport_errors": {
+        "HTTP 502": 15
+      },
+      "actual_models": [
+        "gpt-6-luna"
+      ]
+    }
+  ],
+  "analysis_exit_codes": {
+    "synthetic_C0/summarize": 0,
+    "synthetic_C0/critical_degree": 0,
+    "synthetic_C1/summarize": 0,
+    "synthetic_C1/critical_degree": 0,
+    "synthetic_I1/summarize": 0,
+    "synthetic_I1/critical_degree": 0,
+    "tcas_C0/summarize": 0,
+    "tcas_C0/critical_degree": 0,
+    "tcas_C1/summarize": 0,
+    "tcas_C1/critical_degree": 0,
+    "tcas_I1/summarize": 0,
+    "tcas_I1/critical_degree": 0,
+    "physics_C0/summarize": 0,
+    "physics_C0/critical_degree": 0,
+    "physics_C1/summarize": 0,
+    "physics_C1/critical_degree": 0,
+    "physics_I1/summarize": 0,
+    "physics_I1/critical_degree": 0
+  },
+  "completed_episodes_by_task": {
+    "synthetic": 45,
+    "tcas": 63,
+    "physics": 63
+  },
+  "api_requests": 56613,
+  "responses": 56143,
+  "actual_models": [
+    "gpt-6-luna"
+  ],
+  "scientific_workers_peak": 9,
+  "wall_seconds": 21022.58290696144,
+  "source_archive_retained": "gpt-6-luna/gpt-6-luna_runs.zip",
+  "baseline_endpoint": "https://api.openai.com/v1",
+  "new_endpoint": "local codex_api",
+  "same_proxy_as_baseline": false,
+  "temperature_forwarded": false,
+  "effective_temperature": 1.0,
+  "sampling_seed_forwarded": false,
+  "endpoint_migration_recorded": true,
+  "no_cancelled_data": true,
+  "no_smoke_data": true,
+  "no_failed_episode": true,
+  "no_partial_seed": true,
+  "no_seed_overlap": true,
+  "git_branch": "experiment/gpt6-luna-t1-none-new3",
+  "git_commit": "53d654bd82d9eb19ce09712f72cc598bc23a1702",
+  "peak_stable_global_limit": 64,
+  "peak_stable_upstream_concurrency": 34,
+  "maximum_tested_global_limit": 96,
+  "api_requests_scientific_client_attempts": 56613,
+  "total_api_requests_including_proxy_retries_smoke_and_preflight": 56785,
+  "transport_retries": 576,
+  "client_transport_retries": 470,
+  "proxy_rate_limit_retries": 106,
+  "http_429": 106,
+  "http_5xx": 470,
+  "client_http_5xx": 470,
+  "upstream_http_5xx": 0,
+  "timeouts": 0,
+  "proxy_metrics": {
+    "upstream_attempts": 56785,
+    "upstream_429": 106,
+    "upstream_5xx": 0,
+    "upstream_transport_errors": 0,
+    "upstream_timeouts": 0,
+    "completed_responses": 56057,
+    "upstream_retries": 106,
+    "active_upstream_requests": 0,
+    "incomplete_responses": 144,
+    "unterminated_streams": 6
+  },
+  "archive_sha256": "66f70a2b6110d70bf44bc410be33e6fecbd55f0d8e64f8285e75e20acba93bee",
+  "scientific_wall_seconds": 19953.69438147545,
+  "hugging_face_status": "PENDING"
+}
