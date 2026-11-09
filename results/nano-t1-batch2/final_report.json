@@ -1,0 +1,195 @@
+{
+  "archive_sha256": "72f7664eaf62b626f55dc77edead74b8a1d87995a8b3c9cb352cce367c591db9",
+  "batch": 2,
+  "completed_condition_runs": 27,
+  "completed_episodes": 171,
+  "dataset_family": "gpt-5.4-nano-t1",
+  "hf_upload_status": "PENDING_HF_WRITE_AUTHORIZATION",
+  "model": "gpt-5.4-nano-2026-03-17",
+  "new_seed_indices": [
+    10,
+    11,
+    12
+  ],
+  "original_hf_path_unchanged": "gpt-5.4-nano/gpt-5.4-nano-t1_runs.zip",
+  "planned_condition_runs": 27,
+  "planned_task_seed_workers": 9,
+  "pooled_analysis_tag": "gpt-5.4-nano-t1_seed10-12",
+  "reasoning_effort": "none",
+  "results": {
+    "gpt-5.4-nano-t1_seed10_physics_C0": {
+      "episodes": 7,
+      "model_responses": 1556,
+      "requests": 1556,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_physics_C1": {
+      "episodes": 7,
+      "model_responses": 2092,
+      "requests": 2092,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_physics_I1": {
+      "episodes": 7,
+      "model_responses": 2038,
+      "requests": 2038,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_synthetic_C0": {
+      "episodes": 5,
+      "model_responses": 1032,
+      "requests": 1032,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_synthetic_C1": {
+      "episodes": 5,
+      "model_responses": 1383,
+      "requests": 1383,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_synthetic_I1": {
+      "episodes": 5,
+      "model_responses": 1394,
+      "requests": 1394,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_tcas_C0": {
+      "episodes": 7,
+      "model_responses": 2593,
+      "requests": 2593,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_tcas_C1": {
+      "episodes": 7,
+      "model_responses": 3714,
+      "requests": 3714,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed10_tcas_I1": {
+      "episodes": 7,
+      "model_responses": 3699,
+      "requests": 3699,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_physics_C0": {
+      "episodes": 7,
+      "model_responses": 1521,
+      "requests": 1521,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_physics_C1": {
+      "episodes": 7,
+      "model_responses": 2023,
+      "requests": 2023,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_physics_I1": {
+      "episodes": 7,
+      "model_responses": 2001,
+      "requests": 2001,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_synthetic_C0": {
+      "episodes": 5,
+      "model_responses": 974,
+      "requests": 974,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_synthetic_C1": {
+      "episodes": 5,
+      "model_responses": 1342,
+      "requests": 1342,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_synthetic_I1": {
+      "episodes": 5,
+      "model_responses": 1293,
+      "requests": 1293,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_tcas_C0": {
+      "episodes": 7,
+      "model_responses": 2592,
+      "requests": 2592,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_tcas_C1": {
+      "episodes": 7,
+      "model_responses": 3618,
+      "requests": 3618,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed11_tcas_I1": {
+      "episodes": 7,
+      "model_responses": 3704,
+      "requests": 3704,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_physics_C0": {
+      "episodes": 7,
+      "model_responses": 1583,
+      "requests": 1583,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_physics_C1": {
+      "episodes": 7,
+      "model_responses": 2042,
+      "requests": 2042,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_physics_I1": {
+      "episodes": 7,
+      "model_responses": 2071,
+      "requests": 2071,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_synthetic_C0": {
+      "episodes": 5,
+      "model_responses": 977,
+      "requests": 977,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_synthetic_C1": {
+      "episodes": 5,
+      "model_responses": 1316,
+      "requests": 1316,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_synthetic_I1": {
+      "episodes": 5,
+      "model_responses": 1297,
+      "requests": 1297,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_tcas_C0": {
+      "episodes": 7,
+      "model_responses": 2514,
+      "requests": 2514,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_tcas_C1": {
+      "episodes": 7,
+      "model_responses": 3622,
+      "requests": 3622,
+      "status": "COMPLETE"
+    },
+    "gpt-5.4-nano-t1_seed12_tcas_I1": {
+      "episodes": 7,
+      "model_responses": 3657,
+      "requests": 3657,
+      "status": "COMPLETE"
+    }
+  },
+  "secret_scan_passed": true,
+  "source_workflow_run": 42521879889,
+  "status": "VALIDATED_LOCAL_ONLY",
+  "target_episodes": 171,
+  "target_hf_path": "gpt-5.4-nano/gpt-5.4-nano-t1_batch2_seeds10-12_runs.zip",
+  "target_hf_repo": "TobyYang7/Branching-Search-runs",
+  "temperature": 1.0,
+  "thinking_disabled": true,
+  "total_model_responses": 57648,
+  "total_requests": 57648,
+  "upload_pending_manifest": "summary/UPLOAD_PENDING.json",
+  "zip_bytes": 80211625
+}
