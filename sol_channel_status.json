@@ -1,0 +1,1 @@
+{"experiment_id": "tcas_C0_s87210_d39", "channel": "B", "state": "RUNNING", "owner_run": "43100015692", "heartbeat": 1794432208.267981, "successful_requests": 1, "cost_ceiling_usd": 0.31243499999999996, "estimated_cost_usd": 0.019182, "rps": 0.10994631396572173, "configured_rps": 0.5, "auto_reassign": false}
