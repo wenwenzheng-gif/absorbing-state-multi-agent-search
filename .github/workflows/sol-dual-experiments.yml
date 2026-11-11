@@ -23,7 +23,7 @@ jobs:
           import json,os
           a=json.load(open('scripts/sol_dual/allocation.json'))
           assert a['b_enabled'] and a['preflight']['passed'] and len(a['jobs'])<=24
-          assert len(a['jobs'])*a['per_job_cap_usd']+a['preflight']['estimated_cost_usd']<=100
+          assert len(a['jobs'])*a['per_job_cap_usd']+a['prior_committed_ceiling_usd']<=100
           with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('jobs='+json.dumps(a['jobs'])+'\n')
           PY
   experiment:
@@ -32,7 +32,7 @@ jobs:
     timeout-minutes: 330
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 4
       matrix:
         experiment: ${{ fromJSON(needs.plan.outputs.jobs) }}
     steps:
