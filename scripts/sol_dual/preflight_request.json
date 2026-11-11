@@ -1,0 +1,244 @@
+{
+  "max_completion_tokens": 3072,
+  "messages": [
+    {
+      "content": "You answer with JSON only.",
+      "role": "system"
+    },
+    {
+      "content": "You are one scientist in a team that is identifying a hidden mechanism.\n\nENVIRONMENT\nComponents are abstract identifiers with no physical meaning. An experiment reveals the exact label of one component and nothing else.\n\nTASK\nThe hidden mechanism is a set of exactly 4 atomic components. Each\ncomponent is one (family_id, variant_id) pair. At most one variant of a family\nbelongs to the mechanism. You are searching depth-synchronously and must grow\nevery hypothesis you are given by exactly one component.\n\nYOUR PLACE IN THE TEAM\nYou are agent 0 of 40 agents working on the same hidden mechanism.\nYou have 39 direct neighbour(s): 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39. You never see anyone else's hypotheses.\n\nPROTOCOL\nAll 40 agents act concurrently. Each result from an experiment you run this\nround is sent automatically and truthfully to your direct neighbours, arriving at\nthe start of the next round. One hop, never forwarded. Nothing you decide is\nvisible to anyone else this round.\n\nOBJECTIVE\nYour goal is to improve the team's performance at finding the hidden mechanism. The team's result depends on what its agents achieve together.\n\nCOMPONENT LIBRARY (public, complete)\n[{\"family_id\":0,\"variant_id\":0,\"name\":\"component_0_0\",\"expression\":\"abstract[0][0]\",\"parameters\":{}},{\"family_id\":0,\"variant_id\":1,\"name\":\"component_0_1\",\"expression\":\"abstract[0][1]\",\"parameters\":{}},{\"family_id\":1,\"variant_id\":0,\"name\":\"component_1_0\",\"expression\":\"abstract[1][0]\",\"parameters\":{}},{\"family_id\":1,\"variant_id\":1,\"name\":\"component_1_1\",\"expression\":\"abstract[1][1]\",\"parameters\":{}},{\"family_id\":2,\"variant_id\":0,\"name\":\"component_2_0\",\"expression\":\"abstract[2][0]\",\"parameters\":{}},{\"family_id\":2,\"variant_id\":1,\"name\":\"component_2_1\",\"expression\":\"abstract[2][1]\",\"parameters\":{}},{\"family_id\":3,\"variant_id\":0,\"name\":\"component_3_0\",\"expression\":\"abstract[3][0]\",\"parameters\":{}},{\"family_id\":3,\"variant_id\":1,\"name\":\"component_3_1\",\"expression\":\"abstract[3][1]\",\"parameters\":{}},{\"family_id\":4,\"variant_id\":0,\"name\":\"component_4_0\",\"expression\":\"abstract[4][0]\",\"parameters\":{}},{\"family_id\":4,\"variant_id\":1,\"name\":\"component_4_1\",\"expression\":\"abstract[4][1]\",\"parameters\":{}},{\"family_id\":5,\"variant_id\":0,\"name\":\"component_5_0\",\"expression\":\"abstract[5][0]\",\"parameters\":{}},{\"family_id\":5,\"variant_id\":1,\"name\":\"component_5_1\",\"expression\":\"abstract[5][1]\",\"parameters\":{}},{\"family_id\":6,\"variant_id\":0,\"name\":\"component_6_0\",\"expression\":\"abstract[6][0]\",\"parameters\":{}},{\"family_id\":6,\"variant_id\":1,\"name\":\"component_6_1\",\"expression\":\"abstract[6][1]\",\"parameters\":{}},{\"family_id\":7,\"variant_id\":0,\"name\":\"component_7_0\",\"expression\":\"abstract[7][0]\",\"parameters\":{}},{\"family_id\":7,\"variant_id\":1,\"name\":\"component_7_1\",\"expression\":\"abstract[7][1]\",\"parameters\":{}}]\n\n--- everything below changes every round ---\n\nROUND\nThis is round 1 of 3, so each hypothesis below\ncurrently has 1 component(s) and must grow to 2.\n2 round(s) remain after this one. Your nominal budget is 1 experiment(s)\nthis round; the scheduler may hand you more or fewer slots.\n\nEXACT LABELS YOU HOLD\nlabels you produced yourself: none\nlabels a neighbour sent you: none\nvalues still allowed per family: c0: v0,v1; c1: v0,v1; c2: v0,v1; c3: v0,v1; c4: v0,v1; c5: v0,v1; c6: v0,v1; c7: v0,v1\n\nWHAT YOU YOURSELF DID IN EARLIER ROUNDS\nnothing yet; this is your first round.\nEach call you make is otherwise stateless, so this list is your only memory.\n\nYOUR CURRENT HYPOTHESES\n[{\"parent_id\":\"h_c0v0\",\"depth\":1,\"components\":[{\"family_id\":0,\"variant_id\":0}],\"required_additions\":2,\"legal_additions\":[\"c7v0\",\"c1v0\",\"c3v1\",\"c2v0\",\"c6v0\",\"c7v1\",\"c5v0\",\"c6v1\",\"c1v1\",\"c4v0\",\"c5v1\",\"c2v1\",\"c3v0\",\"c4v1\"]},{\"parent_id\":\"h_c1v0\",\"depth\":1,\"components\":[{\"family_id\":1,\"variant_id\":0}],\"required_additions\":2,\"legal_additions\":[\"c7v0\",\"c5v0\",\"c6v1\",\"c2v1\",\"c7v1\",\"c4v0\",\"c5v1\",\"c0v0\",\"c4v1\",\"c3v0\",\"c2v0\",\"c0v1\",\"c6v0\",\"c3v1\"]},{\"parent_id\":\"h_c2v1\",\"depth\":1,\"components\":[{\"family_id\":2,\"variant_id\":1}],\"required_additions\":2,\"legal_additions\":[\"c4v0\",\"c6v0\",\"c0v0\",\"c7v0\",\"c5v0\",\"c3v1\",\"c5v1\",\"c1v1\",\"c7v1\",\"c0v1\",\"c3v0\",\"c1v0\",\"c4v1\",\"c6v1\"]},{\"parent_id\":\"h_c3v0\",\"depth\":1,\"components\":[{\"family_id\":3,\"variant_id\":0}],\"required_additions\":2,\"legal_additions\":[\"c2v1\",\"c4v0\",\"c2v0\",\"c6v1\",\"c5v0\",\"c7v1\",\"c4v1\",\"c1v0\",\"c0v0\",\"c5v1\",\"c6v0\",\"c1v1\",\"c7v0\",\"c0v1\"]},{\"parent_id\":\"h_c3v1\",\"depth\":1,\"components\":[{\"family_id\":3,\"variant_id\":1}],\"required_additions\":2,\"legal_additions\":[\"c5v0\",\"c4v0\",\"c1v0\",\"c2v1\",\"c2v0\",\"c0v1\",\"c5v1\",\"c1v1\",\"c4v1\",\"c7v0\",\"c0v0\",\"c6v0\",\"c7v1\",\"c6v1\"]},{\"parent_id\":\"h_c4v0\",\"depth\":1,\"components\":[{\"family_id\":4,\"variant_id\":0}],\"required_additions\":2,\"legal_additions\":[\"c6v0\",\"c0v1\",\"c6v1\",\"c7v0\",\"c0v0\",\"c5v0\",\"c2v1\",\"c5v1\",\"c7v1\",\"c3v1\",\"c3v0\",\"c2v0\",\"c1v0\",\"c1v1\"]},{\"parent_id\":\"h_c6v0\",\"depth\":1,\"components\":[{\"family_id\":6,\"variant_id\":0}],\"required_additions\":2,\"legal_additions\":[\"c3v1\",\"c3v0\",\"c7v0\",\"c4v1\",\"c2v1\",\"c4v0\",\"c7v1\",\"c0v0\",\"c1v1\",\"c5v0\",\"c5v1\",\"c0v1\",\"c2v0\",\"c1v0\"]},{\"parent_id\":\"h_c6v1\",\"depth\":1,\"components\":[{\"family_id\":6,\"variant_id\":1}],\"required_additions\":2,\"legal_additions\":[\"c3v0\",\"c5v1\",\"c0v0\",\"c2v1\",\"c3v1\",\"c5v0\",\"c7v1\",\"c1v1\",\"c7v0\",\"c4v1\",\"c0v1\",\"c1v0\",\"c4v0\",\"c2v0\"]}]\n\nWHAT TO RETURN\n\"updates\" is an object with one key per parent listed above -- all\n8 of them, using the parent's id as the key. Each value is a list\nof component labels such as \"c3v2\", taken verbatim from that same parent's\nlegal_additions list, with exactly required_additions entries. Never repeat a\nlabel inside one parent.\n\nReturn JSON only, matching the provided schema. Put \"updates\" first and keep \"reason\" under 20 words.\n",
+      "role": "user"
+    }
+  ],
+  "model": "gpt-6-sol",
+  "reasoning_effort": "medium",
+  "response_format": {
+    "json_schema": {
+      "name": "branch_decision",
+      "schema": {
+        "additionalProperties": false,
+        "properties": {
+          "reason": {
+            "maxLength": 240,
+            "type": "string"
+          },
+          "updates": {
+            "additionalProperties": false,
+            "properties": {
+              "h_c0v0": {
+                "items": {
+                  "enum": [
+                    "c7v0",
+                    "c1v0",
+                    "c3v1",
+                    "c2v0",
+                    "c6v0",
+                    "c7v1",
+                    "c5v0",
+                    "c6v1",
+                    "c1v1",
+                    "c4v0",
+                    "c5v1",
+                    "c2v1",
+                    "c3v0",
+                    "c4v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c1v0": {
+                "items": {
+                  "enum": [
+                    "c7v0",
+                    "c5v0",
+                    "c6v1",
+                    "c2v1",
+                    "c7v1",
+                    "c4v0",
+                    "c5v1",
+                    "c0v0",
+                    "c4v1",
+                    "c3v0",
+                    "c2v0",
+                    "c0v1",
+                    "c6v0",
+                    "c3v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c2v1": {
+                "items": {
+                  "enum": [
+                    "c4v0",
+                    "c6v0",
+                    "c0v0",
+                    "c7v0",
+                    "c5v0",
+                    "c3v1",
+                    "c5v1",
+                    "c1v1",
+                    "c7v1",
+                    "c0v1",
+                    "c3v0",
+                    "c1v0",
+                    "c4v1",
+                    "c6v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c3v0": {
+                "items": {
+                  "enum": [
+                    "c2v1",
+                    "c4v0",
+                    "c2v0",
+                    "c6v1",
+                    "c5v0",
+                    "c7v1",
+                    "c4v1",
+                    "c1v0",
+                    "c0v0",
+                    "c5v1",
+                    "c6v0",
+                    "c1v1",
+                    "c7v0",
+                    "c0v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c3v1": {
+                "items": {
+                  "enum": [
+                    "c5v0",
+                    "c4v0",
+                    "c1v0",
+                    "c2v1",
+                    "c2v0",
+                    "c0v1",
+                    "c5v1",
+                    "c1v1",
+                    "c4v1",
+                    "c7v0",
+                    "c0v0",
+                    "c6v0",
+                    "c7v1",
+                    "c6v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c4v0": {
+                "items": {
+                  "enum": [
+                    "c6v0",
+                    "c0v1",
+                    "c6v1",
+                    "c7v0",
+                    "c0v0",
+                    "c5v0",
+                    "c2v1",
+                    "c5v1",
+                    "c7v1",
+                    "c3v1",
+                    "c3v0",
+                    "c2v0",
+                    "c1v0",
+                    "c1v1"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c6v0": {
+                "items": {
+                  "enum": [
+                    "c3v1",
+                    "c3v0",
+                    "c7v0",
+                    "c4v1",
+                    "c2v1",
+                    "c4v0",
+                    "c7v1",
+                    "c0v0",
+                    "c1v1",
+                    "c5v0",
+                    "c5v1",
+                    "c0v1",
+                    "c2v0",
+                    "c1v0"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              },
+              "h_c6v1": {
+                "items": {
+                  "enum": [
+                    "c3v0",
+                    "c5v1",
+                    "c0v0",
+                    "c2v1",
+                    "c3v1",
+                    "c5v0",
+                    "c7v1",
+                    "c1v1",
+                    "c7v0",
+                    "c4v1",
+                    "c0v1",
+                    "c1v0",
+                    "c4v0",
+                    "c2v0"
+                  ],
+                  "type": "string"
+                },
+                "maxItems": 2,
+                "minItems": 2,
+                "type": "array"
+              }
+            },
+            "required": [
+              "h_c0v0",
+              "h_c1v0",
+              "h_c2v1",
+              "h_c3v0",
+              "h_c3v1",
+              "h_c4v0",
+              "h_c6v0",
+              "h_c6v1"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "updates",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "strict": true
+    },
+    "type": "json_schema"
+  }
+}

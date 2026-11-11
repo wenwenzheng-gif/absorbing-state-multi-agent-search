@@ -1,0 +1,32 @@
+name: Sol Medium channel B exact-model preflight
+on:
+  push:
+    branches: [experiment/gpt6-sol-medium-12seeds-20261111]
+    paths: [scripts/sol_dual/preflight.py, scripts/sol_dual/preflight_request.json, .github/workflows/sol-dual-preflight.yml]
+permissions:
+  contents: read
+concurrency:
+  group: sol-medium-channel-b-preflight-20261111
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check exact model and one original-prompt request
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/sol_dual/preflight.py
+      - name: Preserve safe preflight artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sol-channel-b-preflight-${{ github.run_id }}
+          path: artifacts/channel-b-preflight/
+          retention-days: 30
