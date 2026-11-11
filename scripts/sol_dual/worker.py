@@ -34,7 +34,7 @@ def main():
  config['output_root']=str(OUT.parent);write('config.json',config)
  write('provenance.json',{'channel':'B','experiment_id':NAME,'config_sha256_before_runtime_paths':expected,'requested_model':'gpt-6-sol','reasoning_effort':'medium','prompt_hashes':allocation['prompt_hashes'],'workflow_run':RUN,'git_sha':os.environ['GITHUB_SHA'],'remote_sampling_seed_forwarded':False,'per_experiment_cost_cap_usd':4.0})
  for path,digest in allocation['prompt_hashes'].items():assert hashlib.sha256((ROOT/path).read_bytes()).hexdigest()==digest
- db=sqlite3.connect(OUT/'raw.sqlite');db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL');db.execute('CREATE TABLE IF NOT EXISTS calls(key TEXT PRIMARY KEY,state TEXT,request TEXT,response TEXT,headers TEXT,started REAL,finished REAL,reserved REAL,actual_estimate REAL)');db.commit()
+ db=sqlite3.connect(OUT/'raw.sqlite');db.execute('PRAGMA journal_mode=WAL');db.execute('PRAGMA synchronous=FULL');db.execute('CREATE TABLE IF NOT EXISTS calls(key TEXT PRIMARY KEY,state TEXT,request TEXT,response TEXT,headers TEXT,started REAL,finished REAL,reserved REAL,actual_estimate REAL,input_tokens INTEGER DEFAULT 0,output_tokens INTEGER DEFAULT 0)');db.commit()
  original_complete=LLMBackend.complete;original_post=httpx.AsyncClient.post;original_close=LLMBackend.aclose;cv=contextvars.ContextVar('key');tasks={};pace=asyncio.Lock();last=0.;rps=.5;blocked_until=0.;started=time.time();requests=0;last_publish=0.
  async def complete(self,**kw):
   token=cv.set(kw['cache_key'])
@@ -81,7 +81,7 @@ def main():
     rpm=float(headers['x-ratelimit-limit-requests']);tpm=float(headers['x-ratelimit-limit-tokens']);ceiling=min(2.,rpm*.7/120,tpm*.7/(120*max(inp+body['max_completion_tokens'],1)))
     if requests%30==0:rps=min(ceiling,rps+.1)
    except (KeyError,ValueError):pass
-  db.execute('UPDATE calls SET state=?,response=?,headers=?,finished=?,reserved=?,actual_estimate=? WHERE key=?',(state,raw,json.dumps(headers),time.time(),upper,actual,key));db.commit()
+  db.execute('UPDATE calls SET state=?,response=?,headers=?,finished=?,reserved=?,actual_estimate=?,input_tokens=?,output_tokens=? WHERE key=?',(state,raw,json.dumps(headers),time.time(),upper,actual,inp,output,key));db.commit()
   totals=db.execute('SELECT count(*),sum(reserved),sum(actual_estimate) FROM calls').fetchone()
   write('usage.json',{'recorded_requests':totals[0],'conservative_cost_ceiling_usd':totals[1],'standard_price_estimated_usd':totals[2],'configured_rps':rps,'elapsed_s':time.time()-started,'successful_rps':requests/(time.time()-started),'rate_headers':headers})
   write('lease.json',{'channel':'B','experiment_id':NAME,'owner_run':RUN,'heartbeat':time.time(),'auto_reassign':False})
