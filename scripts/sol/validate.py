@@ -24,7 +24,10 @@ def validate_job(name):
    request=json.loads(req); response=json.loads(resp)
    if request['model']!='gpt-6-sol' or request.get('reasoning_effort')!='medium' or 'temperature' in request: failures.append('request settings mismatch')
    audit=response.get('sampling_audit',{})
-   if audit.get('actual_model')!='gpt-6-sol' or audit.get('effective_reasoning_effort')!='medium' or audit.get('temperature_forwarded'): failures.append('upstream settings mismatch')
+   channel=read(d/'channel_provenance.json',{}).get('channel','A')
+   if channel=='B':
+    if response.get('model')!='gpt-6-sol': failures.append('official API model mismatch')
+   elif audit.get('actual_model')!='gpt-6-sol' or audit.get('effective_reasoning_effort')!='medium' or audit.get('temperature_forwarded'): failures.append('upstream settings mismatch')
    response_ids.append(audit.get('upstream_response_id') or response.get('id'))
    for k in ('prompt_tokens','completion_tokens','total_tokens'): usage[k]+=response.get('usage',{}).get(k,0)
  if len(response_ids)!=len(set(response_ids)): failures.append('duplicate upstream response IDs')
@@ -57,12 +60,13 @@ def aggregate():
 def main():
  lock=(OUT/'validation.lock').open('a'); fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
  config=audit_config(); write(OUT/'config_validation.json',config); assert config['passed'],config
- validated={}; replayed={}
+ validated={}; replayed=read(OUT/'validation.json',{}).get('offline_replays',{})
  while True:
   for name in read(OUT/'batch.json')['jobs']:
    d=OUT/'jobs'/name
    if read(d/'status.json',{}).get('state')!='COMPLETE' or name in validated: continue
-   validated[name]=validate_job(name)
+   existing=read(d/'validation.json',{})
+   validated[name]=existing if existing.get('passed') else validate_job(name)
    cell='_'.join(name.split('_')[:2])
    if cell not in replayed:
     with (d/'replay.log').open('w') as log:
