@@ -1,0 +1,1 @@
+{"experiment_id": "physics_C0_s82246_d39", "channel": "B", "state": "RUNNING", "owner_run": "43100015692", "heartbeat": 1794435081.728146, "successful_requests": 1, "cost_ceiling_usd": 0.47739000000000004, "estimated_cost_usd": 0.01896, "rps": 0.06104184295514598, "configured_rps": 0.5, "auto_reassign": false}
