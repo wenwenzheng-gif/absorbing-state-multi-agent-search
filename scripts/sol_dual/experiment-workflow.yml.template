@@ -1,0 +1,58 @@
+name: Sol Medium channel B exclusive budgeted experiments
+on:
+  push:
+    branches: [experiment/gpt6-sol-medium-12seeds-20261111]
+    paths: [scripts/sol_dual/allocation.json]
+permissions:
+  contents: write
+concurrency:
+  group: sol-medium-channel-b-experiments-20261111
+  cancel-in-progress: false
+jobs:
+  plan:
+    runs-on: ubuntu-22.04
+    outputs:
+      jobs: ${{ steps.plan.outputs.jobs }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - id: plan
+        run: |
+          python - <<'PY'
+          import json,os
+          a=json.load(open('scripts/sol_dual/allocation.json'))
+          assert a['b_enabled'] and a['preflight']['passed'] and len(a['jobs'])<=24
+          assert len(a['jobs'])*a['per_job_cap_usd']+a['preflight']['estimated_cost_usd']<=100
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f:f.write('jobs='+json.dumps(a['jobs'])+'\n')
+          PY
+  experiment:
+    needs: plan
+    runs-on: ubuntu-22.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        experiment: ${{ fromJSON(needs.plan.outputs.jobs) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt -r requirements-agents.txt
+      - name: Exclusively claim and execute one scientific experiment
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: python scripts/sol_dual/worker.py '${{ matrix.experiment }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sol-channel-b-${{ matrix.experiment }}-${{ github.run_id }}
+          path: artifacts/
+          retention-days: 30

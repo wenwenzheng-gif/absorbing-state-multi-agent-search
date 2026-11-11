@@ -1,0 +1,13 @@
+# Dual-channel Sol Medium execution
+
+The paid channel is gated on a successful GitHub Secret-injected exact-model API preflight. Merely finding `OPENAI_API_KEY` does not authorize reading its value. It is supplied only in the GitHub Actions step environment.
+
+The approved total paid-channel budget is **$100**, including preflight. The bounded first allocation has at most 24 experiments with a $4 conservative reservation ceiling each, plus less than $0.10 for preflight. It cannot automatically exceed $96.10. Per-call reservation uses serialized-request byte count at $2.50/million plus the original maximum output tokens at $10/million; uncertain calls retain their reservation. Actual standard-price estimates are recorded separately and are not a billing statement.
+
+`partition.py` requires a passed real-API preflight. It holds the exact same `allocation.lock` used by the A dispatcher while selecting only PENDING jobs with no worker lock or request journal. The complete 684-ID ownership map is committed as an immutable disjoint A/B partition. The A dispatcher never admits a B-owned task, and existing A workers are never moved. The B workflow can execute only IDs in that committed partition. An atomic GitHub ref creation per experiment prevents duplicate execution across workflow reruns or different runners. Claims never expire into automatic reassignment; recovery needs reconciliation. Heartbeats are published to the claimed branch without secrets.
+
+The experimental source, prompts, degree/seed/agent/round settings and 3072-token output cap match A. Remote sampling seeds are omitted by both transports; all local RNG seeds are preserved. Runtime output paths and API endpoints differ and are recorded. Configuration hashes refer to the original A configuration before runtime path substitution.
+
+Native trajectories, complete request/response journals, usage, leases, provenance, and offline replay validation are uploaded as artifacts for each independent experiment. They are never merged over an existing verified result. Lost/ambiguous responses and operational budget pauses remain held. No automatic replay of an uncertain request is allowed.
+
+The workflow template is not activated until the exclusive partition is published. Two matrix runners are permitted initially; per-runner pacing starts at 0.5 requests/sec and increases only within 70% of advertised RPM/TPM split across both runners. Unknown limits prevent an increase. Any 429 lowers pacing and honors Retry-After. Five-hour-plus workflow bounds preserve time for uploading artifacts within GitHub's six-hour hosted-job limit.
