@@ -1,5 +1,5 @@
 """Read B heartbeats, validate artifacts, and publish without overwriting successful data."""
-import base64,collections,ctypes,fcntl,json,os,pathlib,shutil,subprocess,time
+import base64,collections,ctypes,sqlite3,fcntl,json,os,pathlib,shutil,subprocess,time
 ROOT=pathlib.Path(__file__).resolve().parents[2]
 A=pathlib.Path('/data4/toby/absorbing-state-multi-agent-search');OUT=A/'runs/gpt-6-sol-medium-12seeds';REPO='wenwenzheng-gif/absorbing-state-multi-agent-search'
 def read(p,default=None):return json.loads(p.read_text()) if p.exists() else default
@@ -22,10 +22,19 @@ def publish(source,name):
  if (current/'channel_provenance.json').exists():shutil.copyfile(current/'channel_provenance.json',stage/'channel_provenance.json')
  if remote_status.get('state')=='COMPLETE':
   assert read(stage/'validation.json',{}).get('passed')
+  ids=set();usage=collections.Counter()
+  with sqlite3.connect(f'file:{stage}/raw.sqlite?mode=ro',uri=True) as db:
+   for state,request,response in db.execute('SELECT state,request,response FROM calls'):
+    assert state=='DONE','Unresolved response cannot be published as complete'
+    req=json.loads(request);reply=json.loads(response)
+    assert req['model']=='gpt-6-sol' and req['reasoning_effort']=='medium' and 'temperature' not in req
+    assert reply['model']=='gpt-6-sol' and reply.get('id') and reply['id'] not in ids
+    ids.add(reply['id'])
+    for key in ('prompt_tokens','completion_tokens','total_tokens'):usage[key]+=reply.get('usage',{}).get(key,0)
   with (stage/'local_replay.log').open('w') as f:
    p=subprocess.run([str(A/'.venv-sol/bin/python'),'-m','src.agent_system.cli','replay','--run-dir',str(stage),'--output-root',str(OUT/'channel_b/local_replay')],cwd=A,stdout=f,stderr=f,env=dict(os.environ,OPENAI_API_KEY='',OPENBLAS_NUM_THREADS='1',OMP_NUM_THREADS='1'))
   assert p.returncode==0,'Local offline replay failed'
-  v=read(stage/'validation.json');v['local_offline_replay_passed']=True;write(stage/'validation.json',v)
+  v=read(stage/'validation.json');v['local_offline_replay_passed']=True;v['raw_responses']=len(ids);v['usage']=dict(usage);v['local_raw_audit_passed']=True;write(stage/'validation.json',v)
  with (OUT/'allocation.lock').open('a') as f:
   fcntl.flock(f,fcntl.LOCK_EX)
   assert read(OUT/'allocation.json')['owners'][name]=='B' and not read(current/'validation.json',{}).get('passed')
