@@ -1,0 +1,1 @@
+{"experiment_id": "synthetic_C0_s87010_d39", "channel": "B", "state": "RUNNING", "owner_run": "43100015692", "heartbeat": 1794432525.9972732, "successful_requests": 1, "cost_ceiling_usd": 0.22370250000000003, "estimated_cost_usd": 0.012364, "rps": 0.118856743344774, "configured_rps": 0.5, "auto_reassign": false}
