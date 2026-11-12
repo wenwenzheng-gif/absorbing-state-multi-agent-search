@@ -1,1 +1,1 @@
-{"experiment_id": "tcas_C0_s87208_d39", "channel": "B", "state": "HELD", "owner_run": "43100015692", "heartbeat": 1794434126.3279912, "successful_requests": 260, "cost_ceiling_usd": 3.867235000000001, "estimated_cost_usd": 3.361572000000002, "auto_reassign": false}
+{"experiment_id": "tcas_C0_s87208_d39", "channel": "B", "state": "RECOVERING", "owner_run": "43169076402", "prior_owner_run": "43100015692", "heartbeat": 1794465306.7155476, "auto_reassign": false}
