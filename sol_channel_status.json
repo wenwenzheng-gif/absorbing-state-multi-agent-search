@@ -1,1 +1,1 @@
-{"experiment_id": "physics_C0_s82248_d39", "channel": "B", "state": "HELD", "owner_run": "43100015692", "heartbeat": 1794434221.6366007, "successful_requests": 189, "cost_ceiling_usd": 3.9347374999999993, "estimated_cost_usd": 3.4775600000000018, "auto_reassign": false}
+{"experiment_id": "physics_C0_s82248_d39", "channel": "B", "state": "RECOVERING", "owner_run": "43169076402", "prior_owner_run": "43100015692", "heartbeat": 1794465301.7307165, "auto_reassign": false}
